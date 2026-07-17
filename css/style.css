@@ -298,6 +298,35 @@ button.accent:hover { background:var(--acc); color:#14100a; }
 .lib-search:focus { border-color:var(--acc); }
 .lib-search::placeholder { color:var(--text-faint); }
 
+/* ============ 精簡 / 進階模式 ============ */
+/* 精簡模式:隱藏節點庫、節點畫布、節點操作按鈕;預覽放大置中 + 模板滑桿 */
+#app.simple #library,
+#app.simple #viewport,
+#app.simple #tb-graph-ops { display:none; }
+
+#app.simple #inspector {
+  width:auto; flex:1; flex-direction:row; border-left:none;
+}
+#app.simple #preview-sec {
+  flex:1; min-width:0;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  padding:24px 44px; gap:4px;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 45%, #14181e 0%, var(--bg) 100%);
+}
+#app.simple #preview-sec .sec-title { align-self:center; }
+#app.simple #preview-wrap {
+  margin:0; width:min(560px, 58vh); box-shadow:0 20px 60px #000a;
+}
+#app.simple .preview-ctl { justify-content:center; }
+#app.simple #params-sec {
+  width:392px; flex:none;
+  border-left:1px solid var(--line); background:var(--panel);
+}
+
+#btn-mode.on { border-color:var(--cy); color:var(--cy); }
+#btn-mode.on:hover { background:var(--cy); color:#0a1416; }
+
 /* ============ 模板巨集控制 ============ */
 .macro-note {
   font-size:11px; color:var(--text-dim); line-height:1.6;

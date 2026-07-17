@@ -102,11 +102,13 @@ class NodeGraph {
   }
 
   serialize() {
-    return {
+    const o = {
       app: 'TexForge', version: 1,
       nodes: [...this.nodes.values()].map(n => ({ id: n.id, type: n.type, x: Math.round(n.x), y: Math.round(n.y), params: { ...n.params } })),
       links: this.links.map(l => ({ ...l })),
     };
+    if (this._macros) o.macros = this._macros; // 模板滑桿隨圖保存(精簡模式所需)
+    return o;
   }
 
   static deserialize(json) {
@@ -121,6 +123,13 @@ class NodeGraph {
     }
     for (const l of json.links || []) {
       if (g.nodes.has(l.from) && g.nodes.has(l.to)) g.links.push({ from: l.from, to: l.to, toPort: l.toPort | 0 });
+    }
+    // 還原模板滑桿,並剔除指向已不存在節點的目標
+    if (Array.isArray(json.macros)) {
+      const valid = json.macros
+        .map(m => ({ label: m.label, value: m.value, targets: (m.targets || []).filter(t => g.nodes.has(t.id)) }))
+        .filter(m => m.targets.length);
+      if (valid.length) g._macros = valid;
     }
     return g;
   }

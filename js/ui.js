@@ -485,6 +485,18 @@ const UI = (() => {
     const nameEl = document.getElementById('param-node-name');
     if (!node) {
       if (App.graph._macros && App.graph._macros.length) return showMacros(wrap, nameEl);
+      // 精簡模式下沒有模板滑桿 → 給出路,避免死路
+      if (document.getElementById('app').classList.contains('simple')) {
+        nameEl.textContent = '';
+        wrap.innerHTML = `<div class="macro-note">此節點圖沒有模板滑桿。<br>從「範本牆」挑一個特效範本,即可用滑桿快速調整;或切換「進階」直接編輯節點。</div>
+          <div class="prow seed-row">
+            <button id="mk-gallery">🖼 範本牆</button>
+            <button id="mk-advanced">🔧 進階編輯</button>
+          </div>`;
+        wrap.querySelector('#mk-gallery').addEventListener('click', openGallery);
+        wrap.querySelector('#mk-advanced').addEventListener('click', () => document.getElementById('btn-mode').click());
+        return;
+      }
       wrap.innerHTML = '<div class="params-empty">點選節點以編輯參數</div>';
       nameEl.textContent = '';
       return;
@@ -738,6 +750,28 @@ const UI = (() => {
     // 範本牆 & 變體
     document.getElementById('btn-gallery').addEventListener('click', openGallery);
     document.getElementById('btn-variant').addEventListener('click', randomVariant);
+
+    // 精簡 / 進階模式切換
+    const modeBtn = document.getElementById('btn-mode');
+    function setMode(advanced) {
+      const app = document.getElementById('app');
+      app.classList.toggle('simple', !advanced);
+      modeBtn.classList.toggle('on', advanced);
+      modeBtn.textContent = advanced ? '🎛 精簡' : '🔧 進階';
+      modeBtn.title = advanced ? '返回精簡模式:只保留結果預覽與模板滑桿' : '進階模式:展開底層節點編輯器';
+      try { localStorage.setItem('texforge_mode', advanced ? 'advanced' : 'simple'); } catch (e) {}
+      if (advanced) {
+        Editor.rebuild(); Editor.fitView();   // 畫布剛顯示,重新框圖
+      } else {
+        Editor.select(null);                  // 回精簡:清選取以顯示模板滑桿
+      }
+      requestRender();                         // 預覽尺寸改變,重繪
+    }
+    modeBtn.addEventListener('click', () => setMode(document.getElementById('app').classList.contains('simple')));
+    // 還原上次模式(預設精簡)
+    let savedMode = null;
+    try { savedMode = localStorage.getItem('texforge_mode'); } catch (e) {}
+    if (savedMode === 'advanced') setMode(true);
     document.getElementById('gallery-close').addEventListener('click', closeGallery);
     document.getElementById('gallery').addEventListener('pointerdown', e => {
       if (e.target.id === 'gallery') closeGallery(); // 點背景關閉

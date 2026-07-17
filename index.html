@@ -7,10 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=12">
+<link rel="stylesheet" href="css/style.css?v=14">
 </head>
 <body>
-<div id="app">
+<div id="app" class="simple">
   <header id="topbar">
     <div class="brand">
       <span class="brand-mark">◆</span>
@@ -20,8 +20,9 @@
     <div class="tb-group">
       <button id="btn-gallery" class="accent">🖼 範本牆</button>
       <button id="btn-variant" title="隨機化圖中所有種子,一鍵產生變體">🎲 變體</button>
+      <button id="btn-mode" title="進階模式:展開底層節點編輯器">🔧 進階</button>
     </div>
-    <div class="tb-group">
+    <div class="tb-group" id="tb-graph-ops">
       <button id="btn-clear" title="清空節點圖">清空</button>
       <button id="btn-save" title="下載節點圖 JSON">存檔</button>
       <button id="btn-load" title="載入節點圖 JSON">讀檔</button>
@@ -100,12 +101,12 @@
   </div>
 </div>
 
-<script src="js/filters.js?v=12"></script>
-<script src="js/nodes.js?v=12"></script>
-<script src="js/graph.js?v=12"></script>
-<script src="js/editor.js?v=12"></script>
-<script src="js/presets.js?v=12"></script>
-<script src="js/ui.js?v=12"></script>
-<script src="js/main.js?v=12"></script>
+<script src="js/filters.js?v=14"></script>
+<script src="js/nodes.js?v=14"></script>
+<script src="js/graph.js?v=14"></script>
+<script src="js/editor.js?v=14"></script>
+<script src="js/presets.js?v=14"></script>
+<script src="js/ui.js?v=14"></script>
+<script src="js/main.js?v=14"></script>
 </body>
 </html>

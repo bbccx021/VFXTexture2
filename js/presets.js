@@ -93,6 +93,12 @@ const Presets = (() => {
         ['spikes', 'zoom'], ['core', 'mix', 0], ['zoom', 'mix', 1],
         ['mix', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
+      macros: [
+        { label: '尖刺數量', def: 0.35, targets: [['spikes', 'count', 8, 28]] },
+        { label: '放射拉絲', def: 0.4, targets: [['zoom', 'amount', 1, 6]] },
+        { label: '光核大小', def: 0.5, targets: [['core', 'size', 0.3, 0.8]] },
+        { label: '光暈強度', def: 0.42, targets: [['glow', 'intensity', 0.6, 2.5]] },
+      ],
     },
 
     // 🪄 魔法陣:外環 + 環形映射尖刺 + 內環 疊加 → 奧術漸層 → 發光
@@ -112,6 +118,12 @@ const Presets = (() => {
         ['ring1', 'mix1', 0], ['pat', 'mapper'], ['mapper', 'mix1', 1],
         ['ring2', 'mix2', 0], ['mix1', 'mix2', 1],
         ['mix2', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '符文數量', def: 0.33, targets: [['mapper', 'count', 6, 24]] },
+        { label: '外環大小', def: 0.78, targets: [['ring1', 'size', 0.9, 1.35]] },
+        { label: '內環大小', def: 0.49, targets: [['ring2', 'size', 0.4, 0.85]] },
+        { label: '光暈強度', def: 0.42, targets: [['glow', 'intensity', 0.6, 3]] },
       ],
     },
 
@@ -198,6 +210,12 @@ const Presets = (() => {
         ['nz', 'nstr'], ['nstr', 'nm', 0], ['fm', 'nm', 1],
         ['nm', 'lv'], ['lv', 'out'],
       ],
+      macros: [
+        { label: '拖尾長度', def: 0.35, targets: [['stretch', 'sx', 1.2, 3.2]] },
+        { label: '拖尾粗細', def: 0.33, targets: [['stretch', 'sy', 0.3, 0.9]] },
+        { label: '淡出位置', def: 0.83, targets: [['fade', 'end', 0.7, 1]] },
+        { label: '拉絲雜訊', def: 0.56, targets: [['nm', 'opacity', 0, 0.9]] },
+      ],
     },
 
     // 🎗 風格化拖尾:柔邊橫帶 → 拉絲雜訊扭曲 → Ramp 淡出 → 直方圖掃描硬邊 → 寒冰漸層
@@ -219,6 +237,12 @@ const Presets = (() => {
         ['bandT', 'wp', 0], ['nstr', 'wp', 1],
         ['fade', 'fm', 0], ['wp', 'fm', 1],
         ['fm', 'sc'], ['sc', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '拖尾長度', def: 0.4, targets: [['bandT', 'sx', 1.6, 3.6]] },
+        { label: '扭曲拉絲', def: 0.57, targets: [['wp', 'intensity', 0.5, 4]] },
+        { label: '淡出位置', def: 0.72, targets: [['fade', 'end', 0.7, 1]] },
+        { label: '輪廓緊實', def: 0.78, targets: [['sc', 'contrast', 0.5, 0.95]] },
       ],
     },
 
@@ -247,6 +271,13 @@ const Presets = (() => {
         ['halo', 'ad', 0], ['mx3', 'ad', 1],
         ['ad', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
+      macros: [
+        { label: '光核大小', def: 0.4, targets: [['core', 'size', 0.3, 0.8]] },
+        { label: '星芒長度', def: 0.48, targets: [['sh', 'sx', 2, 4.5]] },
+        { label: '放射光條', def: 0.4, targets: [['sp', 'count', 4, 14]] },
+        { label: '外圈光暈', def: 0.58, targets: [['halo', 'size', 1, 1.6]] },
+        { label: '光暈強度', def: 0.5, targets: [['glow', 'intensity', 0.6, 3]] },
+      ],
     },
 
     // 🕸 裂縫:細胞裂縫雜訊 → 柏林梯度扭曲(有機化)→ 圓形遮罩 → 直方圖掃描 → 餘燼漸層(熔岩裂縫)
@@ -267,6 +298,13 @@ const Presets = (() => {
         ['mask', 'mm', 0], ['wp', 'mm', 1],
         ['mm', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
+      macros: [
+        { label: '裂縫密度', def: 0.3, targets: [['cr', 'scale', 4, 14]] },
+        { label: '有機扭曲', def: 0.38, targets: [['wp', 'intensity', 0.4, 2.5]] },
+        { label: '範圍大小', def: 0.56, targets: [['mask', 'size', 0.8, 1.6]] },
+        { label: '輪廓緊實', def: 0.66, targets: [['sc', 'contrast', 0.3, 0.9]] },
+        { label: '光暈強度', def: 0.5, targets: [['glow', 'intensity', 0.5, 2.5]] },
+      ],
     },
 
     // ⭕ 環狀衝擊波:圓環被柏林扭曲(波動)→ 放射模糊 → 疊內圈餘波 → 灰階輸出(引擎內染色)
@@ -286,6 +324,13 @@ const Presets = (() => {
         ['wp', 'zb'],
         ['ring2', 'ad', 0], ['zb', 'ad', 1],
         ['ad', 'lv'], ['lv', 'out'],
+      ],
+      macros: [
+        { label: '波動強度', def: 0.36, targets: [['wp', 'intensity', 0.5, 3]] },
+        { label: '環厚度', def: 0.42, targets: [['ring', 'width', 0.06, 0.25]] },
+        { label: '放射殘影', def: 0.44, targets: [['zb', 'amount', 0.5, 5]] },
+        { label: '餘波亮度', def: 0.56, targets: [['ad', 'opacity', 0, 0.8]] },
+        { label: '整體亮度', def: 0.3, targets: [['lv', 'inHi', 1, 0.5]] },
       ],
     },
 
@@ -311,6 +356,13 @@ const Presets = (() => {
         ['fm', 'mx', 0], ['hoff', 'mx', 1],
         ['mx', 'lv'], ['lv', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
+      macros: [
+        { label: '彈頭大小', def: 0.4, targets: [['head', 'size', 0.4, 0.9]] },
+        { label: '尾焰長度', def: 0.44, targets: [['tail', 'sx', 1.4, 3.2]] },
+        { label: '尾焰模糊', def: 0.45, targets: [['tb', 'amount', 3, 14]] },
+        { label: '尾焰淡出', def: 0.67, targets: [['fade', 'end', 0.7, 1]] },
+        { label: '光暈強度', def: 0.38, targets: [['glow', 'intensity', 0.6, 3]] },
+      ],
     },
 
     // 🔳 規則圖騰:網格圓點陣列 + 柏林等高線重複條紋 → 取亮疊合 → 無縫可平鋪圖案
@@ -327,6 +379,12 @@ const Presets = (() => {
         ['topo', 'bands'],
         ['bands', 'mx', 0], ['dots', 'mx', 1],
         ['mx', 'lv'], ['lv', 'out'],
+      ],
+      macros: [
+        { label: '圓點密度', def: 0.4, targets: [['dots', 'count', 4, 14]] },
+        { label: '圓點大小', def: 0.5, targets: [['dots', 'size', 0.3, 0.8]] },
+        { label: '條紋數量', def: 0.4, targets: [['bands', 'repeat', 2, 12]] },
+        { label: '條紋混合', def: 0.79, targets: [['mx', 'opacity', 0.3, 1]] },
       ],
     },
 
@@ -347,6 +405,13 @@ const Presets = (() => {
         ['sp', 'mx', 0], ['core', 'mx', 1],
         ['mx', 'wp', 0], ['nz', 'wp', 1],
         ['wp', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '星芒數量', def: 0.1, targets: [['sp', 'count', 4, 12]] },
+        { label: '星芒長度', def: 0.4, targets: [['sp', 'size', 0.3, 0.8]] },
+        { label: '光核大小', def: 0.43, targets: [['core', 'size', 0.25, 0.6]] },
+        { label: '邊緣擾動', def: 0.41, targets: [['wp', 'intensity', 0.3, 2]] },
+        { label: '光暈強度', def: 0.38, targets: [['glow', 'intensity', 0.6, 3]] },
       ],
     },
 
@@ -409,6 +474,13 @@ const Presets = (() => {
         ['dot', 'mx2', 0], ['sc', 'mx2', 1],
         ['mx2', 'lv'], ['lv', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
+      macros: [
+        { label: '尖刺數量', def: 0.3, targets: [['sp', 'count', 6, 16]] },
+        { label: '環扭曲', def: 0.4, targets: [['wp', 'intensity', 0.5, 3]] },
+        { label: '環厚度', def: 0.43, targets: [['ring', 'width', 0.08, 0.22]] },
+        { label: '中心光核', def: 0.43, targets: [['dot', 'size', 0.15, 0.5]] },
+        { label: '光暈強度', def: 0.33, targets: [['glow', 'intensity', 0.6, 3]] },
+      ],
     },
 
     // 🌋 地面斬擊:長刀身(三角拉伸)→ 低頻柏林大彎 → Crystal 雜訊二次扭曲出鋸齒稜角(閃電技法)
@@ -440,6 +512,13 @@ const Presets = (() => {
         ['fade', 'fm', 0], ['sc', 'fm', 1],
         ['fm', 'lv'], ['lv', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
+      macros: [
+        { label: '刀身長度', def: 0.44, targets: [['t1', 'sy', 1, 1.8]] },
+        { label: '彎折強度', def: 0.43, targets: [['wp1', 'intensity', 1.5, 5]] },
+        { label: '鋸齒稜角', def: 0.5, targets: [['wp2', 'intensity', 0.5, 3.5]] },
+        { label: '碎裂程度', def: 0.55, targets: [['bsub', 'opacity', 0, 1]] },
+        { label: '光暈強度', def: 0.45, targets: [['glow', 'intensity', 0.8, 3]] },
+      ],
     },
 
     // 🔥⚽ 火球:柔邊圓 → 山脊柏林梯度扭曲(火舌邊緣)→ 漩渦攪動 → 直方圖掃描 → 火焰漸層 → 發光
@@ -457,6 +536,13 @@ const Presets = (() => {
       links: [
         ['base', 'wp', 0], ['nz', 'wp', 1],
         ['wp', 'sw'], ['sw', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '火舌強度', def: 0.42, targets: [['wp', 'intensity', 1.5, 7]] },
+        { label: '攪動旋轉', def: 0.42, targets: [['sw', 'amount', 0, 120]] },
+        { label: '湍流細節', def: 0.4, targets: [['nz', 'scale', 3, 8]] },
+        { label: '輪廓緊實', def: 0.4, targets: [['sc', 'contrast', 0.3, 0.8]] },
+        { label: '光暈強度', def: 0.32, targets: [['glow', 'intensity', 0.5, 3]] },
       ],
     },
 
@@ -519,6 +605,12 @@ const Presets = (() => {
         ['tf4', 'a3', 0], ['a2', 'a3', 1],
         ['a3', 'sb', 0], ['nz', 'sb', 1],
         ['sb', 'out'],
+      ],
+      macros: [
+        { label: '碎片大小', def: 0.55, targets: [['ts1', 'size', 1.5, 3.5], ['ts2', 'size', 1.5, 3.5], ['ts3', 'size', 1.5, 3.5], ['ts4', 'size', 1.5, 3.5]] },
+        { label: '散佈範圍', def: 0.43, targets: [['ts1', 'posRand', 0.6, 2], ['ts2', 'posRand', 0.6, 2], ['ts3', 'posRand', 0.6, 2], ['ts4', 'posRand', 0.6, 2]] },
+        { label: '邊緣破碎', def: 0.14, targets: [['sb', 'intensity', 0.5, 4]] },
+        { label: '遮罩範圍', def: 0.5, targets: [['msk', 'size', 0.5, 1.3]] },
       ],
     },
 
