@@ -108,6 +108,7 @@ class NodeGraph {
       links: this.links.map(l => ({ ...l })),
     };
     if (this._macros) o.macros = this._macros; // 模板滑桿隨圖保存(精簡模式所需)
+    if (this._presetName) o.presetName = this._presetName; // 記住來自哪個範本(下拉選單所需)
     return o;
   }
 
@@ -131,6 +132,7 @@ class NodeGraph {
         .filter(m => m.targets.length);
       if (valid.length) g._macros = valid;
     }
+    if (json.presetName) g._presetName = json.presetName;
     return g;
   }
 }

@@ -729,7 +729,7 @@ const Presets = (() => {
 
   return {
     names: Object.keys(SPECS),
-    get(name) { return SPECS[name] ? build(SPECS[name]) : null; },
+    get(name) { const g = SPECS[name] ? build(SPECS[name]) : null; if (g) g._presetName = name; return g; },
     meta: META,
     cats: CATS,
   };

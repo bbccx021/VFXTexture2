@@ -450,13 +450,45 @@ const UI = (() => {
     }
   }
 
+  // 切換特效種類:載入該範本(macros 隨圖,面板會自動重建)
+  function loadPreset(name) {
+    const g = Presets.get(name);
+    if (!g) return;
+    App.history.push();
+    setGraph(g);
+    Editor.fitView();
+  }
+
   function showMacros(wrap, nameEl) {
     nameEl.textContent = '✨ 模板控制';
     wrap.innerHTML = '';
+
+    // ── 特效種類下拉(全部範本,依分類分組)──
+    const pick = document.createElement('div');
+    pick.className = 'prow macro-pick';
+    pick.innerHTML = `<div class="plabel"><span>特效種類</span></div>`;
+    const psel = document.createElement('select');
+    for (const [catKey, catName] of Presets.cats) {
+      const og = document.createElement('optgroup'); og.label = catName;
+      for (const [nm, meta] of Object.entries(Presets.meta)) {
+        if (meta.cat !== catKey) continue;
+        const o = document.createElement('option');
+        o.value = nm; o.textContent = `${meta.emoji} ${meta.name}`;
+        if (nm === App.graph._presetName) o.selected = true;
+        og.appendChild(o);
+      }
+      psel.appendChild(og);
+    }
+    psel.addEventListener('change', () => loadPreset(psel.value));
+    pick.appendChild(psel);
+    wrap.appendChild(pick);
+
     const note = document.createElement('div');
     note.className = 'macro-note';
-    note.textContent = '直接以特效語言調整整條節點鏈;點選任何節點可進入進階節點參數。';
+    note.textContent = '以特效語言調整整條節點鏈;點任何節點可進入進階參數。';
     wrap.appendChild(note);
+
+    // ── 巨集滑桿 ──
     for (const m of App.graph._macros) {
       const row = document.createElement('div');
       row.className = 'prow';
@@ -477,6 +509,35 @@ const UI = (() => {
       });
       row.appendChild(inp);
       wrap.appendChild(row);
+    }
+
+    // ── 配色:有 Gradient Map 節點時,直接切換色帶 ──
+    const gmNodes = [...App.graph.nodes.values()].filter(n => n.type === 'gradientMap');
+    if (gmNodes.length) {
+      const pd = NodeDefs.gradientMap.params.find(p => p.k === 'preset');
+      const cur = gmNodes[0].params.preset;
+      const row = document.createElement('div');
+      row.className = 'prow';
+      row.innerHTML = `<div class="plabel"><span>🎨 配色</span></div>`;
+      const cs = document.createElement('select');
+      for (const [v, lb] of pd.opts) {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = lb;
+        if (v === cur) o.selected = true;
+        cs.appendChild(o);
+      }
+      cs.addEventListener('change', () => {
+        App.history.push();
+        for (const n of gmNodes) { n.params.preset = cs.value; App.graph.markDirty(n.id); }
+        requestRender();
+      });
+      row.appendChild(cs);
+      wrap.appendChild(row);
+    } else {
+      const gn = document.createElement('div');
+      gn.className = 'macro-note dim';
+      gn.textContent = '此範本輸出灰階,設計為在遊戲引擎內染色。';
+      wrap.appendChild(gn);
     }
   }
 

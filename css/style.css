@@ -334,6 +334,12 @@ button.accent:hover { background:var(--acc); color:#14100a; }
   background:var(--panel-2); border-left:2px solid var(--acc);
   border-radius:0 5px 5px 0;
 }
+.macro-note.dim { border-left-color:var(--text-faint); opacity:.8; margin-top:14px; }
+
+/* 特效種類下拉:置頂主控制,略作強調 */
+.macro-pick { margin-bottom:12px; }
+.macro-pick .plabel span { color:var(--acc); letter-spacing:1px; }
+.macro-pick select { font-family:var(--font-disp); font-weight:600; }
 
 /* ============ 進階參數摺疊 ============ */
 .adv-toggle {
