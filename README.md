@@ -1,4 +1,4 @@
-# TexForge — 遊戲特效貼圖產生器 (Game VFX Texture Generator)
+# VFXGEN — 遊戲特效貼圖產生器 (Game VFX Texture Generator)
 
 仿 Substance Designer 節點式工作流的輕量化遊戲特效貼圖生成工具。
 純前端、零依賴、所有濾鏡演算法手工實作,輸出天生無縫(seamless)的貼圖。

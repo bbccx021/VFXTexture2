@@ -1,18 +1,20 @@
 /* ============================================================
-   TexForge — VFX 程序化貼圖工坊
-   工業鍛造風:炭黑基底 + 熔爐橘 + 電弧青
+   VFXGEN — 遊戲特效貼圖產生器
+   電馭風:深空藍黑基底 + 電馭紫 + 電弧青
    ============================================================ */
 :root {
-  --bg:        #0b0d10;
-  --panel:     #12151a;
-  --panel-2:   #171b21;
-  --line:      #232932;
-  --line-soft: #1b2028;
-  --text:      #d7dde6;
-  --text-dim:  #7c8694;
-  --text-faint:#4a525e;
-  --acc:       #ff7a1a;   /* 熔爐橘 */
-  --acc-soft:  #ff7a1a33;
+  --bg:        #0b0c12;
+  --panel:     #13141d;
+  --panel-2:   #191b26;
+  --line:      #262a38;
+  --line-soft: #1d2130;
+  --text:      #d9dcea;
+  --text-dim:  #838aa0;
+  --text-faint:#4e5468;
+  --acc:       #9d5bff;   /* 電馭紫 */
+  --acc-2:     #b47dff;   /* 亮紫(hover) */
+  --acc-soft:  #9d5bff33;
+  --on-acc:    #ffffff;   /* 強調底上的文字 */
   --cy:        #3fd8e2;   /* 電弧青 */
 
   /* 節點類別色 */
@@ -73,10 +75,10 @@ button {
 }
 button:hover { border-color:var(--acc); color:var(--acc); }
 button.primary {
-  background:var(--acc); border-color:var(--acc); color:#14100a;
+  background:var(--acc); border-color:var(--acc); color:var(--on-acc);
   box-shadow:0 0 16px var(--acc-soft);
 }
-button.primary:hover { background:#ff9040; color:#14100a; }
+button.primary:hover { background:var(--acc-2); color:var(--on-acc); }
 
 select, input[type="number"] {
   font-family:var(--font-mono); font-size:12px; color:var(--text);
@@ -286,7 +288,7 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 #perf { color:var(--cy); }
 
 button.accent { border-color:var(--acc); color:var(--acc); }
-button.accent:hover { background:var(--acc); color:#14100a; }
+button.accent:hover { background:var(--acc); color:var(--on-acc); }
 
 /* ============ 節點庫搜尋 ============ */
 .lib-search {
