@@ -1,0 +1,10 @@
+# 本機 Claude Code 設定(使用者專屬)
+.claude/settings.local.json
+
+# 縮圖風格比較的拋棄式產物
+_styles/
+
+# 系統 / 編輯器雜項
+Thumbs.db
+.DS_Store
+*.log
