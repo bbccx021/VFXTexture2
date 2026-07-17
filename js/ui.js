@@ -42,6 +42,8 @@ const UI = (() => {
   let pending = false;
   let previewPinned = false;   // 📌 鎖定預覽顯示 Output
   let autosaveTimer = null;
+  let previewTex = null;       // 目前輸出貼圖(512 離屏 canvas,供動畫變換)
+  let animRAF = 0, animT0 = 0; // 動態預覽 requestAnimationFrame
 
   // 進階參數(預設摺疊);未列出的節點所有參數皆為關鍵參數
   const ADV = {
@@ -129,15 +131,28 @@ const UI = (() => {
     ctx.drawImage(bufToCanvas(buf, res), 0, 0, 96, 96);
   }
 
-  function paintPreview(res) {
-    const node = (previewPinned ? App.graph.findByType('output') : Editor.selectedNode())
-      || App.graph.findByType('output') || Editor.selectedNode();
-    const srcLabel = document.getElementById('preview-src');
-    previewCtx.clearRect(0, 0, 512, 512);
-    if (!node) { srcLabel.textContent = ''; return; }
-    srcLabel.textContent = NodeDefs[node.type].title + (previewPinned ? ' 🔒' : '');
-    const buf = App.graph.evaluate(node.id, res);
-    // 背景
+  // ---------- 動態預覽:依特效類型自動選動畫 ----------
+  const ANIM_BY_CAT = { hit: 'burst', trail: 'scroll', energy: 'flicker', light: 'twinkle', ringcat: 'spin', element: 'pulse', surface: 'pulse' };
+  const ANIM_OVERRIDE = {
+    fire: 'flicker', fireball: 'flicker', plasma: 'flicker', muzzle: 'flicker', lightning: 'flicker',
+    projectile: 'scroll', trail: 'scroll', stylizedTrail: 'scroll', pattern: 'scroll', smoke: 'scroll',
+    magic: 'spin', portal: 'spin',
+    impact: 'burst', burst: 'burst', circleImpact: 'burst', ring: 'burst', firework: 'burst', slash: 'burst', groundSlash: 'burst',
+    sparkle: 'twinkle', lens: 'twinkle', bokeh: 'twinkle',
+    cracks: 'pulse', groundCrack: 'pulse', water: 'pulse', frost: 'pulse', toxic: 'pulse',
+  };
+  function animModeFor(name) {
+    if (ANIM_OVERRIDE[name]) return ANIM_OVERRIDE[name];
+    const m = name && Presets.meta[name];
+    return (m && ANIM_BY_CAT[m.cat]) || 'pulse';
+  }
+  function currentAnimMode() {
+    const sel = document.getElementById('preview-anim-mode');
+    const v = sel ? sel.value : 'auto';
+    return v === 'auto' ? animModeFor(App.graph._presetName) : v;
+  }
+
+  function drawPreviewBg() {
     const bg = document.getElementById('preview-bg').value;
     if (bg === 'checker') {
       const s = 24;
@@ -149,14 +164,106 @@ const UI = (() => {
       previewCtx.fillStyle = bg === 'dark' ? '#20242b' : '#000';
       previewCtx.fillRect(0, 0, 512, 512);
     }
-    const cv = bufToCanvas(buf, res);
-    previewCtx.imageSmoothingEnabled = true;
+  }
+  // 以中心為基準畫 previewTex
+  function blit(scale, alpha, rot, dx, dy) {
+    const c = previewCtx;
+    c.save();
+    c.globalAlpha = Filters.clamp01(alpha);
+    c.translate(256 + (dx || 0), 256 + (dy || 0));
+    if (rot) c.rotate(rot);
+    c.scale(scale, scale);
+    c.drawImage(previewTex, -256, -256);
+    c.restore();
+  }
+
+  function drawPreviewFrame(t) {
+    if (!previewTex) { previewCtx.clearRect(0, 0, 512, 512); return; }
+    const c = previewCtx;
+    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    c.clearRect(0, 0, 512, 512);
+    drawPreviewBg();
+    c.imageSmoothingEnabled = true;
+
+    // 無縫檢查:靜態 2×2,不套動畫
     if (document.getElementById('preview-tile').checked) {
       for (let ty = 0; ty < 2; ty++) for (let tx = 0; tx < 2; tx++)
-        previewCtx.drawImage(cv, tx * 256, ty * 256, 256, 256);
-    } else {
-      previewCtx.drawImage(cv, 0, 0, 512, 512);
+        c.drawImage(previewTex, tx * 256, ty * 256, 256, 256);
+      return;
     }
+    const animEl = document.getElementById('preview-anim');
+    if (animEl && !animEl.checked) { c.drawImage(previewTex, 0, 0); return; }
+
+    const mode = currentAnimMode();
+    if (mode === 'pulse') {
+      blit(1 + 0.03 * Math.sin(t * 2.2), 1, 0, 0, 0);
+      c.globalCompositeOperation = 'lighter';
+      blit(1.06 + 0.05 * Math.sin(t * 2.2 + 0.8), 0.28 + 0.12 * Math.sin(t * 3), 0, 0, 0);
+      c.globalCompositeOperation = 'source-over';
+    } else if (mode === 'flicker') {
+      const f = 0.8 + 0.2 * (0.5 + 0.5 * Math.sin(t * 13) * Math.sin(t * 7.3));
+      const jit = Math.sin(t * 9) * 2;
+      blit(1 + 0.02 * Math.sin(t * 3), f, 0, 0, jit);
+      c.globalCompositeOperation = 'lighter';
+      blit(1.04, 0.22 * f, 0, 0, jit);
+      c.globalCompositeOperation = 'source-over';
+    } else if (mode === 'scroll') {
+      const off = (t * 80) % 512;
+      c.globalAlpha = 1;
+      c.drawImage(previewTex, -off, 0);
+      c.drawImage(previewTex, 512 - off, 0);
+    } else if (mode === 'spin') {
+      blit(1, 1, t * 0.6, 0, 0);
+      c.globalCompositeOperation = 'lighter';
+      blit(1.02, 0.24, -t * 0.3, 0, 0);
+      c.globalCompositeOperation = 'source-over';
+    } else if (mode === 'burst') {
+      const T = 1.5, p = (t % T) / T;
+      const s = 0.72 + p * 0.5;
+      const a = p < 0.12 ? p / 0.12 : Math.max(0, 1 - (p - 0.12) / 0.88);
+      c.globalCompositeOperation = 'lighter';
+      blit(s, a, 0, 0, 0);
+      c.globalCompositeOperation = 'source-over';
+    } else if (mode === 'twinkle') {
+      const tw = 0.55 + 0.45 * Math.pow(0.5 + 0.5 * Math.sin(t * 4), 2);
+      blit(0.94 + 0.08 * tw, tw, 0, 0, 0);
+      c.globalCompositeOperation = 'lighter';
+      blit(1.1, 0.3 * tw, t * 0.15, 0, 0);
+      c.globalCompositeOperation = 'source-over';
+    } else {
+      c.drawImage(previewTex, 0, 0);
+    }
+    c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  }
+
+  function ensureAnimLoop() {
+    const on = previewTex &&
+      document.getElementById('preview-anim') && document.getElementById('preview-anim').checked &&
+      !document.getElementById('preview-tile').checked;
+    if (on && !animRAF) {
+      animT0 = performance.now();
+      const tick = () => { drawPreviewFrame((performance.now() - animT0) / 1000); animRAF = requestAnimationFrame(tick); };
+      animRAF = requestAnimationFrame(tick);
+    } else if (!on && animRAF) {
+      cancelAnimationFrame(animRAF); animRAF = 0;
+      drawPreviewFrame(0); // 收尾畫一張靜態
+    }
+  }
+
+  function paintPreview(res) {
+    const node = (previewPinned ? App.graph.findByType('output') : Editor.selectedNode())
+      || App.graph.findByType('output') || Editor.selectedNode();
+    const srcLabel = document.getElementById('preview-src');
+    if (!node) { previewTex = null; drawPreviewFrame(0); srcLabel.textContent = ''; ensureAnimLoop(); return; }
+    srcLabel.textContent = NodeDefs[node.type].title + (previewPinned ? ' 🔒' : '');
+    const buf = App.graph.evaluate(node.id, res);
+    if (!previewTex) { previewTex = document.createElement('canvas'); previewTex.width = 512; previewTex.height = 512; }
+    const ptx = previewTex.getContext('2d');
+    ptx.clearRect(0, 0, 512, 512);
+    ptx.imageSmoothingEnabled = true;
+    ptx.drawImage(bufToCanvas(buf, res), 0, 0, 512, 512);
+    drawPreviewFrame(animRAF ? (performance.now() - animT0) / 1000 : 0);
+    ensureAnimLoop();
   }
 
   // ---------- 節點庫(縮圖 / 搜尋 / 摺疊 / 拖放) ----------
@@ -805,7 +912,9 @@ const UI = (() => {
       App.graph.markAllDirty(); requestRender();
     });
     document.getElementById('preview-bg').addEventListener('change', requestRender);
-    document.getElementById('preview-tile').addEventListener('change', requestRender);
+    document.getElementById('preview-tile').addEventListener('change', () => { requestRender(); ensureAnimLoop(); });
+    document.getElementById('preview-anim').addEventListener('change', ensureAnimLoop);
+    document.getElementById('preview-anim-mode').addEventListener('change', () => { animT0 = performance.now(); });
     document.getElementById('btn-export').addEventListener('click', exportPNG);
 
     // 範本牆 & 變體

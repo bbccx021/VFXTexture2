@@ -255,7 +255,7 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 }
 #preview { display:block; width:100%; aspect-ratio:1; }
 .preview-ctl {
-  display:flex; align-items:center; gap:8px;
+  display:flex; align-items:center; flex-wrap:wrap; gap:7px 8px;
   padding:8px 14px; font-size:11px; color:var(--text-dim);
 }
 .preview-ctl select { padding:3px 6px; font-size:11px; }
