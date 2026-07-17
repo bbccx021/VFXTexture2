@@ -1,21 +1,21 @@
 /* ============================================================
    VFXGEN — 遊戲特效貼圖產生器
-   洋紅風:暗夜基底 + 烈焰洋紅 + 電弧青
+   暗紅風:炭黑基底 + 暗血紅 + 電弧青
    ============================================================ */
 :root {
-  --bg:        #0d0b0f;
-  --panel:     #17131a;
-  --panel-2:   #1e1922;
-  --line:      #302632;
-  --line-soft: #241d28;
-  --text:      #ecdce6;
-  --text-dim:  #9a8592;
-  --text-faint:#5f4e5a;
-  --acc:       #ff2e63;   /* 烈焰洋紅 */
-  --acc-2:     #ff5c85;   /* 亮洋紅(hover) */
-  --acc-soft:  #ff2e6333;
+  --bg:        #0c0a0b;
+  --panel:     #16110f;
+  --panel-2:   #1e1715;
+  --line:      #2f2320;
+  --line-soft: #241b18;
+  --text:      #ecdedb;
+  --text-dim:  #9a867f;
+  --text-faint:#5f4e49;
+  --acc:       #d62236;   /* 暗血紅 */
+  --acc-2:     #f0384c;   /* 亮紅(hover) */
+  --acc-soft:  #d6223633;
   --on-acc:    #ffffff;   /* 強調底上的文字 */
-  --cy:        #3fd8e2;   /* 電弧青 */
+  --cy:        #e6a23f;   /* 琥珀輔色 */
 
   /* 節點類別色 */
   --cat-gen:     #ffa03d;
@@ -47,9 +47,10 @@ body {
 #topbar {
   display:flex; align-items:center; gap:18px;
   height:48px; padding:0 14px;
-  background: linear-gradient(180deg, #161a20, #101318);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
   border-bottom:1px solid var(--line);
-  flex-shrink:0;
+  box-shadow: 0 1px 0 var(--acc-soft), 0 4px 16px #0006;
+  flex-shrink:0; position:relative; z-index:2;
 }
 .brand { display:flex; align-items:baseline; gap:8px; margin-right:8px; }
 .brand-mark { color:var(--acc); font-size:15px; text-shadow:0 0 12px var(--acc); }
@@ -157,12 +158,12 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 #viewport {
   flex:1; position:relative; overflow:hidden;
   background:
-    radial-gradient(ellipse 90% 90% at 50% 40%, #10141a 0%, var(--bg) 100%);
+    radial-gradient(ellipse 90% 90% at 50% 40%, var(--panel) 0%, var(--bg) 100%);
   cursor:default;
 }
 #viewport::before {
   content:""; position:absolute; inset:0; pointer-events:none;
-  background-image: radial-gradient(circle, #2a313c 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--line) 1px, transparent 1px);
   background-size: 26px 26px;
   opacity:.35;
 }
@@ -236,9 +237,18 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
   font-family:var(--font-disp); font-size:11px; font-weight:600;
   letter-spacing:3px; color:var(--text-dim);
   padding:12px 14px 8px;
-  display:flex; align-items:baseline; gap:8px;
+  display:flex; align-items:center; gap:8px;
 }
-.sec-title span { font-size:10px; color:var(--acc); letter-spacing:.5px; }
+.sec-title::before {
+  content:""; width:3px; height:12px; border-radius:2px;
+  background:var(--acc); box-shadow:0 0 8px var(--acc-soft);
+}
+.sec-title span {
+  font-size:9.5px; color:var(--acc); letter-spacing:.5px;
+  background:var(--acc-soft); padding:2px 7px; border-radius:9px;
+}
+.sec-title #preview-pin { margin-left:auto; }
+.sec-title span:empty { display:none; }
 #preview-wrap {
   margin:0 14px; border:1px solid var(--line); border-radius:6px;
   overflow:hidden; background:#000; position:relative;
@@ -261,7 +271,11 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
   display:flex; justify-content:space-between; align-items:baseline;
   font-size:11px; color:var(--text-dim); margin-bottom:4px;
 }
-.prow .pval { font-family:var(--font-mono); font-size:11px; color:var(--cy); }
+.prow .pval {
+  font-family:var(--font-mono); font-size:10.5px; color:var(--cy);
+  background:color-mix(in srgb, var(--cy) 14%, transparent);
+  padding:1px 7px; border-radius:8px; min-width:38px; text-align:center;
+}
 .prow input[type="range"] {
   width:100%; height:4px; -webkit-appearance:none; appearance:none;
   background:linear-gradient(90deg, var(--acc) var(--fill,50%), var(--line) var(--fill,50%));
@@ -338,10 +352,17 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
 }
 .macro-note.dim { border-left-color:var(--text-faint); opacity:.8; margin-top:14px; }
 
-/* 特效種類下拉:置頂主控制,略作強調 */
+/* 特效種類下拉:置頂主控制,放大強調 */
 .macro-pick { margin-bottom:12px; }
-.macro-pick .plabel span { color:var(--acc); letter-spacing:1px; }
-.macro-pick select { font-family:var(--font-disp); font-weight:600; }
+.macro-pick .plabel span { color:var(--acc); letter-spacing:1px; font-size:11px; }
+.macro-pick select {
+  font-family:var(--font-disp); font-weight:600; font-size:13px;
+  padding:9px 9px; border-color:var(--acc-soft);
+}
+.macro-pick select:focus { border-color:var(--acc); }
+
+/* 配色列:與滑桿以分隔線區隔 */
+.color-row { border-top:1px solid var(--line); margin-top:16px; padding-top:15px; }
 
 /* ============ 進階參數摺疊 ============ */
 .adv-toggle {

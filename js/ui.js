@@ -517,7 +517,7 @@ const UI = (() => {
       const pd = NodeDefs.gradientMap.params.find(p => p.k === 'preset');
       const cur = gmNodes[0].params.preset;
       const row = document.createElement('div');
-      row.className = 'prow';
+      row.className = 'prow color-row';
       row.innerHTML = `<div class="plabel"><span>🎨 配色</span></div>`;
       const cs = document.createElement('select');
       for (const [v, lb] of pd.opts) {
