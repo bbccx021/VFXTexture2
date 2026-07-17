@@ -1,21 +1,21 @@
 /* ============================================================
    VFXGEN — 遊戲特效貼圖產生器
-   暗紅風:炭黑基底 + 暗血紅 + 電弧青
+   預設主題:深海青(可於頂列 🎨 切換 7 種配色)
    ============================================================ */
 :root {
-  --bg:        #0c0a0b;
-  --panel:     #16110f;
-  --panel-2:   #1e1715;
-  --line:      #2f2320;
-  --line-soft: #241b18;
-  --text:      #ecdedb;
-  --text-dim:  #9a867f;
-  --text-faint:#5f4e49;
-  --acc:       #d62236;   /* 暗血紅 */
-  --acc-2:     #f0384c;   /* 亮紅(hover) */
-  --acc-soft:  #d6223633;
-  --on-acc:    #ffffff;   /* 強調底上的文字 */
-  --cy:        #e6a23f;   /* 琥珀輔色 */
+  --bg:        #08100f;
+  --panel:     #0e1a18;
+  --panel-2:   #142523;
+  --line:      #1e332f;
+  --line-soft: #172824;
+  --text:      #d6ece8;
+  --text-dim:  #7d9c96;
+  --text-faint:#4a625d;
+  --acc:       #17c3a6;   /* 深海青 */
+  --acc-2:     #34e0c0;   /* 亮青(hover) */
+  --acc-soft:  #17c3a633;
+  --on-acc:    #04120e;   /* 強調底上的文字 */
+  --cy:        #ffcc55;   /* 金黃輔色 */
 
   /* 玻璃質感 */
   --glass:     color-mix(in srgb, var(--panel) 62%, transparent);
@@ -619,8 +619,45 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
   backdrop-filter: blur(10px);
 }
 
+/* ============ 外觀美化 ============ */
+/* 滑桿拉鈕:光暈 + 互動回饋 */
+.prow input[type="range"]::-webkit-slider-thumb {
+  box-shadow:0 0 0 3px var(--acc-soft), 0 1px 3px #0008;
+  transition:box-shadow .15s, transform .1s;
+}
+.prow input[type="range"]:hover::-webkit-slider-thumb { box-shadow:0 0 0 5px var(--acc-soft), 0 0 9px var(--acc); }
+.prow input[type="range"]:active::-webkit-slider-thumb { transform:scale(1.18); }
+
+/* 按鈕:微浮動 + 主按鈕漸層 */
+button { transition: all .16s ease; }
+button:hover { transform:translateY(-1px); }
+button:active { transform:translateY(0); }
+button.primary {
+  background:linear-gradient(180deg, var(--acc-2), var(--acc));
+  box-shadow:0 2px 12px var(--acc-soft), inset 0 1px 0 #ffffff2e;
+}
+button.primary:hover { box-shadow:0 5px 18px var(--acc-soft), inset 0 1px 0 #ffffff40; }
+
+/* 聚焦光暈 */
+select:focus, input[type="number"]:focus, .lib-search:focus, #params select:focus {
+  border-color:var(--acc); box-shadow:0 0 0 3px var(--acc-soft);
+}
+
+/* 品牌標記脈動 */
+.brand-mark { animation: brandPulse 3.6s ease-in-out infinite; }
+@keyframes brandPulse {
+  0%,100% { text-shadow:0 0 10px var(--acc); opacity:.9; }
+  50%     { text-shadow:0 0 18px var(--acc), 0 0 30px var(--acc-soft); opacity:1; }
+}
+
+/* 預覽框:更深的浮起陰影 */
+#preview-wrap { box-shadow:0 10px 34px #000b, 0 0 0 1px var(--glass-hi); }
+
+/* 主題色下拉 */
+#theme-select { color:var(--acc); border-color:var(--acc-soft); }
+
 /* ============ 捲軸 ============ */
 ::-webkit-scrollbar { width:9px; height:9px; }
 ::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:#2a313c; border-radius:5px; }
-::-webkit-scrollbar-thumb:hover { background:#3a4350; }
+::-webkit-scrollbar-thumb { background:color-mix(in srgb, var(--acc) 30%, #2b2b2b); border-radius:5px; }
+::-webkit-scrollbar-thumb:hover { background:var(--acc); }
