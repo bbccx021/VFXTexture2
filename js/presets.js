@@ -669,6 +669,191 @@ const Presets = (() => {
       ],
     },
 
+    // 🔮 能量球:柔邊圓 → 雲絮柏林扭曲 → 漩渦攪動 → 硬邊 → 奧術漸層 → 發光
+    plasma: {
+      nodes: [
+        ['base', 'shape', 40, 40, { type: 'gauss', size: 0.72 }],
+        ['nz', 'perlin', 40, 260, { mode: 'billow', scale: 5, octaves: 4, seed: 12 }],
+        ['wp', 'warp', 230, 130, { mode: 'grad', intensity: 3 }],
+        ['sw', 'swirl', 420, 130, { amount: 90, radius: 1.1 }],
+        ['sc', 'histogramScan', 610, 130, { pos: 0.4, contrast: 0.4 }],
+        ['grad', 'gradientMap', 800, 130, { preset: 'arcane' }],
+        ['glow', 'glow', 990, 130, { threshold: 0.4, radius: 6, intensity: 1.6 }],
+        ['out', 'output', 1180, 130],
+      ],
+      links: [
+        ['base', 'wp', 0], ['nz', 'wp', 1],
+        ['wp', 'sw'], ['sw', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '能量翻騰', def: 0.42, targets: [['wp', 'intensity', 1.5, 6]] },
+        { label: '旋轉動勢', def: 0.5, targets: [['sw', 'amount', 0, 180]] },
+        { label: '湍流細節', def: 0.4, targets: [['nz', 'scale', 3, 8]] },
+        { label: '光暈強度', def: 0.35, targets: [['glow', 'intensity', 0.6, 3]] },
+      ],
+    },
+
+    // ✨ 星芒閃光:高斯光核橫向+縱向拉伸成十字星芒 + 中心光核 取亮 → 寒冰漸層 → 發光
+    sparkle: {
+      nodes: [
+        ['g1', 'shape', 40, 40, { type: 'gauss', size: 0.9 }],
+        ['hz', 'transform', 230, 40, { sx: 3.6, sy: 0.05, tiling: false }],
+        ['vt', 'transform', 230, 260, { sx: 0.05, sy: 3.6, tiling: false }],
+        ['core', 'shape', 40, 480, { type: 'gauss', size: 0.3 }],
+        ['mx1', 'blend', 420, 130, { mode: 'max' }],
+        ['mx2', 'blend', 610, 220, { mode: 'max' }],
+        ['grad', 'gradientMap', 800, 220, { preset: 'ice' }],
+        ['glow', 'glow', 990, 220, { threshold: 0.4, radius: 6, intensity: 2 }],
+        ['out', 'output', 1180, 220],
+      ],
+      links: [
+        ['g1', 'hz'], ['g1', 'vt'],
+        ['hz', 'mx1', 0], ['vt', 'mx1', 1],
+        ['core', 'mx2', 0], ['mx1', 'mx2', 1],
+        ['mx2', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '星芒長度', def: 0.45, targets: [['hz', 'sx', 2.5, 4.6], ['vt', 'sy', 2.5, 4.6]] },
+        { label: '十字粗細', def: 0.2, targets: [['hz', 'sy', 0.03, 0.14], ['vt', 'sx', 0.03, 0.14]] },
+        { label: '光核大小', def: 0.4, targets: [['core', 'size', 0.2, 0.5]] },
+        { label: '光暈強度', def: 0.5, targets: [['glow', 'intensity', 0.8, 3.5]] },
+      ],
+    },
+
+    // 🌀 傳送門:柏林雜訊被強漩渦攪成螺旋 → 圓環遮罩限制成環狀 → 硬邊 → 奧術漸層 → 發光
+    portal: {
+      nodes: [
+        ['nz', 'perlin', 40, 40, { mode: 'fbm', scale: 3, octaves: 4, seed: 29 }],
+        ['sw', 'swirl', 230, 40, { amount: 480, radius: 1.2 }],
+        ['ring', 'shape', 40, 260, { type: 'ring', size: 1, width: 0.55, soft: 0.15 }],
+        ['mm', 'blend', 420, 130, { mode: 'mul' }],
+        ['sc', 'histogramScan', 610, 130, { pos: 0.45, contrast: 0.4 }],
+        ['grad', 'gradientMap', 800, 130, { preset: 'arcane' }],
+        ['glow', 'glow', 990, 130, { threshold: 0.35, radius: 5, intensity: 1.8 }],
+        ['out', 'output', 1180, 130],
+      ],
+      links: [
+        ['nz', 'sw'],
+        ['sw', 'mm', 0], ['ring', 'mm', 1],
+        ['mm', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '漩渦強度', def: 0.43, targets: [['sw', 'amount', 180, 720]] },
+        { label: '環厚度', def: 0.5, targets: [['ring', 'width', 0.3, 0.8]] },
+        { label: '紊亂細節', def: 0.25, targets: [['nz', 'scale', 2, 6]] },
+        { label: '光暈強度', def: 0.4, targets: [['glow', 'intensity', 0.6, 3]] },
+      ],
+    },
+
+    // 💧 水花:中央高斯水核 + 環狀噴濺水滴 取亮 → 寒冰漸層 → 發光
+    water: {
+      nodes: [
+        ['drops', 'splatterCircular', 40, 40, { pattern: 'blob', count: 12, radius: 0.28, size: 0.17, width: 0.5, sizeRand: 0.5, radJitter: 0.35, angJitter: 0.5, seed: 6 }],
+        ['core', 'shape', 40, 260, { type: 'gauss', size: 0.52 }],
+        ['mx', 'blend', 230, 130, { mode: 'max' }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'ice' }],
+        ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 4, intensity: 1.2 }],
+        ['out', 'output', 800, 130],
+      ],
+      links: [
+        ['drops', 'mx', 0], ['core', 'mx', 1],
+        ['mx', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '水滴數量', def: 0.4, targets: [['drops', 'count', 6, 24]] },
+        { label: '噴濺半徑', def: 0.5, targets: [['drops', 'radius', 0.15, 0.45]] },
+        { label: '水滴大小', def: 0.43, targets: [['drops', 'size', 0.06, 0.2]] },
+        { label: '中心大小', def: 0.5, targets: [['core', 'size', 0.2, 0.6]] },
+      ],
+    },
+
+    // ❄ 冰晶:晶格細胞雜訊 → 柔邊圓遮罩增值 → 硬邊提取晶面 → 寒冰漸層 → 發光
+    frost: {
+      nodes: [
+        ['cr', 'cells', 40, 40, { mode: 'crystal', scale: 6, contrast: 1.3, seed: 18 }],
+        ['mask', 'shape', 40, 260, { type: 'blob', size: 1.15, falloff: 0.9 }],
+        ['mm', 'blend', 230, 130, { mode: 'mul' }],
+        ['sc', 'histogramScan', 420, 130, { pos: 0.32, contrast: 0.55 }],
+        ['grad', 'gradientMap', 610, 130, { preset: 'ice' }],
+        ['glow', 'glow', 800, 130, { threshold: 0.45, radius: 4, intensity: 1.8 }],
+        ['out', 'output', 990, 130],
+      ],
+      links: [
+        ['cr', 'mm', 0], ['mask', 'mm', 1],
+        ['mm', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '晶格密度', def: 0.3, targets: [['cr', 'scale', 4, 14]] },
+        { label: '晶面銳利', def: 0.5, targets: [['sc', 'contrast', 0.3, 0.9]] },
+        { label: '範圍大小', def: 0.57, targets: [['mask', 'size', 0.7, 1.4]] },
+        { label: '光暈強度', def: 0.42, targets: [['glow', 'intensity', 0.6, 2.5]] },
+      ],
+    },
+
+    // ☣ 毒液氣泡:網格散佈高斯氣泡(大小/亮度隨機)→ 柔邊圓遮罩增值 → 劇毒漸層 → 發光
+    toxic: {
+      nodes: [
+        ['bub', 'tileSampler', 40, 40, { pattern: 'gauss', count: 6, size: 1.3, sizeRand: 0.6, posRand: 0.6, briRand: 0.4, seed: 3 }],
+        ['mask', 'shape', 40, 260, { type: 'blob', size: 1.1, falloff: 1 }],
+        ['mm', 'blend', 230, 130, { mode: 'mul' }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'toxic' }],
+        ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 5, intensity: 1.3 }],
+        ['out', 'output', 800, 130],
+      ],
+      links: [
+        ['bub', 'mm', 0], ['mask', 'mm', 1],
+        ['mm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '氣泡密度', def: 0.33, targets: [['bub', 'count', 3, 12]] },
+        { label: '氣泡大小', def: 0.42, targets: [['bub', 'size', 0.8, 2]] },
+        { label: '大小隨機', def: 0.6, targets: [['bub', 'sizeRand', 0, 1]] },
+        { label: '範圍大小', def: 0.57, targets: [['mask', 'size', 0.7, 1.4]] },
+      ],
+    },
+
+    // 🟡 光塵散景:網格散佈高斯光點(高亮度隨機、部分覆蓋)→ 散焦模糊 → 聖金漸層 → 發光
+    bokeh: {
+      nodes: [
+        ['dots', 'tileSampler', 40, 40, { pattern: 'gauss', count: 7, size: 1.5, sizeRand: 0.4, posRand: 0.8, briRand: 0.4, coverage: 0.85, seed: 5 }],
+        ['bl', 'blur', 230, 40, { mode: 'gauss', amount: 2.5 }],
+        ['grad', 'gradientMap', 420, 40, { preset: 'gold' }],
+        ['glow', 'glow', 610, 40, { threshold: 0.35, radius: 5, intensity: 1.5 }],
+        ['out', 'output', 800, 40],
+      ],
+      links: [
+        ['dots', 'bl'], ['bl', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '粒子密度', def: 0.4, targets: [['dots', 'count', 4, 14]] },
+        { label: '粒子大小', def: 0.4, targets: [['dots', 'size', 0.5, 1.8]] },
+        { label: '散焦模糊', def: 0.5, targets: [['bl', 'amount', 0, 6]] },
+        { label: '亮度隨機', def: 0.6, targets: [['dots', 'briRand', 0, 1]] },
+      ],
+    },
+
+    // 🎆 煙花綻放:中心放射細光條(streak)+ 高斯光核 取亮 → 聖金漸層 → 發光
+    firework: {
+      nodes: [
+        ['rays', 'splatterCircular', 40, 40, { pattern: 'streak', count: 22, radius: 0.03, size: 0.46, width: 0.09, sizeRand: 0.5, angJitter: 0.15, seed: 8 }],
+        ['core', 'shape', 40, 260, { type: 'gauss', size: 0.28 }],
+        ['mx', 'blend', 230, 130, { mode: 'max' }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'gold' }],
+        ['glow', 'glow', 610, 130, { threshold: 0.4, radius: 6, intensity: 1.6 }],
+        ['out', 'output', 800, 130],
+      ],
+      links: [
+        ['rays', 'mx', 0], ['core', 'mx', 1],
+        ['mx', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+      ],
+      macros: [
+        { label: '光條數量', def: 0.4, targets: [['rays', 'count', 12, 32]] },
+        { label: '綻放長度', def: 0.53, targets: [['rays', 'size', 0.3, 0.6]] },
+        { label: '長度隨機', def: 0.5, targets: [['rays', 'sizeRand', 0, 0.8]] },
+        { label: '光暈強度', def: 0.35, targets: [['glow', 'intensity', 0.6, 3]] },
+      ],
+    },
+
     // 🌫 煙霧:雲絮雜訊自我扭曲 → 柔邊圓遮罩增值 → 色階 → 煙灰漸層
     smoke: {
       nodes: [
@@ -701,6 +886,7 @@ const Presets = (() => {
     ['energy', '火焰 / 能量'],
     ['light', '電光 / 鏡頭'],
     ['ringcat', '環形 / 圖騰'],
+    ['element', '元素 / 自然'],
     ['surface', '表面 / 氛圍'],
   ];
   const META = {
@@ -720,6 +906,14 @@ const Presets = (() => {
     flipbook:      { emoji: '🎞', name: '碎片四格圖', en: '2×2 Flipbook', cat: 'energy' },
     lightning:     { emoji: '⚡', name: '閃電', en: 'Lightning', cat: 'light' },
     lens:          { emoji: '🔆', name: '鏡頭光暈', en: 'Lens Flare', cat: 'light' },
+    sparkle:       { emoji: '✨', name: '星芒閃光', en: 'Sparkle', cat: 'light' },
+    bokeh:         { emoji: '🟡', name: '光塵散景', en: 'Bokeh', cat: 'light' },
+    plasma:        { emoji: '🔮', name: '能量球', en: 'Plasma Orb', cat: 'energy' },
+    firework:      { emoji: '🎆', name: '煙花綻放', en: 'Firework', cat: 'hit' },
+    portal:        { emoji: '🌀', name: '傳送門', en: 'Portal', cat: 'ringcat' },
+    water:         { emoji: '💧', name: '水花', en: 'Water Splash', cat: 'element' },
+    frost:         { emoji: '❄', name: '冰晶', en: 'Frost', cat: 'element' },
+    toxic:         { emoji: '☣', name: '毒液氣泡', en: 'Toxic Bubbles', cat: 'element' },
     magic:         { emoji: '🪄', name: '魔法陣', en: 'Magic Circle', cat: 'ringcat' },
     pattern:       { emoji: '🔳', name: '規則圖騰', en: 'Pattern', cat: 'ringcat' },
     cracks:        { emoji: '🕸', name: '裂縫', en: 'Cracks', cat: 'surface' },

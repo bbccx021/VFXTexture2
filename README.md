@@ -52,7 +52,7 @@ python -m http.server 8321
 - **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Bevel、Distance(距離場)
 - **上色後製**:Gradient Map(8 種色帶)、Glow、Output
 
-## 內建範本(21 種,覆蓋 1MaFX 常見特效貼圖分類)
+## 內建範本(29 種,覆蓋 1MaFX 常見特效貼圖分類)
 
 | 分類 | 範本 |
 |---|---|
@@ -61,6 +61,7 @@ python -m http.server 8321
 | 火焰 / 能量 | 🔥 火焰 Flame · ☄ 火球 Fireball · 🚀 投射物 Projectile · 🔫 槍口火光 Muzzle Flash · 🎇 火花碎片 Sparks · 🎞 碎片四格圖 2×2 Flipbook |
 | 電光 / 鏡頭 | ⚡ 閃電 Lightning · 🔆 鏡頭光暈 Lens Flare |
 | 環形 / 圖騰 | 🪄 魔法陣 Magic Circle · 🔳 規則圖騰 Pattern |
+| 元素 / 自然 | 🔮 能量球 Plasma · ✨ 星芒閃光 Sparkle · 🟡 光塵散景 Bokeh · 🎆 煙花綻放 Firework · 🌀 傳送門 Portal · 💧 水花 Water · ❄ 冰晶 Frost · ☣ 毒液氣泡 Toxic |
 | 表面 / 氛圍 | 🕸 裂縫 Cracks · 🪨 地裂 Ground Cracks · 🌫 煙霧 Smoke |
 
 每個範本都是完整節點鏈,可直接拆解學習參數。灰階輸出的範本(拖尾/衝擊波/圖騰)刻意不上色,方便在引擎粒子系統內染色。
