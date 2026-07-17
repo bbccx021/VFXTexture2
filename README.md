@@ -41,6 +41,8 @@ python -m http.server 8321
 
 > 改動 js/css 後瀏覽器吃到舊快取時,把 index.html 內的 `?v=N` 版本號加一即可。
 
+**手機支援**:≤700px 自動切換直向排版 —— 精簡模式為預覽在上、模板滑桿在下(隨螢幕寬度縮放、觸控放大);範本牆改 2 欄;進階模式節點庫變橫向捲動條、畫布與檢視器上下堆疊。
+
 ## 節點總覽(22 種)
 
 - **基礎圖形**:Shape(圓/柔邊圓/高斯/多邊形/環/方/尖刺)、Ramp(線性漸層,拖尾淡出必備)、Tile Sampler(Pattern + Mask 輸入)、Splatter Circular(Pattern 輸入)、Shape Mapper

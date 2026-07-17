@@ -460,6 +460,90 @@ button.accent:hover { background:var(--acc); color:#14100a; }
 .cm-search:focus { border-color:var(--acc); }
 .cm-list { max-height:280px; overflow-y:auto; }
 
+/* ============================================================
+   手機 / 直向排版(≤700px):以精簡模式為主,直向堆疊 + 隨螢幕縮放
+   ============================================================ */
+@media (max-width: 700px) {
+  body { font-size:14px; }
+
+  /* 頂列:自動換行、觸控放大、省略次要文字 */
+  #topbar {
+    height:auto; min-height:48px; flex-wrap:wrap;
+    gap:6px 6px; padding:7px 9px; align-items:center;
+  }
+  .brand { margin-right:2px; gap:5px; }
+  .brand-name { font-size:15px; }
+  .brand-sub { display:none; }              /* 標題列已顯示於分頁 */
+  .tb-spacer { display:none; }              /* 移除撐開,讓群組自然換行 */
+  #topbar .tb-group { gap:5px; }
+  #topbar .tb-group label { display:none; } /* 隱藏「預覽/輸出」字樣,選單本身已標示 */
+  #preview-res { display:none; }            /* 手機固定 256² 預覽,省空間 */
+  #topbar button, #topbar select {
+    padding:8px 10px; font-size:12.5px;      /* 觸控目標 */
+  }
+
+  /* 主體:改為直向堆疊 */
+  #body { flex-direction:column; }
+
+  /* ---- 精簡模式(手機預設):預覽在上、滑桿在下,可捲動 ---- */
+  #app.simple #inspector {
+    flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  #app.simple #preview-sec {
+    flex:none; padding:14px 12px 10px;
+  }
+  #app.simple #preview-wrap {
+    /* 隨螢幕縮放:以寬度為主,並受高度上限約束 */
+    width:min(92vw, 52vh); box-shadow:0 12px 36px #000a;
+  }
+  #app.simple #params-sec {
+    width:auto; flex:none;
+    border-left:none; border-top:1px solid var(--line);
+  }
+  #params { padding:8px 16px 28px; }
+
+  /* 滑桿加粗、拉鈕放大,方便手指操作 */
+  .prow { margin-bottom:16px; }
+  .prow input[type="range"] { height:6px; }
+  .prow input[type="range"]::-webkit-slider-thumb { width:20px; height:20px; }
+  .macro-note { font-size:12px; }
+
+  /* ---- 進階模式(手機退階):節點庫橫向捲動條,畫布與檢視器上下堆疊 ---- */
+  #app:not(.simple) #library {
+    width:auto; height:96px; flex-shrink:0;
+    display:flex; overflow-x:auto; overflow-y:hidden;
+    border-right:none; border-bottom:1px solid var(--line);
+  }
+  #app:not(.simple) .lib-title { display:none; }
+  #app:not(.simple) #lib-list { display:flex; gap:4px; padding:8px; }
+  #app:not(.simple) .lib-search { display:none; }
+  #app:not(.simple) .lib-group { display:flex; }
+  #app:not(.simple) .lib-cat { display:none; }
+  #app:not(.simple) .lib-item { flex-direction:column; width:64px; padding:4px; gap:3px; text-align:center; }
+  #app:not(.simple) .lib-txt .zh { display:none; }
+  #app:not(.simple) #viewport { flex:1; min-height:200px; }
+  #app:not(.simple) #inspector {
+    width:auto; height:44vh; flex-shrink:0;
+    border-left:none; border-top:1px solid var(--line);
+  }
+
+  /* 狀態列:手機隱藏鍵盤快捷提示,只留效能數字 */
+  #hint { display:none; }
+  #statusbar { justify-content:flex-end; }
+
+  /* 範本牆:縮小卡片、精簡標頭 */
+  #gallery-panel { width:96vw; max-height:90vh; border-radius:10px; }
+  #gallery-head { padding:14px 16px 10px; flex-wrap:wrap; gap:4px 10px; }
+  .g-sub { display:none; }
+  #gallery-body { padding:2px 14px 22px; }
+  .g-grid { grid-template-columns:repeat(auto-fill, minmax(116px, 1fr)); gap:10px; }
+}
+
+/* 極窄螢幕(≤380px):卡片兩欄 */
+@media (max-width: 380px) {
+  .g-grid { grid-template-columns:1fr 1fr; }
+}
+
 /* ============ 捲軸 ============ */
 ::-webkit-scrollbar { width:9px; height:9px; }
 ::-webkit-scrollbar-track { background:transparent; }
