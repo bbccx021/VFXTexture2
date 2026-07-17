@@ -194,14 +194,14 @@ const Presets = (() => {
     // ➰ 一般拖尾:高斯光核橫向拉伸 → Ramp 淡出尾端 → 拉絲雜訊增值 → 灰階輸出(引擎內自行染色)
     trail: {
       nodes: [
-        ['core', 'shape', 40, 40, { type: 'gauss', size: 1.1 }],
-        ['stretch', 'transform', 230, 40, { sx: 1.9, sy: 0.5, tiling: false }],
+        ['core', 'shape', 40, 40, { type: 'gauss', size: 1.35 }],
+        ['stretch', 'transform', 230, 40, { sx: 2.2, sy: 0.42, tiling: false }],
         ['fade', 'ramp', 230, 260, { angle: 0, start: 0.02, end: 0.95, curve: 1.3 }],
         ['fm', 'blend', 420, 130, { mode: 'mul' }],
         ['nz', 'perlin', 230, 480, { scale: 6, octaves: 4, seed: 14 }],
         ['nstr', 'transform', 420, 480, { sx: 3, sy: 1 }],
-        ['nm', 'blend', 610, 260, { mode: 'mul', opacity: 0.5 }],
-        ['lv', 'levels', 800, 260, { inHi: 0.8, gamma: 1.05 }],
+        ['nm', 'blend', 610, 260, { mode: 'mul', opacity: 0.35 }],
+        ['lv', 'levels', 800, 260, { inLo: 0.02, inHi: 0.52, gamma: 0.85 }],
         ['out', 'output', 990, 260],
       ],
       links: [
@@ -310,13 +310,13 @@ const Presets = (() => {
     // ⭕ 環狀衝擊波:圓環被柏林扭曲(波動)→ 放射模糊 → 疊內圈餘波 → 灰階輸出(引擎內染色)
     ring: {
       nodes: [
-        ['ring', 'shape', 40, 40, { type: 'ring', size: 1, width: 0.14, soft: 0.06 }],
+        ['ring', 'shape', 40, 40, { type: 'ring', size: 1, width: 0.12, soft: 0.05 }],
         ['nz', 'perlin', 40, 260, { scale: 6, octaves: 3, seed: 19 }],
         ['wp', 'warp', 230, 130, { mode: 'grad', intensity: 1.5 }],
-        ['zb', 'blur', 420, 130, { mode: 'zoom', amount: 2.5 }],
-        ['ring2', 'shape', 420, 350, { type: 'ring', size: 0.6, width: 0.05, soft: 0.2 }],
-        ['ad', 'blend', 610, 220, { mode: 'add', opacity: 0.45 }],
-        ['lv', 'levels', 800, 220, { inHi: 0.85 }],
+        ['zb', 'blur', 420, 130, { mode: 'zoom', amount: 4 }],
+        ['ring2', 'shape', 420, 350, { type: 'ring', size: 0.58, width: 0.04, soft: 0.14 }],
+        ['ad', 'blend', 610, 220, { mode: 'add', opacity: 0.6 }],
+        ['lv', 'levels', 800, 220, { inHi: 0.68 }],
         ['out', 'output', 990, 220],
       ],
       links: [
@@ -338,13 +338,13 @@ const Presets = (() => {
     projectile: {
       nodes: [
         ['head', 'shape', 40, 40, { type: 'gauss', size: 0.6 }],
-        ['hoff', 'transform', 230, 40, { ox: 0.18, tiling: false }],
-        ['tail', 'transform', 230, 260, { sx: 2.2, sy: 0.5, ox: -0.12, tiling: false }],
-        ['tb', 'blur', 420, 260, { mode: 'dir', angle: 0, amount: 8 }],
-        ['fade', 'ramp', 420, 480, { angle: 0, start: 0.05, end: 0.9, curve: 1.3 }],
+        ['hoff', 'transform', 230, 40, { ox: 0.28, tiling: false }],
+        ['tail', 'transform', 230, 260, { sx: 3.2, sy: 0.5, ox: -0.05, tiling: false }],
+        ['tb', 'blur', 420, 260, { mode: 'dir', angle: 0, amount: 10 }],
+        ['fade', 'ramp', 420, 480, { angle: 0, start: 0.12, end: 1, curve: 1 }],
         ['fm', 'blend', 610, 350, { mode: 'mul' }],
         ['mx', 'blend', 800, 130, { mode: 'max' }],
-        ['lv', 'levels', 990, 130, { gamma: 0.9 }],
+        ['lv', 'levels', 990, 130, { gamma: 0.8 }],
         ['grad', 'gradientMap', 1180, 130, { preset: 'toxic' }],
         ['glow', 'glow', 1370, 130, { threshold: 0.4, radius: 5, intensity: 1.5 }],
         ['out', 'output', 1560, 130],
@@ -368,11 +368,11 @@ const Presets = (() => {
     // 🔳 規則圖騰:網格圓點陣列 + 柏林等高線重複條紋 → 取亮疊合 → 無縫可平鋪圖案
     pattern: {
       nodes: [
-        ['dots', 'tileSampler', 40, 40, { pattern: 'disc', count: 8, size: 0.55, sizeRand: 0, posRand: 0, briRand: 0, coverage: 1, seed: 2 }],
+        ['dots', 'tileSampler', 40, 40, { pattern: 'gauss', count: 8, size: 0.62, sizeRand: 0, posRand: 0, briRand: 0, coverage: 1, seed: 2 }],
         ['topo', 'perlin', 40, 260, { scale: 4, octaves: 3, seed: 33 }],
-        ['bands', 'crossSection', 230, 260, { pos: 0.5, width: 0.3, repeat: 6, curve: 1 }],
-        ['mx', 'blend', 420, 130, { mode: 'max', opacity: 0.85 }],
-        ['lv', 'levels', 610, 130, { gamma: 1.1 }],
+        ['bands', 'crossSection', 230, 260, { pos: 0.5, width: 0.24, repeat: 8, curve: 1.4 }],
+        ['mx', 'blend', 420, 130, { mode: 'max', opacity: 0.7 }],
+        ['lv', 'levels', 610, 130, { inHi: 0.85, gamma: 1.1 }],
         ['out', 'output', 800, 130],
       ],
       links: [
@@ -858,10 +858,10 @@ const Presets = (() => {
     smoke: {
       nodes: [
         ['noise', 'perlin', 40, 40, { mode: 'fbm', scale: 3, octaves: 5, seed: 17 }],
-        ['warp', 'warp', 250, 40, { mode: 'grad', intensity: 3 }],
-        ['mask', 'shape', 250, 260, { type: 'blob', size: 0.95, falloff: 1.1 }],
+        ['warp', 'warp', 250, 40, { mode: 'grad', intensity: 5 }],
+        ['mask', 'shape', 250, 260, { type: 'blob', size: 1.05, falloff: 0.85 }],
         ['mix', 'blend', 460, 130, { mode: 'mul' }],
-        ['lv', 'levels', 670, 130, { inLo: 0.06, inHi: 0.58, gamma: 1.2 }],
+        ['lv', 'levels', 670, 130, { inLo: 0.04, inHi: 0.44, gamma: 1 }],
         ['grad', 'gradientMap', 880, 130, { preset: 'smoke' }],
         ['out', 'output', 1090, 130],
       ],
