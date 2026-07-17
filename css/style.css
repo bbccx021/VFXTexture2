@@ -17,6 +17,11 @@
   --on-acc:    #ffffff;   /* 強調底上的文字 */
   --cy:        #e6a23f;   /* 琥珀輔色 */
 
+  /* 玻璃質感 */
+  --glass:     color-mix(in srgb, var(--panel) 62%, transparent);
+  --glass-2:   color-mix(in srgb, var(--panel-2) 66%, transparent);
+  --glass-hi:  color-mix(in srgb, #ffffff 7%, transparent);
+
   /* 節點類別色 */
   --cat-gen:     #ffa03d;
   --cat-noise:   #3fd8e2;
@@ -34,7 +39,11 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body { height:100%; overflow:hidden; }
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse 60% 55% at 10% 6%, color-mix(in srgb, var(--acc) 16%, transparent) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 50% at 94% 98%, color-mix(in srgb, var(--cy) 12%, transparent) 0%, transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-body);
   font-size: 13px;
@@ -571,6 +580,43 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
 /* 極窄螢幕(≤380px):卡片兩欄 */
 @media (max-width: 380px) {
   .g-grid { grid-template-columns:1fr 1fr; }
+}
+
+/* ============ 玻璃質感面板 ============ */
+#topbar {
+  background: linear-gradient(180deg, var(--glass-2), var(--glass));
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  backdrop-filter: blur(16px) saturate(1.35);
+  border-bottom: 1px solid var(--glass-hi);
+}
+#library, #inspector {
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+}
+#library { background: var(--glass); border-right:1px solid var(--glass-hi); }
+#inspector { background: var(--glass); border-left:1px solid var(--glass-hi); }
+/* 讓內部分區透明,露出玻璃 */
+#params-sec, #app.simple #params-sec { background: transparent; }
+#app.simple #preview-sec { background: transparent; }
+.macro-note { background: color-mix(in srgb, var(--panel-2) 52%, transparent); }
+
+#gallery-panel {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(28px) saturate(1.35);
+  backdrop-filter: blur(28px) saturate(1.35);
+  border: 1px solid var(--glass-hi);
+}
+#gallery-head { background: linear-gradient(180deg, var(--glass-2), transparent); }
+#ctx-menu {
+  background: var(--glass-2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.35);
+  border:1px solid var(--glass-hi);
+}
+.drag-ghost {
+  background: var(--glass-2);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 /* ============ 捲軸 ============ */
