@@ -845,6 +845,159 @@ const Presets = (() => {
       ],
     },
 
+    // 🛡 卡通護盾:六邊形 → 內距離場切同心層 → 內描邊亮框
+    celShield: {
+      nodes: [
+        ['hex', 'shape', 40, 40, { type: 'poly', sides: 6, size: 0.88, soft: 0.02 }],
+        ['iv1', 'invert', 240, 40, {}],
+        ['dst', 'distance', 440, 40, { dist: 0.11, curve: 1 }],
+        ['iv2', 'invert', 640, 40, {}],
+        ['po', 'posterize', 840, 40, { levels: 4, soft: 0 }],
+        ['line', 'outline', 840, 260, { width: 0.014, side: 'inner', threshold: 0.1 }],
+        ['mx', 'blend', 1040, 130, { mode: 'max' }],
+        ['grad', 'gradientMap', 1240, 130, { preset: 'celIce', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1440, 130],
+      ],
+      links: [
+        ['hex', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'], ['iv2', 'po'],
+        ['po', 'line'], ['line', 'mx', 0], ['po', 'mx', 1],
+        ['mx', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '護盾大小', def: 0.6, targets: [['hex', 'size', 0.5, 1.15]] },
+        { label: '邊數', def: 0.33, targets: [['hex', 'sides', 3, 12]] },
+        { label: '層次厚度', def: 0.5, targets: [['dst', 'dist', 0.04, 0.2]] },
+        { label: '色帶層數', def: 0.17, targets: [['po', 'levels', 2, 8]] },
+        { label: '亮框粗細', def: 0.4, targets: [['line', 'width', 0.004, 0.03]] },
+      ],
+    },
+
+    // ⚡ 卡通落雷:垂直錐體被晶格雜訊折成雷柱 + 壓扁的地面衝擊環,雙層(藍身白核)
+    celThunder: {
+      nodes: [
+        ['bolt', 'shape', 40, 40, { type: 'spike', size: 1, width: 0.3, falloff: 0.35, soft: 0.05 }],
+        ['cells', 'cells', 40, 260, { mode: 'crystal', scale: 9, seed: 3 }],
+        ['wp', 'warp', 240, 40, { mode: 'grad', intensity: 1.6 }],           // 折成鋸齒雷柱
+        ['ground', 'shape', 40, 480, { type: 'ring', size: 1, width: 0.13, soft: 0.04 }],
+        ['gT', 'transform', 240, 480, { sy: 0.3, oy: 0.34, tiling: false }],  // 壓扁成地面環
+        ['un', 'blend', 440, 200, { mode: 'max' }],
+        ['sc', 'histogramScan', 640, 200, { pos: 0.42, contrast: 0.85 }],
+        ['lv', 'levels', 840, 200, { outHi: 0.58 }],                          // 外層電光
+        ['sc2', 'histogramScan', 640, 420, { pos: 0.62, contrast: 0.9 }],     // 內層亮核
+        ['mx', 'blend', 1040, 280, { mode: 'max' }],
+        ['grad', 'gradientMap', 1240, 280, { preset: 'celIce', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1440, 280],
+      ],
+      links: [
+        ['bolt', 'wp', 0], ['cells', 'wp', 1],
+        ['ground', 'gT'],
+        ['wp', 'un', 0], ['gT', 'un', 1],
+        ['un', 'sc'], ['sc', 'lv'],
+        ['un', 'sc2'],
+        ['sc2', 'mx', 0], ['lv', 'mx', 1],
+        ['mx', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '雷柱粗細', def: 0.35, targets: [['bolt', 'width', 0.12, 0.6]] },
+        { label: '鋸齒程度', def: 0.4, targets: [['wp', 'intensity', 0.4, 3]] },
+        { label: '折點密度', def: 0.4, targets: [['cells', 'scale', 4, 16]] },
+        { label: '地面環大小', def: 0.5, targets: [['ground', 'size', 0.6, 1.3]] },
+        { label: '亮核範圍', def: 0.45, targets: [['sc2', 'pos', 0.4, 0.85]] },
+      ],
+    },
+
+    // 🌪 卡通龍捲風:上寬下窄的錐體被強力漩渦攪成螺旋 → 同心色帶
+    celTornado: {
+      nodes: [
+        ['cone', 'shape', 40, 40, { type: 'spike', size: 0.95, width: 0.8, falloff: 0.7, soft: 0.07, rot: 180 }],
+        ['nz', 'perlin', 40, 260, { scale: 4, octaves: 2, seed: 19 }],
+        ['wp', 'warp', 240, 130, { mode: 'grad', intensity: 0.8 }],           // 輕擾動,保住漏斗外形
+        ['sc', 'histogramScan', 440, 130, { pos: 0.42, contrast: 0.88 }],     // 漏斗剪影
+        ['vr', 'ramp', 240, 380, { angle: 90, start: 0, end: 1, curve: 1 }],
+        ['bands', 'crossSection', 440, 380, { pos: 0.5, width: 0.45, repeat: 7, curve: 1 }],  // 水平氣流條紋
+        ['bl', 'levels', 640, 380, { outLo: 0.5, outHi: 1 }],                 // 條紋只當明暗,不挖空
+        ['mm', 'blend', 840, 200, { mode: 'mul' }],
+        ['sw', 'swirl', 1040, 200, { amount: 22, radius: 1.3 }],              // 只微傾斜條紋,過強會把漏斗扭成 S 形捲動
+        ['po', 'posterize', 1240, 200, { levels: 4, soft: 0 }],
+        ['grad', 'gradientMap', 1440, 200, { preset: 'celSmoke', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1640, 200],
+      ],
+      links: [
+        ['cone', 'wp', 0], ['nz', 'wp', 1],
+        ['wp', 'sc'],
+        ['vr', 'bands'], ['bands', 'bl'],
+        ['bl', 'mm', 0], ['sc', 'mm', 1],
+        ['mm', 'sw'], ['sw', 'po'], ['po', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '漏斗寬度', def: 0.5, targets: [['cone', 'width', 0.5, 1.5]] },
+        { label: '氣流條紋', def: 0.4, targets: [['bands', 'repeat', 3, 14]] },
+        { label: '旋轉傾斜', def: 0.12, targets: [['sw', 'amount', 0, 180]] },
+        { label: '邊緣擾動', def: 0.31, targets: [['wp', 'intensity', 0.3, 4]] },
+        { label: '色帶層數', def: 0.29, targets: [['po', 'levels', 2, 8]] },
+      ],
+    },
+
+    // 💠 卡通水晶:六邊形拉長 → 內距離場當錐面高度 → 卡通打光切出稜面
+    celCrystal: {
+      nodes: [
+        ['gem', 'shape', 40, 40, { type: 'poly', sides: 6, size: 0.72, soft: 0.015 }],
+        ['gemT', 'transform', 240, 40, { sx: 0.72, sy: 1.18, tiling: false }],
+        ['iv1', 'invert', 440, 40, {}],
+        ['dst', 'distance', 640, 40, { dist: 0.16, curve: 1 }],
+        ['iv2', 'invert', 840, 40, {}],                                        // 內距離場 = 錐狀高度
+        ['sm', 'blur', 940, 40, { mode: 'gauss', amount: 0.7 }],               // 抹平距離場的階梯,避免打光放大成條紋
+        ['cel', 'celShade', 1040, 40, { tones: 4, terminator: 0.5, lightAngle: -125, relief: 0.8, shadowTone: 0.34, litTone: 0.97, edge: 0.02 }],
+        ['line', 'outline', 1040, 260, { width: 0.01, side: 'inner', threshold: 0.1 }],
+        ['sub', 'blend', 1240, 130, { mode: 'sub', opacity: 0.4 }],
+        ['grad', 'gradientMap', 1440, 130, { preset: 'celMagic', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1640, 130],
+      ],
+      links: [
+        ['gem', 'gemT'], ['gemT', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
+        ['iv2', 'sm'], ['sm', 'cel'], ['cel', 'line'],
+        ['line', 'sub', 0], ['cel', 'sub', 1],
+        ['sub', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '水晶高度', def: 0.4, targets: [['gemT', 'sy', 0.8, 1.8]] },
+        { label: '水晶寬度', def: 0.4, targets: [['gemT', 'sx', 0.4, 1.2]] },
+        { label: '邊數', def: 0.33, targets: [['gem', 'sides', 3, 12]] },
+        { label: '稜面強度', def: 0.37, targets: [['cel', 'relief', 0.3, 1.8]] },
+        { label: '階調數', def: 0.67, targets: [['cel', 'tones', 2, 4]] },
+      ],
+    },
+
+    // 🌟 卡通星塵:四芒星當圖案餵進網格散佈 → 大小/亮度隨機 → 金色
+    celStardust: {
+      nodes: [
+        // 四芒星 = 兩支互相垂直的細長柔邊「針」取亮,兩端自然收尖(比尖刺基部相疊更像閃光)
+        ['nd', 'shape', 40, 40, { type: 'blob', size: 1.05, falloff: 1.5 }],
+        ['ndV', 'transform', 200, 40, { sx: 0.09, sy: 1, tiling: false }],
+        ['ndH', 'transform', 200, 220, { sx: 1, sy: 0.09, tiling: false }],
+        ['star', 'blend', 360, 130, { mode: 'max' }],
+        ['ts', 'tileSampler', 520, 130, { count: 5, size: 1.7, sizeRand: 0.6, posRand: 0.9, briRand: 0.25, coverage: 0.75, seed: 14 }],
+        ['msk', 'shape', 240, 300, { type: 'blob', size: 1.15, falloff: 0.9 }],
+        ['mm', 'blend', 440, 130, { mode: 'mul' }],                            // 中央密、邊緣疏
+        ['grad', 'gradientMap', 640, 130, { preset: 'celGold', steps: 0, alphaGain: 7 }],
+        ['out', 'output', 840, 130],
+      ],
+      links: [
+        ['nd', 'ndV'], ['nd', 'ndH'],
+        ['ndV', 'star', 0], ['ndH', 'star', 1],
+        ['star', 'ts', 0],
+        ['ts', 'mm', 0], ['msk', 'mm', 1],
+        ['mm', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '星星密度', def: 0.33, targets: [['ts', 'count', 3, 9]] },
+        { label: '星星大小', def: 0.4, targets: [['ts', 'size', 0.6, 2.6]] },
+        { label: '芒刺纖細', def: 0.3, targets: [['ndV', 'sx', 0.03, 0.25], ['ndH', 'sy', 0.03, 0.25]] },
+        { label: '大小差異', def: 0.65, targets: [['ts', 'sizeRand', 0, 1]] },
+        { label: '聚集程度', def: 0.5, targets: [['msk', 'size', 0.7, 1.6]] },
+      ],
+    },
+
     // ☁ 卡通煙團:球體聯集高度場 → 卡通打光硬切終端線 → 外描邊 → 平塗色階
     //   (勝過單一寫死的產生器之處:每一步都是可換可調的節點,還能加描邊與多階調)
     celSmoke: {
@@ -1152,6 +1305,7 @@ const Presets = (() => {
     celExplosion:  { emoji: '🧨', name: '卡通爆炸', en: 'Cel Explosion', cat: 'hit' },
     celMushroom:   { emoji: '🍄', name: '卡通蘑菇雲', en: 'Cel Mushroom', cat: 'hit' },
     celIceBurst:   { emoji: '🧊', name: '卡通冰爆', en: 'Cel Ice Burst', cat: 'hit' },
+    celThunder:    { emoji: '⚡', name: '卡通落雷', en: 'Cel Thunder', cat: 'hit' },
     ring:          { emoji: '⭕', name: '環狀衝擊波', en: 'Shockwave', cat: 'hit' },
     trail:         { emoji: '➰', name: '一般拖尾', en: 'Trail', cat: 'trail' },
     stylizedTrail: { emoji: '🎗', name: '風格化拖尾', en: 'Stylized', cat: 'trail' },
@@ -1173,6 +1327,7 @@ const Presets = (() => {
     water:         { emoji: '💧', name: '水花', en: 'Water Splash', cat: 'element' },
     frost:         { emoji: '❄', name: '冰晶', en: 'Frost', cat: 'element' },
     toxic:         { emoji: '☣', name: '毒液氣泡', en: 'Toxic Bubbles', cat: 'element' },
+    celShield:     { emoji: '🛡', name: '卡通護盾', en: 'Cel Shield', cat: 'ringcat' },
     magic:         { emoji: '🪄', name: '魔法陣', en: 'Magic Circle', cat: 'ringcat' },
     pattern:       { emoji: '🔳', name: '規則圖騰', en: 'Pattern', cat: 'ringcat' },
     celSmoke:      { emoji: '☁', name: '卡通煙團', en: 'Cel Smoke', cat: 'surface' },
@@ -1180,6 +1335,9 @@ const Presets = (() => {
     celPoison:     { emoji: '☠', name: '卡通毒霧', en: 'Cel Poison', cat: 'surface' },
     celSplash:     { emoji: '💦', name: '卡通水花', en: 'Cel Splash', cat: 'element' },
     celBubble:     { emoji: '🫧', name: '卡通泡泡', en: 'Cel Bubble', cat: 'element' },
+    celCrystal:    { emoji: '💠', name: '卡通水晶', en: 'Cel Crystal', cat: 'element' },
+    celStardust:   { emoji: '🌟', name: '卡通星塵', en: 'Cel Stardust', cat: 'element' },
+    celTornado:    { emoji: '🌪', name: '卡通龍捲風', en: 'Cel Tornado', cat: 'element' },
     cracks:        { emoji: '🕸', name: '裂縫', en: 'Cracks', cat: 'surface' },
     groundCrack:   { emoji: '🪨', name: '地裂', en: 'Ground Cracks', cat: 'surface' },
     smoke:         { emoji: '🌫', name: '煙霧', en: 'Smoke', cat: 'surface' },
