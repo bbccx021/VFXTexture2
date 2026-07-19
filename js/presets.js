@@ -31,33 +31,51 @@ const Presets = (() => {
     // 🔥 火焰:柔邊圓 → 柏林雜訊方向扭曲(往上) → 漩渦 → 直方圖掃描 → 火焰漸層 → 發光
     fire: {
       nodes: [
-        ['base', 'shape', 40, 40, { type: 'spike', size: 0.92, width: 1.15, falloff: 0.4, soft: 0.08 }],
-        ['str', 'transform', 230, 40, { sx: 1, sy: 0.92, oy: 0.03, tiling: false }],
-        ['nz', 'perlin', 230, 260, { scale: 4, octaves: 2, seed: 11 }],   // 低頻:卡通不要細碎雜訊
-        ['wp', 'warp', 420, 130, { mode: 'grad', intensity: 5 }],         // 擾動出火舌
-        ['sc', 'histogramScan', 610, 130, { pos: 0.4, contrast: 0.92 }],  // 硬邊剪影
-        ['iv1', 'invert', 800, 130, {}],
-        ['dst', 'distance', 990, 130, { dist: 0.14, curve: 1 }],
-        ['iv2', 'invert', 1180, 130, {}],                                  // ↑三連 = 內距離場(中心亮)
-        ['dtl', 'perlin', 1180, 350, { scale: 9, octaves: 3, seed: 61 }],   // 內部細節雜訊
-        ['dm', 'blend', 1370, 220, { mode: 'mul', opacity: 0.4 }],          // 疊進火焰內部,產生層次
-        ['po', 'posterize', 1560, 220, { levels: 10, soft: 0.5 }],
-        ['grad', 'gradientMap', 1750, 220, { preset: 'celFire', steps: 0, alphaGain: 4 }],
-        ['out', 'output', 1940, 220],
+        // ── 1. 剪影:多向扭曲舔出火舌(RTVFX 分解稱「一半的魔法在這一步」)──
+        ['base', 'shape', 40, 40, { type: 'spike', size: 0.84, width: 1.02, falloff: 0.45, soft: 0.06 }],
+        ['str', 'transform', 230, 40, { sx: 1.05, sy: 0.92, oy: 0.07, tiling: false }],
+        ['nz', 'perlin', 230, 300, { scale: 3, octaves: 2, seed: 11 }],   // 低頻控制圖
+        ['mw', 'multiWarp', 420, 40, { mode: 'max', dirs: 5, intensity: 1.1, angle: 20 }],
+        ['wp', 'warp', 610, 40, { mode: 'grad', intensity: 2.5 }],        // 再打散一次,破除對稱
+        ['sc', 'histogramScan', 800, 40, { pos: 0.42, contrast: 0.9 }],   // 硬邊剪影
+
+        // ── 2. 核心:內距離場(中心亮)──
+        ['iv1', 'invert', 990, 40, {}],
+        ['dst', 'distance', 1180, 40, { dist: 0.13, curve: 0.85 }],
+        ['iv2', 'invert', 1370, 40, {}],
+
+        // ── 3. 立體感關鍵:用向上拉伸的雜訊把等高帶扭成火舌 ──
+        //    原本等高線完全平行於輪廓 → 讀起來像地形圖(扁平)。
+        //    扭曲後band會擠壓、分岔、上竄,才有火在燒的體積感。
+        ['fn', 'perlin', 990, 300, { mode: 'billow', scale: 4, octaves: 3, seed: 61 }],
+        ['fb', 'blur', 1180, 300, { mode: 'dir', amount: 3.5, angle: 90 }],  // 縱向拉成火流
+        ['fw', 'warp', 1560, 130, { mode: 'grad', intensity: 3 }],
+
+        // ── 4. 內部暗斑 + 裁回剪影 ──
+        ['dtl', 'perlin', 1560, 380, { scale: 6, octaves: 2, seed: 61 }],
+        ['dm', 'blend', 1750, 240, { mode: 'mul', opacity: 0.3 }],
+        ['msk', 'blend', 1940, 130, { mode: 'mul' }],                     // 扭曲不外溢,輪廓保持銳利
+        ['po', 'posterize', 2130, 130, { levels: 9, soft: 0.22 }],
+        ['grad', 'gradientMap', 2320, 130, { preset: 'celFire', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 2510, 130],
       ],
       links: [
         ['base', 'str'],
-        ['str', 'wp', 0], ['nz', 'wp', 1],
+        ['str', 'mw', 0], ['nz', 'mw', 1],
+        ['mw', 'wp', 0], ['nz', 'wp', 1],
         ['wp', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
-        ['dtl', 'dm', 0], ['iv2', 'dm', 1],
-        ['dm', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['fn', 'fb'],
+        ['iv2', 'fw', 0], ['fb', 'fw', 1],
+        ['dtl', 'dm', 0], ['fw', 'dm', 1],
+        ['sc', 'msk', 0], ['dm', 'msk', 1],
+        ['msk', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
-        { label: '火舌擾動', def: 0.44, targets: [['wp', 'intensity', 1, 7]] },
-        { label: '火焰高度', def: 0.5, targets: [['str', 'sy', 1, 1.7]] },
-        { label: '細節強度', def: 0.5, targets: [['dm', 'opacity', 0, 0.8]] },
+        { label: '火舌擾動', def: 0.42, targets: [['mw', 'intensity', 0.2, 2.4]] },
+        { label: '火焰高度', def: 0.35, targets: [['str', 'sy', 0.8, 1.15]] },
+        { label: '內部流動', def: 0.5, targets: [['fw', 'intensity', 0, 6]] },
+        { label: '亮核大小', def: 0.5, targets: [['dst', 'dist', 0.2, 0.045]] },
         { label: '色帶層數', def: 0.5, targets: [['po', 'levels', 4, 16]] },
-        { label: '核心大小', def: 0.5, targets: [['dst', 'dist', 0.06, 0.24]] },
       ],
     },
 
