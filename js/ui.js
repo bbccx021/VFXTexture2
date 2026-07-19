@@ -941,8 +941,13 @@ const UI = (() => {
     });
     document.getElementById('preview-bg').addEventListener('change', requestRender);
     document.getElementById('preview-tile').addEventListener('change', () => { requestRender(); ensureAnimLoop(); });
-    document.getElementById('preview-anim').addEventListener('change', ensureAnimLoop);
-    document.getElementById('preview-anim-mode').addEventListener('change', () => { animT0 = performance.now(); });
+    // 動態預覽:預設關閉(靜態),勾選才啟用;關閉時一併收起模式選單
+    const animChk = document.getElementById('preview-anim');
+    const animModeSel = document.getElementById('preview-anim-mode');
+    const syncAnimUI = () => { animModeSel.style.display = animChk.checked ? '' : 'none'; };
+    animChk.addEventListener('change', () => { syncAnimUI(); ensureAnimLoop(); });
+    animModeSel.addEventListener('change', () => { animT0 = performance.now(); });
+    syncAnimUI();
     document.getElementById('btn-export').addEventListener('click', exportPNG);
 
     // 範本牆 & 變體
