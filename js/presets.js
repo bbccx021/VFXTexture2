@@ -683,6 +683,168 @@ const Presets = (() => {
       ],
     },
 
+    // 🍄 卡通蘑菇雲:寬扁雲蓋(上移壓扁)+ 窄柱雲柱(下移縮窄)→ 聯集成高度場 → 卡通打光
+    celMushroom: {
+      nodes: [
+        ['cap', 'blobField', 40, 40, { count: 12, size: 0.82, spread: 0.42, taper: 0.35, fuse: 0.65, wobble: 0.4, seed: 21 }],
+        ['capT', 'transform', 240, 40, { sx: 1.45, sy: 0.85, oy: -0.16, tiling: false }],
+        ['stem', 'shape', 40, 300, { type: 'blob', size: 0.55, falloff: 1.1 }],              // 柱體用單一柔邊圓拉長,高度剖面才圓潤
+        ['stemT', 'transform', 240, 300, { sx: 0.3, sy: 1, oy: 0.22, tiling: false }],
+        ['un', 'blend', 440, 150, { mode: 'max' }],
+        ['cel', 'celShade', 640, 150, { tones: 3, terminator: 0.5, lightAngle: -115, relief: 0.55, shadowTone: 0.36, litTone: 0.95, edge: 0.035 }],
+        ['line', 'outline', 840, 360, { width: 0.009, side: 'inner', threshold: 0.1 }],
+        ['sub', 'blend', 1040, 200, { mode: 'sub', opacity: 0.45 }],
+        ['grad', 'gradientMap', 1240, 200, { preset: 'celFire', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1440, 200],
+      ],
+      links: [
+        ['cap', 'capT'], ['stem', 'stemT'],
+        ['capT', 'un', 0], ['stemT', 'un', 1],
+        ['un', 'cel'], ['cel', 'line'],
+        ['line', 'sub', 0], ['cel', 'sub', 1],
+        ['sub', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '雲蓋寬度', def: 0.5, targets: [['capT', 'sx', 0.8, 1.6]] },
+        { label: '雲柱粗細', def: 0.35, targets: [['stemT', 'sx', 0.2, 0.85]] },
+        { label: '整體高度', def: 0.5, targets: [['capT', 'oy', -0.05, -0.35]] },
+        { label: '團塊數量', def: 0.55, targets: [['cap', 'count', 5, 14]] },
+        { label: '陰影範圍', def: 0.42, targets: [['cel', 'terminator', 0.25, 0.85]] },
+      ],
+    },
+
+    // 💦 卡通水花:低矮水冠 + 上方飛濺水滴,一起送進高度場打光 → 清水色帶
+    celSplash: {
+      nodes: [
+        ['crown', 'blobField', 40, 40, { count: 7, size: 0.62, spread: 0.55, taper: 0.65, fuse: 0.4, wobble: 0.35, seed: 33 }],
+        ['crownT', 'transform', 240, 40, { sx: 1.4, sy: 0.72, oy: 0.2, tiling: false }],
+        ['drops', 'splatterCircular', 40, 300, { pattern: 'blob', count: 9, radius: 0.36, size: 0.1, width: 0.8, sizeRand: 0.55, angJitter: 0.45, radJitter: 0.35, seed: 12 }],
+        ['dmask', 'ramp', 40, 520, { angle: -90, start: 0.35, end: 0.52, curve: 1 }],  // 硬切:下半部歸零,水滴只留上方
+        ['dmul', 'blend', 240, 400, { mode: 'mul' }],                                   // 只保留向上飛濺的水滴
+        ['dropT', 'transform', 440, 400, { sy: 0.85, oy: -0.12, tiling: false }],
+        ['un', 'blend', 440, 150, { mode: 'max' }],
+        ['cel', 'celShade', 640, 150, { tones: 3, terminator: 0.48, lightAngle: -100, relief: 0.6, shadowTone: 0.34, litTone: 0.96, edge: 0.03 }],
+        ['line', 'outline', 840, 360, { width: 0.008, side: 'inner', threshold: 0.1 }],
+        ['sub', 'blend', 1040, 200, { mode: 'sub', opacity: 0.4 }],
+        ['grad', 'gradientMap', 1240, 200, { preset: 'celWater', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1440, 200],
+      ],
+      links: [
+        ['crown', 'crownT'],
+        ['dmask', 'dmul', 0], ['drops', 'dmul', 1], ['dmul', 'dropT'],
+        ['dropT', 'un', 0], ['crownT', 'un', 1],
+        ['un', 'cel'], ['cel', 'line'],
+        ['line', 'sub', 0], ['cel', 'sub', 1],
+        ['sub', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '水冠寬度', def: 0.5, targets: [['crownT', 'sx', 0.8, 1.8]] },
+        { label: '水滴數量', def: 0.44, targets: [['drops', 'count', 4, 18]] },
+        { label: '水滴大小', def: 0.4, targets: [['drops', 'size', 0.06, 0.24]] },
+        { label: '飛濺高度', def: 0.5, targets: [['dropT', 'oy', 0.02, -0.28]] },
+        { label: '陰影範圍', def: 0.38, targets: [['cel', 'terminator', 0.25, 0.85]] },
+      ],
+    },
+
+    // 🧊 卡通冰爆:圓核 + 銳利冰刺放射,高相對立體感做出稜面 → 冰色帶
+    celIceBurst: {
+      nodes: [
+        ['core', 'blobField', 40, 40, { count: 5, size: 0.56, spread: 0.3, taper: 0.2, fuse: 0.5, wobble: 0.25, seed: 17 }],
+        ['shard', 'splatterCircular', 40, 300, { pattern: 'spike', count: 12, radius: 0.28, size: 0.42, width: 0.24, sizeRand: 0.45, angJitter: 0.25, seed: 6 }],
+        ['un', 'blend', 240, 150, { mode: 'max' }],
+        ['cel', 'celShade', 440, 150, { tones: 3, terminator: 0.52, lightAngle: -125, relief: 0.9, shadowTone: 0.3, litTone: 0.96, edge: 0.02 }],
+        ['line', 'outline', 640, 360, { width: 0.008, side: 'inner', threshold: 0.1 }],
+        ['sub', 'blend', 840, 200, { mode: 'sub', opacity: 0.45 }],
+        ['grad', 'gradientMap', 1040, 200, { preset: 'celIce', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1240, 200],
+      ],
+      links: [
+        ['shard', 'un', 0], ['core', 'un', 1],
+        ['un', 'cel'], ['cel', 'line'],
+        ['line', 'sub', 0], ['cel', 'sub', 1],
+        ['sub', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '冰刺數量', def: 0.4, targets: [['shard', 'count', 5, 20]] },
+        { label: '冰刺長度', def: 0.5, targets: [['shard', 'size', 0.2, 0.65]] },
+        { label: '冰刺銳度', def: 0.35, targets: [['shard', 'width', 0.1, 0.5]] },
+        { label: '核心大小', def: 0.45, targets: [['core', 'size', 0.3, 0.9]] },
+        { label: '稜面強度', def: 0.45, targets: [['cel', 'relief', 0.3, 1.8]] },
+      ],
+    },
+
+    // 🪨 卡通岩石:分離團塊(低融合)+ 強立體打光 → 平塗稜面 → 灰岩色帶
+    celRock: {
+      nodes: [
+        ['blobs', 'blobField', 40, 40, { count: 6, size: 0.8, spread: 0.38, taper: 0.3, fuse: 0.12, wobble: 0.45, seed: 27 }],
+        ['cel', 'celShade', 240, 40, { tones: 3, terminator: 0.52, lightAngle: -120, relief: 0.85, shadowTone: 0.34, litTone: 0.92, edge: 0.02 }],
+        ['line', 'outline', 440, 260, { width: 0.011, side: 'inner', threshold: 0.1 }],
+        ['sub', 'blend', 640, 130, { mode: 'sub', opacity: 0.5 }],
+        ['grad', 'gradientMap', 840, 130, { preset: 'celSmoke', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1040, 130],
+      ],
+      links: [
+        ['blobs', 'cel'], ['cel', 'line'],
+        ['line', 'sub', 0], ['cel', 'sub', 1],
+        ['sub', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '岩塊數量', def: 0.38, targets: [['blobs', 'count', 3, 11]] },
+        { label: '岩塊大小', def: 0.5, targets: [['blobs', 'size', 0.5, 1.2]] },
+        { label: '稜角分明', def: 0.12, targets: [['blobs', 'fuse', 0, 0.8]] },
+        { label: '表面凹凸', def: 0.45, targets: [['blobs', 'wobble', 0, 1]] },
+        { label: '受光強度', def: 0.37, targets: [['cel', 'relief', 0.3, 1.8]] },
+      ],
+    },
+
+    // 🫧 卡通泡泡:幾乎不融合的獨立球體 + 球面打光 → 清水色帶
+    celBubble: {
+      nodes: [
+        ['blobs', 'blobField', 40, 40, { count: 7, size: 0.5, spread: 0.85, taper: 0.1, fuse: 0.02, wobble: 0.08, seed: 41 }],
+        ['cel', 'celShade', 240, 40, { tones: 3, terminator: 0.62, lightAngle: -135, relief: 0.7, shadowTone: 0.4, litTone: 0.98, edge: 0.025 }],
+        ['line', 'outline', 440, 260, { width: 0.007, side: 'inner', threshold: 0.1 }],
+        ['mx', 'blend', 640, 130, { mode: 'max' }],
+        ['grad', 'gradientMap', 840, 130, { preset: 'celWater', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1040, 130],
+      ],
+      links: [
+        ['blobs', 'cel'], ['cel', 'line'],
+        ['line', 'mx', 0], ['cel', 'mx', 1],
+        ['mx', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '泡泡數量', def: 0.4, targets: [['blobs', 'count', 3, 13]] },
+        { label: '泡泡大小', def: 0.4, targets: [['blobs', 'size', 0.28, 0.85]] },
+        { label: '散開範圍', def: 0.7, targets: [['blobs', 'spread', 0.3, 1.2]] },
+        { label: '高光位置', def: 0.5, targets: [['cel', 'lightAngle', -180, 0]] },
+        { label: '亮邊粗細', def: 0.25, targets: [['line', 'width', 0.003, 0.02]] },
+      ],
+    },
+
+    // ☠ 卡通毒霧:蓬鬆霧團 + 卡通打光 → 劇毒色帶
+    celPoison: {
+      nodes: [
+        ['blobs', 'blobField', 40, 40, { count: 10, size: 0.85, spread: 0.6, taper: 0.5, fuse: 0.35, wobble: 0.45, seed: 55 }],
+        ['cel', 'celShade', 240, 40, { tones: 3, terminator: 0.55, lightAngle: -110, relief: 0.5, shadowTone: 0.35, litTone: 0.93, edge: 0.05 }],
+        ['line', 'outline', 440, 260, { width: 0.009, side: 'inner', threshold: 0.1 }],
+        ['sub', 'blend', 640, 130, { mode: 'sub', opacity: 0.42 }],
+        ['grad', 'gradientMap', 840, 130, { preset: 'celToxic', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1040, 130],
+      ],
+      links: [
+        ['blobs', 'cel'], ['cel', 'line'],
+        ['line', 'sub', 0], ['cel', 'sub', 1],
+        ['sub', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '霧團數量', def: 0.5, targets: [['blobs', 'count', 5, 15]] },
+        { label: '霧團大小', def: 0.55, targets: [['blobs', 'size', 0.5, 1.25]] },
+        { label: '擴散範圍', def: 0.4, targets: [['blobs', 'spread', 0.25, 1.1]] },
+        { label: '翻騰感', def: 0.45, targets: [['blobs', 'wobble', 0, 1]] },
+        { label: '陰影範圍', def: 0.5, targets: [['cel', 'terminator', 0.25, 0.85]] },
+      ],
+    },
+
     // ☁ 卡通煙團:球體聯集高度場 → 卡通打光硬切終端線 → 外描邊 → 平塗色階
     //   (勝過單一寫死的產生器之處:每一步都是可換可調的節點,還能加描邊與多階調)
     celSmoke: {
@@ -988,6 +1150,8 @@ const Presets = (() => {
     circleImpact:  { emoji: '🎯', name: '圓形撞擊', en: 'Circle Impact', cat: 'hit' },
     burst:         { emoji: '💥', name: '打擊爆閃', en: 'Hit Burst', cat: 'hit' },
     celExplosion:  { emoji: '🧨', name: '卡通爆炸', en: 'Cel Explosion', cat: 'hit' },
+    celMushroom:   { emoji: '🍄', name: '卡通蘑菇雲', en: 'Cel Mushroom', cat: 'hit' },
+    celIceBurst:   { emoji: '🧊', name: '卡通冰爆', en: 'Cel Ice Burst', cat: 'hit' },
     ring:          { emoji: '⭕', name: '環狀衝擊波', en: 'Shockwave', cat: 'hit' },
     trail:         { emoji: '➰', name: '一般拖尾', en: 'Trail', cat: 'trail' },
     stylizedTrail: { emoji: '🎗', name: '風格化拖尾', en: 'Stylized', cat: 'trail' },
@@ -1012,6 +1176,10 @@ const Presets = (() => {
     magic:         { emoji: '🪄', name: '魔法陣', en: 'Magic Circle', cat: 'ringcat' },
     pattern:       { emoji: '🔳', name: '規則圖騰', en: 'Pattern', cat: 'ringcat' },
     celSmoke:      { emoji: '☁', name: '卡通煙團', en: 'Cel Smoke', cat: 'surface' },
+    celRock:       { emoji: '🪨', name: '卡通岩石', en: 'Cel Rock', cat: 'surface' },
+    celPoison:     { emoji: '☠', name: '卡通毒霧', en: 'Cel Poison', cat: 'surface' },
+    celSplash:     { emoji: '💦', name: '卡通水花', en: 'Cel Splash', cat: 'element' },
+    celBubble:     { emoji: '🫧', name: '卡通泡泡', en: 'Cel Bubble', cat: 'element' },
     cracks:        { emoji: '🕸', name: '裂縫', en: 'Cracks', cat: 'surface' },
     groundCrack:   { emoji: '🪨', name: '地裂', en: 'Ground Cracks', cat: 'surface' },
     smoke:         { emoji: '🌫', name: '煙霧', en: 'Smoke', cat: 'surface' },
