@@ -40,7 +40,7 @@ const Presets = (() => {
         ['dst', 'distance', 990, 130, { dist: 0.14, curve: 1 }],
         ['iv2', 'invert', 1180, 130, {}],                                  // ↑三連 = 內距離場(中心亮)
         ['po', 'posterize', 1370, 130, { levels: 4, soft: 0 }],            // 同心平塗色帶
-        ['grad', 'gradientMap', 1560, 130, { preset: 'fire', steps: 4 }],
+        ['grad', 'gradientMap', 1560, 130, { preset: 'fire', steps: 3 }],
         ['out', 'output', 1750, 130],
       ],
       links: [
@@ -127,8 +127,8 @@ const Presets = (() => {
         ['ring2', 'shape', 250, 480, { type: 'ring', size: 0.62, width: 0.06, soft: 0.012 }],
         ['mix1', 'blend', 460, 130, { mode: 'max' }],
         ['mix2', 'blend', 670, 200, { mode: 'max' }],
-        ['grad', 'gradientMap', 880, 200, { preset: 'arcane', steps: 4 }],
-        ['glow', 'glow', 1090, 200, { threshold: 0.3, radius: 4, intensity: 1.6 }],
+        ['grad', 'gradientMap', 880, 200, { preset: 'arcane', steps: 3 }],
+        ['glow', 'glow', 1090, 200, { threshold: 0.3, radius: 4, intensity: 0 }],
         ['out', 'output', 1300, 200],
       ],
       links: [
@@ -140,7 +140,7 @@ const Presets = (() => {
         { label: '符文數量', def: 0.33, targets: [['mapper', 'count', 6, 24]] },
         { label: '外環大小', def: 0.78, targets: [['ring1', 'size', 0.9, 1.35]] },
         { label: '內環大小', def: 0.49, targets: [['ring2', 'size', 0.4, 0.85]] },
-        { label: '光暈強度', def: 0.42, targets: [['glow', 'intensity', 0.6, 3]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 3]] },
       ],
     },
 
@@ -248,7 +248,7 @@ const Presets = (() => {
         ['fade', 'ramp', 420, 350, { angle: 0, start: 0.02, end: 0.9, curve: 1.3 }],
         ['fm', 'blend', 610, 220, { mode: 'mul' }],
         ['sc', 'histogramScan', 800, 220, { pos: 0.45, contrast: 0.85 }],
-        ['grad', 'gradientMap', 990, 220, { preset: 'ice', steps: 4 }],
+        ['grad', 'gradientMap', 990, 220, { preset: 'ice', steps: 3 }],
         ['out', 'output', 1180, 220],
       ],
       links: [
@@ -308,8 +308,8 @@ const Presets = (() => {
         ['mask', 'shape', 230, 350, { type: 'blob', size: 1.25, falloff: 0.8 }],
         ['mm', 'blend', 420, 220, { mode: 'mul' }],
         ['sc', 'histogramScan', 610, 220, { pos: 0.55, contrast: 0.7 }],
-        ['grad', 'gradientMap', 800, 220, { preset: 'ember', steps: 4 }],
-        ['glow', 'glow', 990, 220, { threshold: 0.35, radius: 4, intensity: 1.6 }],
+        ['grad', 'gradientMap', 800, 220, { preset: 'ember', steps: 3 }],
+        ['glow', 'glow', 990, 220, { threshold: 0.35, radius: 4, intensity: 0 }],
         ['out', 'output', 1180, 220],
       ],
       links: [
@@ -322,7 +322,7 @@ const Presets = (() => {
         { label: '有機扭曲', def: 0.38, targets: [['wp', 'intensity', 0.4, 2.5]] },
         { label: '範圍大小', def: 0.56, targets: [['mask', 'size', 0.8, 1.6]] },
         { label: '輪廓緊實', def: 0.66, targets: [['sc', 'contrast', 0.3, 0.9]] },
-        { label: '光暈強度', def: 0.5, targets: [['glow', 'intensity', 0.5, 2.5]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 2.5]] },
       ],
     },
 
@@ -365,8 +365,8 @@ const Presets = (() => {
         ['fm', 'blend', 610, 350, { mode: 'mul' }],
         ['mx', 'blend', 800, 130, { mode: 'max' }],
         ['lv', 'levels', 990, 130, { gamma: 0.8 }],
-        ['grad', 'gradientMap', 1180, 130, { preset: 'toxic', steps: 4 }],
-        ['glow', 'glow', 1370, 130, { threshold: 0.4, radius: 5, intensity: 1.5 }],
+        ['grad', 'gradientMap', 1180, 130, { preset: 'toxic', steps: 3 }],
+        ['glow', 'glow', 1370, 130, { threshold: 0.4, radius: 5, intensity: 0 }],
         ['out', 'output', 1560, 130],
       ],
       links: [
@@ -381,7 +381,7 @@ const Presets = (() => {
         { label: '尾焰長度', def: 0.44, targets: [['tail', 'sx', 1.4, 3.2]] },
         { label: '尾焰模糊', def: 0.45, targets: [['tb', 'amount', 3, 14]] },
         { label: '尾焰淡出', def: 0.67, targets: [['fade', 'end', 0.7, 1]] },
-        { label: '光暈強度', def: 0.38, targets: [['glow', 'intensity', 0.6, 3]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 3]] },
       ],
     },
 
@@ -417,8 +417,8 @@ const Presets = (() => {
         ['nz', 'perlin', 230, 350, { scale: 5, octaves: 3, seed: 40 }],
         ['wp', 'warp', 420, 220, { mode: 'grad', intensity: 1 }],
         ['sc', 'histogramScan', 610, 220, { pos: 0.35, contrast: 0.6 }],
-        ['grad', 'gradientMap', 800, 220, { preset: 'gold', steps: 4 }],
-        ['glow', 'glow', 990, 220, { threshold: 0.4, radius: 6, intensity: 1.5 }],
+        ['grad', 'gradientMap', 800, 220, { preset: 'gold', steps: 3 }],
+        ['glow', 'glow', 990, 220, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 1180, 220],
       ],
       links: [
@@ -431,7 +431,7 @@ const Presets = (() => {
         { label: '星芒長度', def: 0.4, targets: [['sp', 'size', 0.3, 0.8]] },
         { label: '光核大小', def: 0.43, targets: [['core', 'size', 0.25, 0.6]] },
         { label: '邊緣擾動', def: 0.41, targets: [['wp', 'intensity', 0.3, 2]] },
-        { label: '光暈強度', def: 0.38, targets: [['glow', 'intensity', 0.6, 3]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 3]] },
       ],
     },
 
@@ -552,7 +552,7 @@ const Presets = (() => {
         ['dst', 'distance', 990, 130, { dist: 0.16, curve: 1 }],
         ['iv2', 'invert', 1180, 130, {}],
         ['po', 'posterize', 1370, 130, { levels: 4, soft: 0 }],
-        ['grad', 'gradientMap', 1560, 130, { preset: 'fire', steps: 4 }],
+        ['grad', 'gradientMap', 1560, 130, { preset: 'fire', steps: 3 }],
         ['out', 'output', 1750, 130],
       ],
       links: [
@@ -692,8 +692,8 @@ const Presets = (() => {
         ['c4', 'cells', 1180, 350, { mode: 'f1', scale: 12, seed: 5 }],
         ['c4b', 'blur', 1370, 350, { mode: 'gauss', amount: 1.5 }],
         ['w2', 'warp', 1560, 130, { mode: 'grad', intensity: 0.5 }],
-        ['grad', 'gradientMap', 1750, 130, { preset: 'fire', steps: 4 }],
-        ['glow', 'glow', 1940, 130, { threshold: 0.5, radius: 5, intensity: 1.2 }],
+        ['grad', 'gradientMap', 1750, 130, { preset: 'fire', steps: 3 }],
+        ['glow', 'glow', 1940, 130, { threshold: 0.5, radius: 5, intensity: 0 }],
         ['out', 'output', 2130, 130],
       ],
       links: [
@@ -713,7 +713,7 @@ const Presets = (() => {
         { label: '生長距離', def: 0.37, targets: [['sb', 'intensity', 0.3, 2.2]] },
         { label: '破壞程度', def: 0.5, targets: [['sub', 'opacity', 0, 1]] },
         { label: '裂縫粗細', def: 0.3, targets: [['dst', 'dist', 0.02, 0.12]] },
-        { label: '光暈強度', def: 0.38, targets: [['glow', 'intensity', 0.4, 2.5]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 2.5]] },
       ],
     },
 
@@ -725,8 +725,8 @@ const Presets = (() => {
         ['wp', 'warp', 230, 130, { mode: 'grad', intensity: 3 }],
         ['sw', 'swirl', 420, 130, { amount: 90, radius: 1.1 }],
         ['sc', 'histogramScan', 610, 130, { pos: 0.4, contrast: 0.4 }],
-        ['grad', 'gradientMap', 800, 130, { preset: 'arcane', steps: 4 }],
-        ['glow', 'glow', 990, 130, { threshold: 0.4, radius: 6, intensity: 1.6 }],
+        ['grad', 'gradientMap', 800, 130, { preset: 'arcane', steps: 3 }],
+        ['glow', 'glow', 990, 130, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 1180, 130],
       ],
       links: [
@@ -737,7 +737,7 @@ const Presets = (() => {
         { label: '能量翻騰', def: 0.42, targets: [['wp', 'intensity', 1.5, 6]] },
         { label: '旋轉動勢', def: 0.5, targets: [['sw', 'amount', 0, 180]] },
         { label: '湍流細節', def: 0.4, targets: [['nz', 'scale', 3, 8]] },
-        { label: '光暈強度', def: 0.35, targets: [['glow', 'intensity', 0.6, 3]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 3]] },
       ],
     },
 
@@ -750,8 +750,8 @@ const Presets = (() => {
         ['core', 'shape', 40, 480, { type: 'gauss', size: 0.3 }],
         ['mx1', 'blend', 420, 130, { mode: 'max' }],
         ['mx2', 'blend', 610, 220, { mode: 'max' }],
-        ['grad', 'gradientMap', 800, 220, { preset: 'ice', steps: 4 }],
-        ['glow', 'glow', 990, 220, { threshold: 0.4, radius: 6, intensity: 2 }],
+        ['grad', 'gradientMap', 800, 220, { preset: 'ice', steps: 3 }],
+        ['glow', 'glow', 990, 220, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 1180, 220],
       ],
       links: [
@@ -764,7 +764,7 @@ const Presets = (() => {
         { label: '星芒長度', def: 0.45, targets: [['hz', 'sx', 2.5, 4.6], ['vt', 'sy', 2.5, 4.6]] },
         { label: '十字粗細', def: 0.2, targets: [['hz', 'sy', 0.03, 0.14], ['vt', 'sx', 0.03, 0.14]] },
         { label: '光核大小', def: 0.4, targets: [['core', 'size', 0.2, 0.5]] },
-        { label: '光暈強度', def: 0.5, targets: [['glow', 'intensity', 0.8, 3.5]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 3.5]] },
       ],
     },
 
@@ -776,8 +776,8 @@ const Presets = (() => {
         ['ring', 'shape', 40, 260, { type: 'ring', size: 1, width: 0.55, soft: 0.15 }],
         ['mm', 'blend', 420, 130, { mode: 'mul' }],
         ['sc', 'histogramScan', 610, 130, { pos: 0.45, contrast: 0.4 }],
-        ['grad', 'gradientMap', 800, 130, { preset: 'arcane', steps: 4 }],
-        ['glow', 'glow', 990, 130, { threshold: 0.35, radius: 5, intensity: 1.8 }],
+        ['grad', 'gradientMap', 800, 130, { preset: 'arcane', steps: 3 }],
+        ['glow', 'glow', 990, 130, { threshold: 0.35, radius: 5, intensity: 0 }],
         ['out', 'output', 1180, 130],
       ],
       links: [
@@ -789,7 +789,7 @@ const Presets = (() => {
         { label: '漩渦強度', def: 0.43, targets: [['sw', 'amount', 180, 720]] },
         { label: '環厚度', def: 0.5, targets: [['ring', 'width', 0.3, 0.8]] },
         { label: '紊亂細節', def: 0.25, targets: [['nz', 'scale', 2, 6]] },
-        { label: '光暈強度', def: 0.4, targets: [['glow', 'intensity', 0.6, 3]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 3]] },
       ],
     },
 
@@ -799,8 +799,8 @@ const Presets = (() => {
         ['drops', 'splatterCircular', 40, 40, { pattern: 'blob', count: 12, radius: 0.28, size: 0.17, width: 0.5, sizeRand: 0.5, radJitter: 0.35, angJitter: 0.5, seed: 6 }],
         ['core', 'shape', 40, 260, { type: 'gauss', size: 0.52 }],
         ['mx', 'blend', 230, 130, { mode: 'max' }],
-        ['grad', 'gradientMap', 420, 130, { preset: 'ice', steps: 4 }],
-        ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 4, intensity: 1.2 }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'ice', steps: 3 }],
+        ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 4, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
       links: [
@@ -822,8 +822,8 @@ const Presets = (() => {
         ['mask', 'shape', 40, 260, { type: 'blob', size: 1.15, falloff: 0.9 }],
         ['mm', 'blend', 230, 130, { mode: 'mul' }],
         ['sc', 'histogramScan', 420, 130, { pos: 0.32, contrast: 0.55 }],
-        ['grad', 'gradientMap', 610, 130, { preset: 'ice', steps: 4 }],
-        ['glow', 'glow', 800, 130, { threshold: 0.45, radius: 4, intensity: 1.8 }],
+        ['grad', 'gradientMap', 610, 130, { preset: 'ice', steps: 3 }],
+        ['glow', 'glow', 800, 130, { threshold: 0.45, radius: 4, intensity: 0 }],
         ['out', 'output', 990, 130],
       ],
       links: [
@@ -834,7 +834,7 @@ const Presets = (() => {
         { label: '晶格密度', def: 0.3, targets: [['cr', 'scale', 4, 14]] },
         { label: '晶面銳利', def: 0.5, targets: [['sc', 'contrast', 0.3, 0.9]] },
         { label: '範圍大小', def: 0.57, targets: [['mask', 'size', 0.7, 1.4]] },
-        { label: '光暈強度', def: 0.42, targets: [['glow', 'intensity', 0.6, 2.5]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 2.5]] },
       ],
     },
 
@@ -844,8 +844,8 @@ const Presets = (() => {
         ['bub', 'tileSampler', 40, 40, { pattern: 'gauss', count: 6, size: 1.3, sizeRand: 0.6, posRand: 0.6, briRand: 0.4, seed: 3 }],
         ['mask', 'shape', 40, 260, { type: 'blob', size: 1.1, falloff: 1 }],
         ['mm', 'blend', 230, 130, { mode: 'mul' }],
-        ['grad', 'gradientMap', 420, 130, { preset: 'toxic', steps: 4 }],
-        ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 5, intensity: 1.3 }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'toxic', steps: 3 }],
+        ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 5, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
       links: [
@@ -886,8 +886,8 @@ const Presets = (() => {
         ['rays', 'splatterCircular', 40, 40, { pattern: 'streak', count: 22, radius: 0.03, size: 0.46, width: 0.09, sizeRand: 0.5, angJitter: 0.15, seed: 8 }],
         ['core', 'shape', 40, 260, { type: 'gauss', size: 0.28 }],
         ['mx', 'blend', 230, 130, { mode: 'max' }],
-        ['grad', 'gradientMap', 420, 130, { preset: 'gold', steps: 4 }],
-        ['glow', 'glow', 610, 130, { threshold: 0.4, radius: 6, intensity: 1.6 }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'gold', steps: 3 }],
+        ['glow', 'glow', 610, 130, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
       links: [
@@ -898,7 +898,7 @@ const Presets = (() => {
         { label: '光條數量', def: 0.4, targets: [['rays', 'count', 12, 32]] },
         { label: '綻放長度', def: 0.53, targets: [['rays', 'size', 0.3, 0.6]] },
         { label: '長度隨機', def: 0.5, targets: [['rays', 'sizeRand', 0, 0.8]] },
-        { label: '光暈強度', def: 0.35, targets: [['glow', 'intensity', 0.6, 3]] },
+        { label: '光暈強度', def: 0, targets: [['glow', 'intensity', 0, 3]] },
       ],
     },
 
