@@ -653,6 +653,36 @@ const Presets = (() => {
       ],
     },
 
+    // 💥 卡通爆炸:團塊高度場堆出蓬鬆火雲 → 卡通打光給體積 → 放射碎片 → 內描邊 → 火焰色帶
+    celExplosion: {
+      nodes: [
+        ['blobs', 'blobField', 40, 40, { count: 12, size: 0.72, spread: 0.85, taper: 0.2, fuse: 0.3, wobble: 0.35, seed: 9 }],
+        ['cel', 'celShade', 250, 40, { tones: 3, terminator: 0.5, lightAngle: -115, relief: 0.6, shadowTone: 0.32, litTone: 0.95, edge: 0.035 }],
+        ['spk', 'splatterCircular', 250, 300, { pattern: 'spike', count: 9, radius: 0.3, size: 0.3, width: 0.3, sizeRand: 0.5, angJitter: 0.35, seed: 4 }],
+        ['spkl', 'levels', 440, 300, { outHi: 0.7 }],           // 碎片略暗於雲亮面,才有前後層次
+        ['mx', 'blend', 640, 150, { mode: 'max' }],
+        ['line', 'outline', 840, 350, { width: 0.01, side: 'inner', threshold: 0.1 }],
+        ['sub', 'blend', 1040, 200, { mode: 'sub', opacity: 0.45 }],
+        ['grad', 'gradientMap', 1240, 200, { preset: 'celFire', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1440, 200],
+      ],
+      links: [
+        ['blobs', 'cel'],
+        ['spk', 'spkl'],
+        ['spkl', 'mx', 0], ['cel', 'mx', 1],
+        ['mx', 'line'],
+        ['line', 'sub', 0], ['mx', 'sub', 1],
+        ['sub', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '爆炸範圍', def: 0.55, targets: [['blobs', 'spread', 0.3, 1.2]] },
+        { label: '火雲團數', def: 0.62, targets: [['blobs', 'count', 5, 14]] },
+        { label: '碎片數量', def: 0.4, targets: [['spk', 'count', 4, 16]] },
+        { label: '碎片長度', def: 0.42, targets: [['spk', 'size', 0.15, 0.5]] },
+        { label: '陰影範圍', def: 0.42, targets: [['cel', 'terminator', 0.25, 0.85]] },
+      ],
+    },
+
     // ☁ 卡通煙團:球體聯集高度場 → 卡通打光硬切終端線 → 外描邊 → 平塗色階
     //   (勝過單一寫死的產生器之處:每一步都是可換可調的節點,還能加描邊與多階調)
     celSmoke: {
@@ -957,6 +987,7 @@ const Presets = (() => {
     impact:        { emoji: '💢', name: '碎裂衝擊', en: 'Impact', cat: 'hit' },
     circleImpact:  { emoji: '🎯', name: '圓形撞擊', en: 'Circle Impact', cat: 'hit' },
     burst:         { emoji: '💥', name: '打擊爆閃', en: 'Hit Burst', cat: 'hit' },
+    celExplosion:  { emoji: '🧨', name: '卡通爆炸', en: 'Cel Explosion', cat: 'hit' },
     ring:          { emoji: '⭕', name: '環狀衝擊波', en: 'Shockwave', cat: 'hit' },
     trail:         { emoji: '➰', name: '一般拖尾', en: 'Trail', cat: 'trail' },
     stylizedTrail: { emoji: '🎗', name: '風格化拖尾', en: 'Stylized', cat: 'trail' },
