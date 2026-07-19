@@ -40,7 +40,7 @@ const Presets = (() => {
         ['dst', 'distance', 990, 130, { dist: 0.14, curve: 1 }],
         ['iv2', 'invert', 1180, 130, {}],                                  // ↑三連 = 內距離場(中心亮)
         ['po', 'posterize', 1370, 130, { levels: 4, soft: 0 }],            // 同心平塗色帶
-        ['grad', 'gradientMap', 1560, 130, { preset: 'fire', steps: 3 }],
+        ['grad', 'gradientMap', 1560, 130, { preset: 'celFire', steps: 0 }],
         ['out', 'output', 1750, 130],
       ],
       links: [
@@ -72,7 +72,7 @@ const Presets = (() => {
         ['xsec2', 'crossSection', 460, 300, { pos: 0.5, width: 0.017, curve: 1 }],
         ['sc2', 'histogramScan', 650, 300, { pos: 0.5, contrast: 0.9 }],
         ['mx', 'blend', 1030, 170, { mode: 'max' }],                       // 白核疊在藍身上
-        ['grad', 'gradientMap', 1220, 170, { preset: 'electric', steps: 3 }],
+        ['grad', 'gradientMap', 1220, 170, { preset: 'celIce', steps: 0 }],
         ['out', 'output', 1410, 170],
       ],
       links: [
@@ -101,7 +101,7 @@ const Presets = (() => {
         ['dst', 'distance', 820, 130, { dist: 0.1, curve: 1 }],
         ['iv2', 'invert', 1010, 130, {}],
         ['po', 'posterize', 1200, 130, { levels: 3, soft: 0 }],
-        ['grad', 'gradientMap', 1390, 130, { preset: 'gold', steps: 3 }],
+        ['grad', 'gradientMap', 1390, 130, { preset: 'celGold', steps: 0 }],
         ['out', 'output', 1580, 130],
       ],
       links: [
@@ -127,7 +127,7 @@ const Presets = (() => {
         ['ring2', 'shape', 250, 480, { type: 'ring', size: 0.62, width: 0.06, soft: 0.012 }],
         ['mix1', 'blend', 460, 130, { mode: 'max' }],
         ['mix2', 'blend', 670, 200, { mode: 'max' }],
-        ['grad', 'gradientMap', 880, 200, { preset: 'arcane', steps: 3 }],
+        ['grad', 'gradientMap', 880, 200, { preset: 'celMagic', steps: 0 }],
         ['glow', 'glow', 1090, 200, { threshold: 0.3, radius: 4, intensity: 0 }],
         ['out', 'output', 1300, 200],
       ],
@@ -180,7 +180,7 @@ const Presets = (() => {
         // ── 第五階段:卡通化收尾(中空星環不適用內距離場,改直接平塗階調)──
         ['csc', 'histogramScan', 1560, 130, { pos: 0.28, contrast: 0.6 }],
         ['po', 'posterize', 1750, 130, { levels: 3, soft: 0 }],
-        ['grad', 'gradientMap', 1940, 130, { preset: 'gold', steps: 3 }],
+        ['grad', 'gradientMap', 1940, 130, { preset: 'celGold', steps: 0 }],
         ['out', 'output', 2130, 130],
         // ── 替代分支:柔軟圓潤版(點選預覽)──
         ['sdist', 'distance', 1560, 360, { dist: 0.16, curve: 1 }],
@@ -248,7 +248,7 @@ const Presets = (() => {
         ['fade', 'ramp', 420, 350, { angle: 0, start: 0.02, end: 0.9, curve: 1.3 }],
         ['fm', 'blend', 610, 220, { mode: 'mul' }],
         ['sc', 'histogramScan', 800, 220, { pos: 0.45, contrast: 0.85 }],
-        ['grad', 'gradientMap', 990, 220, { preset: 'ice', steps: 3 }],
+        ['grad', 'gradientMap', 990, 220, { preset: 'celIce', steps: 0 }],
         ['out', 'output', 1180, 220],
       ],
       links: [
@@ -308,7 +308,7 @@ const Presets = (() => {
         ['mask', 'shape', 230, 350, { type: 'blob', size: 1.25, falloff: 0.8 }],
         ['mm', 'blend', 420, 220, { mode: 'mul' }],
         ['sc', 'histogramScan', 610, 220, { pos: 0.55, contrast: 0.7 }],
-        ['grad', 'gradientMap', 800, 220, { preset: 'ember', steps: 3 }],
+        ['grad', 'gradientMap', 800, 220, { preset: 'celFire', steps: 0 }],
         ['glow', 'glow', 990, 220, { threshold: 0.35, radius: 4, intensity: 0 }],
         ['out', 'output', 1180, 220],
       ],
@@ -365,7 +365,7 @@ const Presets = (() => {
         ['fm', 'blend', 610, 350, { mode: 'mul' }],
         ['mx', 'blend', 800, 130, { mode: 'max' }],
         ['lv', 'levels', 990, 130, { gamma: 0.8 }],
-        ['grad', 'gradientMap', 1180, 130, { preset: 'toxic', steps: 3 }],
+        ['grad', 'gradientMap', 1180, 130, { preset: 'celToxic', steps: 0 }],
         ['glow', 'glow', 1370, 130, { threshold: 0.4, radius: 5, intensity: 0 }],
         ['out', 'output', 1560, 130],
       ],
@@ -417,7 +417,7 @@ const Presets = (() => {
         ['nz', 'perlin', 230, 350, { scale: 5, octaves: 3, seed: 40 }],
         ['wp', 'warp', 420, 220, { mode: 'grad', intensity: 1 }],
         ['sc', 'histogramScan', 610, 220, { pos: 0.35, contrast: 0.6 }],
-        ['grad', 'gradientMap', 800, 220, { preset: 'gold', steps: 3 }],
+        ['grad', 'gradientMap', 800, 220, { preset: 'celGold', steps: 0 }],
         ['glow', 'glow', 990, 220, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 1180, 220],
       ],
@@ -451,7 +451,7 @@ const Presets = (() => {
         ['fm2', 'blend', 1180, 300, { mode: 'mul' }],
         ['lv', 'levels', 1370, 300, { gamma: 1.6, outHi: 0.92 }],
         ['po', 'posterize', 1560, 300, { levels: 3, soft: 0 }],       // 平塗刀光階調
-        ['grad', 'gradientMap', 1750, 300, { preset: 'ice', steps: 3 }],
+        ['grad', 'gradientMap', 1750, 300, { preset: 'celIce', steps: 0 }],
         ['out', 'output', 1940, 300],
       ],
       links: [
@@ -484,7 +484,7 @@ const Presets = (() => {
         ['mx2', 'blend', 800, 300, { mode: 'max' }],
         ['lv', 'levels', 990, 300, { outHi: 0.8 }],
         ['po', 'posterize', 1180, 300, { levels: 3, soft: 0 }],
-        ['grad', 'gradientMap', 1370, 300, { preset: 'gold', steps: 3 }],
+        ['grad', 'gradientMap', 1370, 300, { preset: 'celGold', steps: 0 }],
         ['out', 'output', 1560, 300],
       ],
       links: [
@@ -520,7 +520,7 @@ const Presets = (() => {
         ['dst', 'distance', 1370, 220, { dist: 0.07, curve: 1 }],
         ['iv2', 'invert', 1560, 220, {}],                                  // 內距離場
         ['po', 'posterize', 1750, 220, { levels: 3, soft: 0 }],            // 同心熔岩色帶
-        ['grad', 'gradientMap', 1940, 220, { preset: 'ember', steps: 3 }],
+        ['grad', 'gradientMap', 1940, 220, { preset: 'celFire', steps: 0 }],
         ['out', 'output', 2130, 220],
       ],
       links: [
@@ -552,7 +552,7 @@ const Presets = (() => {
         ['dst', 'distance', 990, 130, { dist: 0.16, curve: 1 }],
         ['iv2', 'invert', 1180, 130, {}],
         ['po', 'posterize', 1370, 130, { levels: 4, soft: 0 }],
-        ['grad', 'gradientMap', 1560, 130, { preset: 'fire', steps: 3 }],
+        ['grad', 'gradientMap', 1560, 130, { preset: 'celFire', steps: 0 }],
         ['out', 'output', 1750, 130],
       ],
       links: [
@@ -645,7 +645,7 @@ const Presets = (() => {
         ['cel', 'celShade', 250, 40, { tones: 2, terminator: 0.55, lightAngle: -115, relief: 0.6, shadowTone: 0.62, litTone: 0.95, edge: 0.03 }],
         ['line', 'outline', 460, 260, { width: 0.01, side: 'inner', threshold: 0.1 }],
         ['mx', 'blend', 660, 130, { mode: 'sub', opacity: 0.5 }],
-        ['grad', 'gradientMap', 860, 130, { preset: 'smoke', steps: 0 }],
+        ['grad', 'gradientMap', 860, 130, { preset: 'celSmoke', steps: 0 }],
         ['out', 'output', 1060, 130],
       ],
       links: [
@@ -692,7 +692,7 @@ const Presets = (() => {
         ['c4', 'cells', 1180, 350, { mode: 'f1', scale: 12, seed: 5 }],
         ['c4b', 'blur', 1370, 350, { mode: 'gauss', amount: 1.5 }],
         ['w2', 'warp', 1560, 130, { mode: 'grad', intensity: 0.5 }],
-        ['grad', 'gradientMap', 1750, 130, { preset: 'fire', steps: 3 }],
+        ['grad', 'gradientMap', 1750, 130, { preset: 'celFire', steps: 0 }],
         ['glow', 'glow', 1940, 130, { threshold: 0.5, radius: 5, intensity: 0 }],
         ['out', 'output', 2130, 130],
       ],
@@ -725,7 +725,7 @@ const Presets = (() => {
         ['wp', 'warp', 230, 130, { mode: 'grad', intensity: 3 }],
         ['sw', 'swirl', 420, 130, { amount: 90, radius: 1.1 }],
         ['sc', 'histogramScan', 610, 130, { pos: 0.4, contrast: 0.4 }],
-        ['grad', 'gradientMap', 800, 130, { preset: 'arcane', steps: 3 }],
+        ['grad', 'gradientMap', 800, 130, { preset: 'celMagic', steps: 0 }],
         ['glow', 'glow', 990, 130, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 1180, 130],
       ],
@@ -750,7 +750,7 @@ const Presets = (() => {
         ['core', 'shape', 40, 480, { type: 'gauss', size: 0.3 }],
         ['mx1', 'blend', 420, 130, { mode: 'max' }],
         ['mx2', 'blend', 610, 220, { mode: 'max' }],
-        ['grad', 'gradientMap', 800, 220, { preset: 'ice', steps: 3 }],
+        ['grad', 'gradientMap', 800, 220, { preset: 'celIce', steps: 0 }],
         ['glow', 'glow', 990, 220, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 1180, 220],
       ],
@@ -776,7 +776,7 @@ const Presets = (() => {
         ['ring', 'shape', 40, 260, { type: 'ring', size: 1, width: 0.55, soft: 0.15 }],
         ['mm', 'blend', 420, 130, { mode: 'mul' }],
         ['sc', 'histogramScan', 610, 130, { pos: 0.45, contrast: 0.4 }],
-        ['grad', 'gradientMap', 800, 130, { preset: 'arcane', steps: 3 }],
+        ['grad', 'gradientMap', 800, 130, { preset: 'celMagic', steps: 0 }],
         ['glow', 'glow', 990, 130, { threshold: 0.35, radius: 5, intensity: 0 }],
         ['out', 'output', 1180, 130],
       ],
@@ -799,7 +799,7 @@ const Presets = (() => {
         ['drops', 'splatterCircular', 40, 40, { pattern: 'blob', count: 12, radius: 0.28, size: 0.17, width: 0.5, sizeRand: 0.5, radJitter: 0.35, angJitter: 0.5, seed: 6 }],
         ['core', 'shape', 40, 260, { type: 'gauss', size: 0.52 }],
         ['mx', 'blend', 230, 130, { mode: 'max' }],
-        ['grad', 'gradientMap', 420, 130, { preset: 'ice', steps: 3 }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'celIce', steps: 0 }],
         ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 4, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
@@ -822,7 +822,7 @@ const Presets = (() => {
         ['mask', 'shape', 40, 260, { type: 'blob', size: 1.15, falloff: 0.9 }],
         ['mm', 'blend', 230, 130, { mode: 'mul' }],
         ['sc', 'histogramScan', 420, 130, { pos: 0.32, contrast: 0.55 }],
-        ['grad', 'gradientMap', 610, 130, { preset: 'ice', steps: 3 }],
+        ['grad', 'gradientMap', 610, 130, { preset: 'celIce', steps: 0 }],
         ['glow', 'glow', 800, 130, { threshold: 0.45, radius: 4, intensity: 0 }],
         ['out', 'output', 990, 130],
       ],
@@ -844,7 +844,7 @@ const Presets = (() => {
         ['bub', 'tileSampler', 40, 40, { pattern: 'gauss', count: 6, size: 1.3, sizeRand: 0.6, posRand: 0.6, briRand: 0.4, seed: 3 }],
         ['mask', 'shape', 40, 260, { type: 'blob', size: 1.1, falloff: 1 }],
         ['mm', 'blend', 230, 130, { mode: 'mul' }],
-        ['grad', 'gradientMap', 420, 130, { preset: 'toxic', steps: 3 }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'celToxic', steps: 0 }],
         ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 5, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
@@ -886,7 +886,7 @@ const Presets = (() => {
         ['rays', 'splatterCircular', 40, 40, { pattern: 'streak', count: 22, radius: 0.03, size: 0.46, width: 0.09, sizeRand: 0.5, angJitter: 0.15, seed: 8 }],
         ['core', 'shape', 40, 260, { type: 'gauss', size: 0.28 }],
         ['mx', 'blend', 230, 130, { mode: 'max' }],
-        ['grad', 'gradientMap', 420, 130, { preset: 'gold', steps: 3 }],
+        ['grad', 'gradientMap', 420, 130, { preset: 'celGold', steps: 0 }],
         ['glow', 'glow', 610, 130, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
@@ -909,7 +909,7 @@ const Presets = (() => {
         ['cel', 'celShade', 250, 40, { tones: 3, terminator: 0.55, lightAngle: -115, relief: 0.55, shadowTone: 0.55, litTone: 0.95, edge: 0.04 }],
         ['line', 'outline', 460, 260, { width: 0.009, side: 'inner', threshold: 0.1 }],
         ['mx', 'blend', 660, 130, { mode: 'sub', opacity: 0.4 }],
-        ['grad', 'gradientMap', 860, 130, { preset: 'smoke', steps: 0 }],
+        ['grad', 'gradientMap', 860, 130, { preset: 'celSmoke', steps: 0 }],
         ['out', 'output', 1060, 130],
       ],
       links: [

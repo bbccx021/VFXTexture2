@@ -10,7 +10,17 @@
 const GRADS = (() => {
   const hx = h => [parseInt(h.slice(0, 2), 16) / 255, parseInt(h.slice(2, 4), 16) / 255, parseInt(h.slice(4, 6), 16) / 255];
   const mk = arr => arr.map(([p, h]) => [p, ...hx(h)]);
+  const bd = arr => arr.map(hx);   // 平塗色帶:等分純色,完全不插值
   return {
+    // ── 卡通專屬平塗色帶(由暗到亮,每段是手選純色)──
+    celFire:  { zh: '🎨 卡通火', bands: bd(['5e1408', 'c93d16', 'f5872a', 'ffd45e', 'fff6d5']) },
+    celIce:   { zh: '🎨 卡通冰', bands: bd(['10263f', '1f5f9e', '46a8dc', '9fe4f5', 'f0feff']) },
+    celMagic: { zh: '🎨 卡通魔法', bands: bd(['240d42', '6a25b8', 'a95ee6', 'd9a3f7', 'f8ecff']) },
+    celToxic: { zh: '🎨 卡通劇毒', bands: bd(['0f2d16', '267a2e', '5fbb35', 'a8e04a', 'ecffd0']) },
+    celGold:  { zh: '🎨 卡通聖金', bands: bd(['3d2408', 'a3670f', 'e0a828', 'ffd968', 'fff6d8']) },
+    celSmoke: { zh: '🎨 卡通煙灰', bands: bd(['23262c', '4c525d', '7d8593', 'b3bcc8', 'eef2f7']) },
+    celBlood: { zh: '🎨 卡通暗紅', bands: bd(['2e070c', '8c1220', 'cf2c3c', 'f06a72', 'ffd6d8']) },
+    celWater: { zh: '🎨 卡通清水', bands: bd(['0b2635', '17607d', '35a8c4', '87dced', 'e8feff']) },
     fire:     { zh: '火焰 紅橙黃', stops: mk([[0, '000000'], [0.18, '2b0300'], [0.42, 'a32100'], [0.62, 'ff6a00'], [0.8, 'ffc22e'], [1, 'ffffff']]) },
     electric: { zh: '閃電 藍白', stops: mk([[0, '000006'], [0.3, '0a1a5c'], [0.55, '2455ff'], [0.75, '6db8ff'], [0.9, 'c9ecff'], [1, 'ffffff']]) },
     arcane:   { zh: '奧術 紫紅', stops: mk([[0, '050010'], [0.35, '2a0a5e'], [0.6, '7b2fd4'], [0.8, 'c46bff'], [0.93, 'eec9ff'], [1, 'ffffff']]) },
@@ -690,15 +700,25 @@ const NodeDefs = {
     eval(p, ins, ctx) {
       const { W, H } = ctx, N = W * H, d = new Float32Array(N * 4);
       const src = grayOf(ins, 0, ctx);
-      const stops = (GRADS[p.preset] || GRADS.fire).stops;
+      const G = GRADS[p.preset] || GRADS.fire;
+      const bands = G.bands || null;                       // 卡通平塗色帶:等分取色,不插值
+      const nb = bands ? bands.length : 0;
       const L = (p.steps | 0) >= 2 ? (p.steps | 0) - 1 : 0;
       for (let i = 0; i < N; i++) {
         let v = src[i];
         if (p.invert) v = 1 - v;
         if (L) v = Math.round(v * L) / L;   // 平塗卡通色階
-        const [r, g, b] = Filters.gradSample(stops, v);
+        let r, g, b;
+        if (bands) {
+          const idx = Math.min(nb - 1, Math.max(0, Math.floor(v * nb)));
+          r = bands[idx][0]; g = bands[idx][1]; b = bands[idx][2];
+        } else {
+          [r, g, b] = Filters.gradSample(G.stops, v);
+        }
         d[i * 4] = r; d[i * 4 + 1] = g; d[i * 4 + 2] = b;
-        d[i * 4 + 3] = p.alphaFromLuma ? v : 1;
+        // 平塗色帶的顏色已預先分好明暗,alpha 只負責「在不在形狀內」,
+        // 否則會被亮度再乘一次而整體發灰
+        d[i * 4 + 3] = p.alphaFromLuma ? (bands ? Filters.clamp01(v * nb) : v) : 1;
       }
       return { t: 'c', d };
     }
