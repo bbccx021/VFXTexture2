@@ -1101,8 +1101,9 @@ const Presets = (() => {
         ['rb', 'blur', 800, 460, { mode: 'zoom', amount: 4 }],
         ['sub', 'blend', 610, 130, { mode: 'sub', opacity: 0.5 }],
         // ── SDF 風格化 ──
-        ['sc2', 'histogramScan', 800, 130, { pos: 0.34, contrast: 0.5 }],
-        ['dst', 'distance', 990, 130, { dist: 0.05, curve: 1.2 }],
+        // 這裡原本接 Distance 做 SDF 帶,但那是為了餵給 Glow;卡通化移除 Glow 後
+        // 它只會把細裂紋撐成團塊並帶進階梯鋸齒,故拿掉。保留柔邊讓色帶在線寬上做漸層。
+        ['sc2', 'histogramScan', 800, 130, { pos: 0.4, contrast: 0.62 }],
         // ── 細節扭曲 ──
         ['wn', 'perlin', 990, 350, { scale: 3, octaves: 2, seed: 8 }],
         ['w1', 'warp', 1180, 130, { mode: 'grad', intensity: 1 }],
@@ -1120,8 +1121,8 @@ const Presets = (() => {
         ['rs', 'rw', 0], ['rn', 'rw', 1],
         ['rw', 'rl'], ['rl', 'rb'],
         ['rb', 'sub', 0], ['mm', 'sub', 1],
-        ['sub', 'sc2'], ['sc2', 'dst'],
-        ['dst', 'w1', 0], ['wn', 'w1', 1],
+        ['sub', 'sc2'],
+        ['sc2', 'w1', 0], ['wn', 'w1', 1],
         ['c4', 'c4b'],
         ['w1', 'w2', 0], ['c4b', 'w2', 1],
         ['w2', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'out'],
@@ -1130,7 +1131,7 @@ const Presets = (() => {
         { label: '裂縫密度', def: 0.38, targets: [['cr', 'scale', 4, 12]] },
         { label: '生長距離', def: 0.37, targets: [['sb', 'intensity', 0.3, 2.2]] },
         { label: '破壞程度', def: 0.5, targets: [['sub', 'opacity', 0, 1]] },
-        { label: '裂縫粗細', def: 0.3, targets: [['dst', 'dist', 0.02, 0.12]] },
+        { label: '裂縫粗細', def: 0.4, targets: [['sc2', 'pos', 0.62, 0.22]] },
       ],
     },
 
