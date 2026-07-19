@@ -36,8 +36,13 @@ const Presets = (() => {
         ['str', 'transform', 230, 40, { sx: 1.05, sy: 0.92, oy: 0.07, tiling: false }],
         ['nz', 'perlin', 230, 300, { scale: 3, octaves: 2, seed: 11 }],   // 低頻控制圖
         ['mw', 'multiWarp', 420, 40, { mode: 'max', dirs: 5, intensity: 1.1, angle: 20 }],
-        ['wp', 'warp', 610, 40, { mode: 'grad', intensity: 2.5 }],        // 再打散一次,破除對稱
-        ['sc', 'histogramScan', 800, 40, { pos: 0.42, contrast: 0.9 }],   // 硬邊剪影
+        ['wp', 'warp', 610, 40, { mode: 'grad', intensity: 5 }],          // 吃縱向條紋雜訊,咬出上下走向的火舌
+        ['tr', 'ramp', 610, 480, { angle: -90, start: 0.12, end: 0.92, curve: 0.9 }],
+        ['tn', 'perlin', 610, 620, { mode: 'billow', scale: 7, octaves: 3, seed: 5 }],
+        ['tb', 'blur', 760, 620, { mode: 'dir', amount: 3, angle: 90 }],
+        ['tm', 'blend', 910, 550, { mode: 'mul' }],                   // 侵蝕遮罩:只在上半部有力道
+        ['er', 'blend', 800, 40, { mode: 'sub', opacity: 0.85 }],     // 啃出火舌缺口與分離火屑
+        ['sc', 'histogramScan', 950, 40, { pos: 0.42, contrast: 0.9 }],   // 硬邊剪影
 
         // ── 2. 核心:內距離場(中心亮)──
         ['iv1', 'invert', 990, 40, {}],
@@ -55,6 +60,12 @@ const Presets = (() => {
         ['dtl', 'perlin', 1560, 380, { scale: 6, octaves: 2, seed: 61 }],
         ['dm', 'blend', 1750, 240, { mode: 'mul', opacity: 0.3 }],
         ['msk', 'blend', 1940, 130, { mode: 'mul' }],                     // 扭曲不外溢,輪廓保持銳利
+        // 分離火屑:用上亮漸層當遮罩,只在火焰上半部撒出小火舌
+        ['hr', 'ramp', 1940, 560, { angle: 0, start: 0.1, end: 0.9, curve: 1, mirror: true }],
+        ['tm2', 'blend', 2040, 480, { mode: 'mul' }],                 // 上方 x 中央 = 火屑只在火焰正上方
+        ['em', 'tileSampler', 2130, 420, { pattern: 'spike', count: 6, size: 0.62, sizeRand: 0.55, posRand: 0.8, briRand: 0.25, coverage: 0.55, maskThreshold: 0.4, seed: 9 }],
+        ['es', 'histogramScan', 2130, 330, { pos: 0.35, contrast: 0.7 }],   // 壓實但留窄漸層,讓色帶畫出暗鑲邊
+        ['emb', 'blend', 2130, 240, { mode: 'max', opacity: 0.8 }],
         ['po', 'posterize', 2130, 130, { levels: 9, soft: 0.22 }],
         ['grad', 'gradientMap', 2320, 130, { preset: 'celFire', steps: 0, alphaGain: 4 }],
         ['out', 'output', 2510, 130],
@@ -62,20 +73,21 @@ const Presets = (() => {
       links: [
         ['base', 'str'],
         ['str', 'mw', 0], ['nz', 'mw', 1],
-        ['mw', 'wp', 0], ['nz', 'wp', 1],
-        ['wp', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
+        ['mw', 'wp', 0], ['fb', 'wp', 1],
+        ['tr', 'tm', 0], ['tb', 'tm', 1], ['tn', 'tb'],
+        ['tm', 'er', 0], ['wp', 'er', 1], ['er', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
         ['fn', 'fb'],
         ['iv2', 'fw', 0], ['fb', 'fw', 1],
         ['dtl', 'dm', 0], ['fw', 'dm', 1],
         ['sc', 'msk', 0], ['dm', 'msk', 1],
-        ['msk', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['tr', 'tm2', 0], ['hr', 'tm2', 1], ['tm2', 'em', 1], ['em', 'es'], ['es', 'emb', 0], ['msk', 'emb', 1], ['emb', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
-        { label: '火舌擾動', def: 0.42, targets: [['mw', 'intensity', 0.2, 2.4]] },
+        { label: '火舌擾動', def: 0.45, targets: [['mw', 'intensity', 0.2, 2.0], ['wp', 'intensity', 2, 8]] },
         { label: '火焰高度', def: 0.35, targets: [['str', 'sy', 0.8, 1.15]] },
+        { label: '頂端碎裂', def: 0.5, targets: [['er', 'opacity', 0.3, 1], ['em', 'coverage', 0, 0.8]] },
         { label: '內部流動', def: 0.5, targets: [['fw', 'intensity', 0, 6]] },
         { label: '亮核大小', def: 0.5, targets: [['dst', 'dist', 0.2, 0.045]] },
-        { label: '色帶層數', def: 0.5, targets: [['po', 'levels', 4, 16]] },
       ],
     },
 
