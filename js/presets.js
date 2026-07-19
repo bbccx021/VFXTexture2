@@ -39,15 +39,18 @@ const Presets = (() => {
         ['iv1', 'invert', 800, 130, {}],
         ['dst', 'distance', 990, 130, { dist: 0.14, curve: 1 }],
         ['iv2', 'invert', 1180, 130, {}],                                  // ↑三連 = 內距離場(中心亮)
-        ['po', 'posterize', 1370, 130, { levels: 10, soft: 0.5 }],            // 同心平塗色帶
-        ['grad', 'gradientMap', 1560, 130, { preset: 'celFire', steps: 0, alphaGain: 4 }],
-        ['out', 'output', 1750, 130],
+        ['dtl', 'perlin', 1180, 350, { scale: 9, octaves: 3, seed: 61 }],   // 內部細節雜訊
+        ['dm', 'blend', 1370, 220, { mode: 'mul', opacity: 0.4 }],          // 疊進火焰內部,產生層次
+        ['po', 'posterize', 1560, 220, { levels: 10, soft: 0.5 }],
+        ['grad', 'gradientMap', 1750, 220, { preset: 'celFire', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1940, 220],
       ],
       links: [
         ['base', 'str'],
         ['str', 'wp', 0], ['nz', 'wp', 1],
         ['wp', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
-        ['iv2', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['dtl', 'dm', 0], ['iv2', 'dm', 1],
+        ['dm', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '火舌擾動', def: 0.44, targets: [['wp', 'intensity', 1, 7]] },
@@ -551,14 +554,17 @@ const Presets = (() => {
         ['iv1', 'invert', 800, 130, {}],
         ['dst', 'distance', 990, 130, { dist: 0.16, curve: 1 }],
         ['iv2', 'invert', 1180, 130, {}],
-        ['po', 'posterize', 1370, 130, { levels: 10, soft: 0.5 }],
-        ['grad', 'gradientMap', 1560, 130, { preset: 'celFire', steps: 0, alphaGain: 4 }],
-        ['out', 'output', 1750, 130],
+        ['dtl', 'perlin', 1180, 350, { scale: 8, octaves: 3, seed: 47 }],   // 內部細節雜訊
+        ['dm', 'blend', 1370, 220, { mode: 'mul', opacity: 0.4 }],
+        ['po', 'posterize', 1560, 220, { levels: 10, soft: 0.5 }],
+        ['grad', 'gradientMap', 1750, 220, { preset: 'celFire', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1940, 220],
       ],
       links: [
         ['base', 'wp', 0], ['nz', 'wp', 1],
         ['wp', 'sw'], ['sw', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
-        ['iv2', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['dtl', 'dm', 0], ['iv2', 'dm', 1],
+        ['dm', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '火舌擾動', def: 0.5, targets: [['wp', 'intensity', 1.5, 8]] },
