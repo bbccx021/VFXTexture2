@@ -199,6 +199,18 @@ const Filters = (() => {
     return d;
   }
 
+  // 平滑階梯(卡通終端線用):x < a → 0,x > b → 1,中間三次平滑
+  function sstep(a, b, x) {
+    const t = clamp01((x - a) / Math.max(1e-6, b - a));
+    return t * t * (3 - 2 * t);
+  }
+  // 多項式平滑最大值:球體聯集時谷地圓滑,不產生尖銳摺痕(卡通團塊核心)
+  function smax(a, b, k) {
+    if (k <= 1e-6) return Math.max(a, b);
+    const h = clamp01(0.5 + 0.5 * (b - a) / k);
+    return a * (1 - h) + b * h + k * h * (1 - h);
+  }
+
   // ---------- 斜率模糊 Slope Blur ----------
   // 沿斜率圖的梯度方向反覆位移取樣:max=擴張生長、min=侵蝕、blur=融化拖絲
   // intensity 為視覺上與解析度無關的位移量(0..10)
@@ -292,6 +304,6 @@ const Filters = (() => {
     clamp01, clamp, lerp, fract, mod, rnd2, hashInt,
     sampleWrap, sampleZero, perlinP, fbm, worley,
     shapeField, stampInstance, stampImage, distanceField, slopeBlur,
-    gaussBlur, gradSample, edgeFn
+    gaussBlur, gradSample, edgeFn, sstep, smax
   };
 })();

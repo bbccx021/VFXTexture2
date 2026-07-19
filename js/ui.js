@@ -211,6 +211,10 @@ const UI = (() => {
     blur: '高斯/方向/放射/旋轉模糊',
     bevel: '為扁平圖形加內斜角假厚度',
     distance: '距離場 — 搭配掃描把尖角變圓潤',
+    blobField: '球體聯集高度場 — 卡通煙團/雲朵的骨架',
+    celShade: '卡通打光 — 高度場硬切成 2~4 階平塗(終端線)',
+    posterize: '色調分離 — 量化成 N 階平塗,卡通化任何素材',
+    outline: '描邊 — 距離場取環帶,做卡通輪廓線',
     gradientMap: '灰階對應色帶上色(火/電/毒…)',
     glow: '模擬遊戲引擎 Bloom 發光',
     output: '最終輸出節點,匯出以此為準',
@@ -223,6 +227,7 @@ const UI = (() => {
     histogramScan: ['perlin'], crossSection: ['perlin'],
     levels: ['perlin'], gradientMap: ['perlin'], shapeMapper: ['spike'],
     distance: ['spike'], bevel: ['disc'],
+    celShade: ['blob'], posterize: ['perlin'], outline: ['disc'],
   };
   // 縮圖示範參數覆寫(預設值看不出效果的節點)
   const DEMO_PARAMS = {

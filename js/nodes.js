@@ -93,6 +93,55 @@ const NodeDefs = {
     }
   },
 
+  blobField: {
+    title: 'Blob Field', zh: '團塊高度場', cat: 'gen', inputs: [], out: 'g',
+    params: [
+      { k: 'count', label: '團塊數', t: 'i', def: 7, min: 1, max: 14 },
+      { k: 'size', label: '團塊大小', t: 'f', def: 0.9, min: 0.1, max: 1.6, step: 0.01 },
+      { k: 'spread', label: '聚集範圍', t: 'f', def: 0.4, min: 0, max: 1.2, step: 0.01 },
+      { k: 'taper', label: '上方收窄', t: 'f', def: 0.5, min: 0, max: 1, step: 0.01 },
+      { k: 'fuse', label: '融合圓滑', t: 'f', def: 0.4, min: 0, max: 1, step: 0.01 },
+      { k: 'wobble', label: '手繪抖動', t: 'f', def: 0.35, min: 0, max: 1, step: 0.01 },
+      { k: 'seed', label: '種子', t: 'seed', def: 5 },
+    ],
+    // 球體聯集高度場:每球 h=√(r²−d²),以 smax 平滑聯集 → 供 Cel Shade 打光成卡通團塊
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, d = new Float32Array(W * H);
+      const n = Math.max(1, p.count | 0);
+      const base = 0.2 * p.size;
+      const blobs = [];
+      blobs.push({ x: 0.5 + (Filters.rnd2(0, 0, p.seed) - 0.5) * 0.06, y: 0.56, r: base });
+      for (let b = 1; b < n; b++) {
+        const a = Filters.rnd2(b, 1, p.seed) * 6.283185;
+        const dist = (0.10 + Filters.rnd2(b, 2, p.seed) * 0.13) * (0.4 + p.spread);
+        const x = 0.5 + Math.cos(a) * dist;
+        const y = 0.54 + Math.sin(a) * dist * 0.8;
+        const up = 1 - (y - 0.3) / 0.5;                        // 越上面的球越小
+        const rr = (0.09 + Filters.rnd2(b, 3, p.seed) * 0.09) * p.size
+          * (1 - p.taper * 0.45 * (1 - Filters.clamp01(up)));
+        blobs.push({ x, y, r: Math.max(0.03 * p.size, rr) });
+      }
+      let maxR = 0; for (const b of blobs) if (b.r > maxR) maxR = b.r;
+      const wAmp = p.wobble * 0.08, k = p.fuse * 0.06;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        const ox = (x + 0.5) / W, oy = (y + 0.5) / H;
+        let px = ox, py = oy;
+        if (wAmp > 0) {   // 手繪抖動:兩張低頻雜訊各自推移取樣座標
+          px = ox + (Filters.fbm(ox * 4, oy * 4, 4, 2, 0.5, p.seed + 91, 'fbm') - 0.5) * wAmp;
+          py = oy + (Filters.fbm(ox * 4, oy * 4, 4, 2, 0.5, p.seed + 173, 'fbm') - 0.5) * wAmp;
+        }
+        let h = 0;
+        for (const b of blobs) {
+          const dx = px - b.x, dy = py - b.y, d2 = dx * dx + dy * dy;
+          if (d2 < b.r * b.r) h = Filters.smax(h, Math.sqrt(b.r * b.r - d2), k);
+        }
+        d[i] = Filters.clamp01(h / maxR);
+      }
+      return { t: 'g', d };
+    }
+  },
+
   tileSampler: {
     title: 'Tile Sampler', zh: '網格散佈', cat: 'gen',
     inputs: [{ n: '圖案(選用)', t: 'g' }, { n: '遮罩(選用)', t: 'g' }], out: 'g',
@@ -533,11 +582,108 @@ const NodeDefs = {
     }
   },
 
+  celShade: {
+    title: 'Cel Shade', zh: '卡通打光', cat: 'adjust', inputs: [{ n: '高度場', t: 'g' }], out: 'g',
+    params: [
+      { k: 'tones', label: '階調數', t: 'i', def: 2, min: 2, max: 4 },
+      { k: 'terminator', label: '終端線位置', t: 'f', def: 0.55, min: 0.05, max: 0.95, step: 0.01 },
+      { k: 'lightAngle', label: '光源角度°', t: 'f', def: -115, min: -180, max: 180, step: 1 },
+      { k: 'relief', label: '立體強度', t: 'f', def: 0.5, min: 0.05, max: 3, step: 0.01 },
+      { k: 'shadowTone', label: '暗面亮度', t: 'f', def: 0.5, min: 0, max: 1, step: 0.01 },
+      { k: 'litTone', label: '亮面亮度', t: 'f', def: 0.95, min: 0, max: 1, step: 0.01 },
+      { k: 'edge', label: '終端線柔度', t: 'f', def: 0.05, min: 0.002, max: 0.4, step: 0.002 },
+      { k: 'lightZ', label: '光源前傾', t: 'f', def: 0.58, min: 0.1, max: 2, step: 0.01 },
+    ],
+    // 高度場 → 梯度求法線 → N·L 硬切成 2~4 階平塗(卡通終端線)
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H, out = new Float32Array(N);
+      const src = grayOf(ins, 0, ctx);
+      const la = p.lightAngle * Math.PI / 180;
+      const Ln = Math.hypot(Math.cos(la), Math.sin(la), p.lightZ) || 1;
+      const lx = Math.cos(la) / Ln, ly = Math.sin(la) / Ln, lz = p.lightZ / Ln;
+      const s = p.relief * W * 0.35;   // 讓法線在球面上大幅變化,終端線才切得出來
+      const aa = p.edge, tones = Math.max(2, p.tones | 0);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        const h = src[i];
+        if (h <= 0.004) { out[i] = 0; continue; }
+        const xm = src[y * W + Filters.mod(x - 1, W)], xp = src[y * W + (x + 1) % W];
+        const ym = src[Filters.mod(y - 1, H) * W + x], yp = src[((y + 1) % H) * W + x];
+        const gx = (xp - xm) * 0.5 * s, gy = (yp - ym) * 0.5 * s;
+        const nl = (-gx * lx - gy * ly + lz) / Math.sqrt(gx * gx + gy * gy + 1);
+        let tone;
+        if (tones === 2) {
+          tone = p.shadowTone + (p.litTone - p.shadowTone) * Filters.sstep(p.terminator - aa, p.terminator + aa, nl);
+        } else {
+          // 多階:在終端線兩側再切,形成 3~4 階平塗
+          const span = 0.42, step = span / (tones - 1);
+          let acc = 0;
+          for (let t = 0; t < tones - 1; t++) {
+            const th = p.terminator - span * 0.5 + step * t;
+            acc += Filters.sstep(th - aa, th + aa, nl);
+          }
+          tone = p.shadowTone + (p.litTone - p.shadowTone) * (acc / (tones - 1));
+        }
+        out[i] = tone * Math.min(1, h / 0.02);   // 輪廓邊緣抗鋸齒
+      }
+      return { t: 'g', d: out };
+    }
+  },
+
+  posterize: {
+    title: 'Posterize', zh: '色調分離', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    params: [
+      { k: 'levels', label: '階調數', t: 'i', def: 3, min: 2, max: 10 },
+      { k: 'soft', label: '階梯柔度', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
+      { k: 'bias', label: '階調偏移', t: 'f', def: 0, min: -0.5, max: 0.5, step: 0.01 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H, d = new Float32Array(N);
+      const src = grayOf(ins, 0, ctx);
+      const L = Math.max(2, p.levels | 0) - 1;
+      for (let i = 0; i < N; i++) {
+        const v = Filters.clamp01(src[i] + p.bias);
+        const q = Math.round(v * L) / L;
+        d[i] = q + (v - q) * p.soft;     // soft=0 完全平塗,=1 回到原圖
+      }
+      return { t: 'g', d };
+    }
+  },
+
+  outline: {
+    title: 'Outline', zh: '描邊', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    params: [
+      { k: 'width', label: '線寬', t: 'f', def: 0.02, min: 0.002, max: 0.12, step: 0.002 },
+      { k: 'side', label: '位置', t: 'sel', def: 'outer', opts: [['outer', '外描邊'], ['inner', '內描邊'], ['both', '內外都要']] },
+      { k: 'threshold', label: '形狀門檻', t: 'f', def: 0.5, min: 0.02, max: 0.98, step: 0.01 },
+      { k: 'keepFill', label: '保留填色', t: 'b', def: false },
+      { k: 'fillTone', label: '填色亮度', t: 'f', def: 0.5, min: 0, max: 1, step: 0.01, show: p => p.keepFill },
+    ],
+    // 以距離場擴張/內縮取環帶 = 卡通描邊
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H, d = new Float32Array(N);
+      const src = grayOf(ins, 0, ctx);
+      const mask = new Float32Array(N), inv = new Float32Array(N);
+      for (let i = 0; i < N; i++) { const on = src[i] >= p.threshold ? 1 : 0; mask[i] = on; inv[i] = 1 - on; }
+      const w = Math.max(1, p.width * W);
+      const dOut = (p.side === 'outer' || p.side === 'both') ? Filters.distanceField(mask, W, H) : null;
+      const dIn = (p.side === 'inner' || p.side === 'both') ? Filters.distanceField(inv, W, H) : null;
+      for (let i = 0; i < N; i++) {
+        let line = 0;
+        if (dOut && mask[i] < 0.5 && dOut[i] > 0 && dOut[i] <= w) line = Math.min(1, (w - dOut[i] + 1) / 1.5);
+        if (dIn && mask[i] >= 0.5 && dIn[i] > 0 && dIn[i] <= w) line = Math.max(line, Math.min(1, (w - dIn[i] + 1) / 1.5));
+        d[i] = p.keepFill ? Math.max(line, mask[i] * p.fillTone) : line;
+      }
+      return { t: 'g', d };
+    }
+  },
+
   /* ==================== 上色 / 後製 ==================== */
   gradientMap: {
     title: 'Gradient Map', zh: '漸層對應', cat: 'color', inputs: [{ n: '輸入', t: 'g' }], out: 'c',
     params: [
       { k: 'preset', label: '色帶', t: 'sel', def: 'fire', opts: Object.entries(GRADS).map(([k, v]) => [k, v.zh]) },
+      { k: 'steps', label: '色階數(0=平滑)', t: 'i', def: 0, min: 0, max: 8 },
       { k: 'alphaFromLuma', label: 'Alpha=亮度', t: 'b', def: true },
       { k: 'invert', label: '反轉輸入', t: 'b', def: false },
     ],
@@ -545,9 +691,11 @@ const NodeDefs = {
       const { W, H } = ctx, N = W * H, d = new Float32Array(N * 4);
       const src = grayOf(ins, 0, ctx);
       const stops = (GRADS[p.preset] || GRADS.fire).stops;
+      const L = (p.steps | 0) >= 2 ? (p.steps | 0) - 1 : 0;
       for (let i = 0; i < N; i++) {
         let v = src[i];
         if (p.invert) v = 1 - v;
+        if (L) v = Math.round(v * L) / L;   // 平塗卡通色階
         const [r, g, b] = Filters.gradSample(stops, v);
         d[i * 4] = r; d[i * 4 + 1] = g; d[i * 4 + 2] = b;
         d[i * 4 + 3] = p.alphaFromLuma ? v : 1;
