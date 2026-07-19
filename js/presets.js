@@ -104,13 +104,15 @@ const Presets = (() => {
         ['dst', 'distance', 820, 130, { dist: 0.1, curve: 1 }],
         ['iv2', 'invert', 1010, 130, {}],
         ['po', 'posterize', 1200, 130, { levels: 10, soft: 0.5 }],
+        ['dtl', 'perlin', 1200, 360, { scale: 8, octaves: 3, seed: 44 }],
+        ['dm', 'blend', 1200, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 1390, 130, { preset: 'celGold', steps: 0, alphaGain: 4 }],
         ['out', 'output', 1580, 130],
       ],
       links: [
         ['core', 'mix', 0], ['spikes', 'mix', 1],
         ['mix', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
-        ['iv2', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['iv2', 'po'], ['po', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '尖刺數量', def: 0.3, targets: [['spikes', 'count', 5, 20]] },
@@ -183,6 +185,8 @@ const Presets = (() => {
         // ── 第五階段:卡通化收尾(中空星環不適用內距離場,改直接平塗階調)──
         ['csc', 'histogramScan', 1560, 130, { pos: 0.28, contrast: 0.6 }],
         ['po', 'posterize', 1750, 130, { levels: 10, soft: 0.5 }],
+        ['dtl', 'perlin', 1750, 360, { scale: 8, octaves: 3, seed: 58 }],
+        ['dm', 'blend', 1750, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 1940, 130, { preset: 'celGold', steps: 0, alphaGain: 4 }],
         ['out', 'output', 2130, 130],
         // ── 替代分支:柔軟圓潤版(點選預覽)──
@@ -201,7 +205,7 @@ const Presets = (() => {
         ['ic', 'iw', 0], ['ip', 'iw', 1],
         ['ih', 'iring', 0], ['iw', 'iring', 1],
         ['iring', 'merge', 0], ['bsub', 'merge', 1],
-        ['merge', 'csc'], ['csc', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['merge', 'csc'], ['csc', 'po'], ['po', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'out'],
         ['merge', 'sdist'], ['sdist', 'sscan'], ['sscan', 'sblur'],
       ],
       macros: [
@@ -251,6 +255,8 @@ const Presets = (() => {
         ['fade', 'ramp', 420, 350, { angle: 0, start: 0.02, end: 0.9, curve: 1.3 }],
         ['fm', 'blend', 610, 220, { mode: 'mul' }],
         ['sc', 'histogramScan', 800, 220, { pos: 0.45, contrast: 0.85 }],
+        ['dtl', 'perlin', 800, 450, { scale: 8, octaves: 3, seed: 72 }],
+        ['dm', 'blend', 800, 330, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 990, 220, { preset: 'celIce', steps: 0, alphaGain: 4 }],
         ['out', 'output', 1180, 220],
       ],
@@ -258,7 +264,7 @@ const Presets = (() => {
         ['band', 'bandT'], ['nz', 'nstr'],
         ['bandT', 'wp', 0], ['nstr', 'wp', 1],
         ['fade', 'fm', 0], ['wp', 'fm', 1],
-        ['fm', 'sc'], ['sc', 'grad'], ['grad', 'out'],
+        ['fm', 'sc'], ['sc', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '拖尾長度', def: 0.4, targets: [['bandT', 'sx', 1.6, 3.6]] },
@@ -311,6 +317,8 @@ const Presets = (() => {
         ['mask', 'shape', 230, 350, { type: 'blob', size: 1.25, falloff: 0.8 }],
         ['mm', 'blend', 420, 220, { mode: 'mul' }],
         ['sc', 'histogramScan', 610, 220, { pos: 0.55, contrast: 0.7 }],
+        ['dtl', 'perlin', 610, 450, { scale: 8, octaves: 3, seed: 106 }],
+        ['dm', 'blend', 610, 330, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 800, 220, { preset: 'celFire', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 990, 220, { threshold: 0.35, radius: 4, intensity: 0 }],
         ['out', 'output', 1180, 220],
@@ -318,7 +326,7 @@ const Presets = (() => {
       links: [
         ['cr', 'wp', 0], ['nz', 'wp', 1],
         ['mask', 'mm', 0], ['wp', 'mm', 1],
-        ['mm', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['mm', 'sc'], ['sc', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '裂縫密度', def: 0.3, targets: [['cr', 'scale', 4, 14]] },
@@ -368,6 +376,8 @@ const Presets = (() => {
         ['fm', 'blend', 610, 350, { mode: 'mul' }],
         ['mx', 'blend', 800, 130, { mode: 'max' }],
         ['lv', 'levels', 990, 130, { gamma: 0.8 }],
+        ['dtl', 'perlin', 990, 360, { scale: 8, octaves: 3, seed: 100 }],
+        ['dm', 'blend', 990, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 1180, 130, { preset: 'celToxic', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 1370, 130, { threshold: 0.4, radius: 5, intensity: 0 }],
         ['out', 'output', 1560, 130],
@@ -377,7 +387,7 @@ const Presets = (() => {
         ['tail', 'tb'],
         ['fade', 'fm', 0], ['tb', 'fm', 1],
         ['fm', 'mx', 0], ['hoff', 'mx', 1],
-        ['mx', 'lv'], ['lv', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['mx', 'lv'], ['lv', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '彈頭大小', def: 0.4, targets: [['head', 'size', 0.4, 0.9]] },
@@ -420,6 +430,8 @@ const Presets = (() => {
         ['nz', 'perlin', 230, 350, { scale: 5, octaves: 3, seed: 40 }],
         ['wp', 'warp', 420, 220, { mode: 'grad', intensity: 1 }],
         ['sc', 'histogramScan', 610, 220, { pos: 0.35, contrast: 0.6 }],
+        ['dtl', 'perlin', 610, 450, { scale: 8, octaves: 3, seed: 114 }],
+        ['dm', 'blend', 610, 330, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 800, 220, { preset: 'celGold', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 990, 220, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 1180, 220],
@@ -427,7 +439,7 @@ const Presets = (() => {
       links: [
         ['sp', 'mx', 0], ['core', 'mx', 1],
         ['mx', 'wp', 0], ['nz', 'wp', 1],
-        ['wp', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['wp', 'sc'], ['sc', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '星芒數量', def: 0.1, targets: [['sp', 'count', 4, 12]] },
@@ -454,6 +466,8 @@ const Presets = (() => {
         ['fm2', 'blend', 1180, 300, { mode: 'mul' }],
         ['lv', 'levels', 1370, 300, { gamma: 1.6, outHi: 0.92 }],
         ['po', 'posterize', 1560, 300, { levels: 10, soft: 0.5 }],       // 平塗刀光階調
+        ['dtl', 'perlin', 1560, 530, { scale: 8, octaves: 3, seed: 128 }],
+        ['dm', 'blend', 1560, 410, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 1750, 300, { preset: 'celIce', steps: 0, alphaGain: 4 }],
         ['out', 'output', 1940, 300],
       ],
@@ -463,7 +477,7 @@ const Presets = (() => {
         ['vmask', 'fm1', 0], ['spin', 'fm1', 1],
         ['fm1', 'recen'], ['recen', 'sc'],
         ['lead', 'fm2', 0], ['sc', 'fm2', 1],
-        ['fm2', 'lv'], ['lv', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['fm2', 'lv'], ['lv', 'po'], ['po', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '弧帶厚度', def: 0.47, targets: [['ring', 'width', 0.1, 0.4]] },
@@ -487,6 +501,8 @@ const Presets = (() => {
         ['mx2', 'blend', 800, 300, { mode: 'max' }],
         ['lv', 'levels', 990, 300, { outHi: 0.8 }],
         ['po', 'posterize', 1180, 300, { levels: 10, soft: 0.5 }],
+        ['dtl', 'perlin', 1180, 530, { scale: 8, octaves: 3, seed: 135 }],
+        ['dm', 'blend', 1180, 410, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 1370, 300, { preset: 'celGold', steps: 0, alphaGain: 4 }],
         ['out', 'output', 1560, 300],
       ],
@@ -495,7 +511,7 @@ const Presets = (() => {
         ['sp', 'mx1', 0], ['wp', 'mx1', 1],
         ['mx1', 'sc'],
         ['dot', 'mx2', 0], ['sc', 'mx2', 1],
-        ['mx2', 'lv'], ['lv', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['mx2', 'lv'], ['lv', 'po'], ['po', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '尖刺數量', def: 0.3, targets: [['sp', 'count', 6, 16]] },
@@ -523,6 +539,8 @@ const Presets = (() => {
         ['dst', 'distance', 1370, 220, { dist: 0.07, curve: 1 }],
         ['iv2', 'invert', 1560, 220, {}],                                  // 內距離場
         ['po', 'posterize', 1750, 220, { levels: 10, soft: 0.5 }],            // 同心熔岩色帶
+        ['dtl', 'perlin', 1750, 450, { scale: 8, octaves: 3, seed: 155 }],
+        ['dm', 'blend', 1750, 330, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 1940, 220, { preset: 'celFire', steps: 0, alphaGain: 4 }],
         ['out', 'output', 2130, 220],
       ],
@@ -532,7 +550,7 @@ const Presets = (() => {
         ['wp1', 'wp2', 0], ['cr', 'wp2', 1],
         ['ck', 'bsub', 0], ['wp2', 'bsub', 1],
         ['bsub', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
-        ['iv2', 'po'], ['po', 'grad'], ['grad', 'out'],
+        ['iv2', 'po'], ['po', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '刀身長度', def: 0.44, targets: [['t1', 'sy', 1, 1.8]] },
@@ -698,6 +716,8 @@ const Presets = (() => {
         ['c4', 'cells', 1180, 350, { mode: 'f1', scale: 12, seed: 5 }],
         ['c4b', 'blur', 1370, 350, { mode: 'gauss', amount: 1.5 }],
         ['w2', 'warp', 1560, 130, { mode: 'grad', intensity: 0.5 }],
+        ['dtl', 'perlin', 1560, 360, { scale: 8, octaves: 3, seed: 177 }],
+        ['dm', 'blend', 1560, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 1750, 130, { preset: 'celFire', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 1940, 130, { threshold: 0.5, radius: 5, intensity: 0 }],
         ['out', 'output', 2130, 130],
@@ -712,7 +732,7 @@ const Presets = (() => {
         ['dst', 'w1', 0], ['wn', 'w1', 1],
         ['c4', 'c4b'],
         ['w1', 'w2', 0], ['c4b', 'w2', 1],
-        ['w2', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['w2', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '裂縫密度', def: 0.38, targets: [['cr', 'scale', 4, 12]] },
@@ -731,13 +751,15 @@ const Presets = (() => {
         ['wp', 'warp', 230, 130, { mode: 'grad', intensity: 3 }],
         ['sw', 'swirl', 420, 130, { amount: 90, radius: 1.1 }],
         ['sc', 'histogramScan', 610, 130, { pos: 0.4, contrast: 0.4 }],
+        ['dtl', 'perlin', 610, 360, { scale: 8, octaves: 3, seed: 187 }],
+        ['dm', 'blend', 610, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 800, 130, { preset: 'celMagic', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 990, 130, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 1180, 130],
       ],
       links: [
         ['base', 'wp', 0], ['nz', 'wp', 1],
-        ['wp', 'sw'], ['sw', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['wp', 'sw'], ['sw', 'sc'], ['sc', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '能量翻騰', def: 0.42, targets: [['wp', 'intensity', 1.5, 6]] },
@@ -782,6 +804,8 @@ const Presets = (() => {
         ['ring', 'shape', 40, 260, { type: 'ring', size: 1, width: 0.55, soft: 0.15 }],
         ['mm', 'blend', 420, 130, { mode: 'mul' }],
         ['sc', 'histogramScan', 610, 130, { pos: 0.45, contrast: 0.4 }],
+        ['dtl', 'perlin', 610, 360, { scale: 8, octaves: 3, seed: 205 }],
+        ['dm', 'blend', 610, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 800, 130, { preset: 'celMagic', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 990, 130, { threshold: 0.35, radius: 5, intensity: 0 }],
         ['out', 'output', 1180, 130],
@@ -789,7 +813,7 @@ const Presets = (() => {
       links: [
         ['nz', 'sw'],
         ['sw', 'mm', 0], ['ring', 'mm', 1],
-        ['mm', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['mm', 'sc'], ['sc', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '漩渦強度', def: 0.43, targets: [['sw', 'amount', 180, 720]] },
@@ -805,13 +829,15 @@ const Presets = (() => {
         ['drops', 'splatterCircular', 40, 40, { pattern: 'blob', count: 12, radius: 0.28, size: 0.17, width: 0.5, sizeRand: 0.5, radJitter: 0.35, angJitter: 0.5, seed: 6 }],
         ['core', 'shape', 40, 260, { type: 'gauss', size: 0.52 }],
         ['mx', 'blend', 230, 130, { mode: 'max' }],
+        ['dtl', 'perlin', 230, 360, { scale: 8, octaves: 3, seed: 212 }],
+        ['dm', 'blend', 230, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 420, 130, { preset: 'celIce', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 4, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
       links: [
         ['drops', 'mx', 0], ['core', 'mx', 1],
-        ['mx', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['mx', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '水滴數量', def: 0.4, targets: [['drops', 'count', 6, 24]] },
@@ -828,13 +854,15 @@ const Presets = (() => {
         ['mask', 'shape', 40, 260, { type: 'blob', size: 1.15, falloff: 0.9 }],
         ['mm', 'blend', 230, 130, { mode: 'mul' }],
         ['sc', 'histogramScan', 420, 130, { pos: 0.32, contrast: 0.55 }],
+        ['dtl', 'perlin', 420, 360, { scale: 8, octaves: 3, seed: 215 }],
+        ['dm', 'blend', 420, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 610, 130, { preset: 'celIce', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 800, 130, { threshold: 0.45, radius: 4, intensity: 0 }],
         ['out', 'output', 990, 130],
       ],
       links: [
         ['cr', 'mm', 0], ['mask', 'mm', 1],
-        ['mm', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['mm', 'sc'], ['sc', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '晶格密度', def: 0.3, targets: [['cr', 'scale', 4, 14]] },
@@ -850,13 +878,15 @@ const Presets = (() => {
         ['bub', 'tileSampler', 40, 40, { pattern: 'gauss', count: 6, size: 1.3, sizeRand: 0.6, posRand: 0.6, briRand: 0.4, seed: 3 }],
         ['mask', 'shape', 40, 260, { type: 'blob', size: 1.1, falloff: 1 }],
         ['mm', 'blend', 230, 130, { mode: 'mul' }],
+        ['dtl', 'perlin', 230, 360, { scale: 8, octaves: 3, seed: 232 }],
+        ['dm', 'blend', 230, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 420, 130, { preset: 'celToxic', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 610, 130, { threshold: 0.45, radius: 5, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
       links: [
         ['bub', 'mm', 0], ['mask', 'mm', 1],
-        ['mm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['mm', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '氣泡密度', def: 0.33, targets: [['bub', 'count', 3, 12]] },
@@ -892,13 +922,15 @@ const Presets = (() => {
         ['rays', 'splatterCircular', 40, 40, { pattern: 'streak', count: 22, radius: 0.03, size: 0.46, width: 0.09, sizeRand: 0.5, angJitter: 0.15, seed: 8 }],
         ['core', 'shape', 40, 260, { type: 'gauss', size: 0.28 }],
         ['mx', 'blend', 230, 130, { mode: 'max' }],
+        ['dtl', 'perlin', 230, 360, { scale: 8, octaves: 3, seed: 246 }],
+        ['dm', 'blend', 230, 240, { mode: 'mul', opacity: 0.35 }],
         ['grad', 'gradientMap', 420, 130, { preset: 'celGold', steps: 0, alphaGain: 4 }],
         ['glow', 'glow', 610, 130, { threshold: 0.4, radius: 6, intensity: 0 }],
         ['out', 'output', 800, 130],
       ],
       links: [
         ['rays', 'mx', 0], ['core', 'mx', 1],
-        ['mx', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['mx', 'dm', 1], ['dtl', 'dm', 0], ['dm', 'grad'], ['grad', 'glow'], ['glow', 'out'],
       ],
       macros: [
         { label: '光條數量', def: 0.4, targets: [['rays', 'count', 12, 32]] },
