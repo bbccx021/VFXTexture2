@@ -1,7 +1,8 @@
 # VFXGEN — 遊戲特效貼圖產生器 (Game VFX Texture Generator)
 
 仿 Substance Designer 節點式工作流的輕量化遊戲特效貼圖生成工具。
-純前端、零依賴、所有濾鏡演算法手工實作,輸出天生無縫(seamless)的貼圖。
+純前端、零依賴、所有濾鏡演算法手工實作,現代風格化(卡通)遊戲特效貼圖。
+平鋪類特效(雜訊、圖騰、裂縫、細胞)輸出**無縫可平鋪**;方向性精靈圖(拖尾、投射物、揮砍)依設計不平鋪。
 
 ## 啟動方式
 
@@ -34,7 +35,7 @@ python -m http.server 8321
 | 平移 / 縮放 | 拖曳空白處 / 滾輪 |
 | 預覽任意節點 | 點選該節點(未選取時顯示 Output) |
 | **精簡 / 進階模式** | 預設**精簡模式**:只有大預覽 + 模板滑桿,節點編輯器完全隱藏;頂列「🔧 進階」展開底層節點圖,「🎛 精簡」收回。模式會記憶 |
-| **模板控制** | 精簡模式下右側直接顯示 3–5 個以特效語言命名的巨集滑桿(火舌強度、破碎程度…),寫穿到底層節點;21 個範本全部備有 |
+| **模板控制** | 精簡模式下右側直接顯示 3–5 個以特效語言命名的巨集滑桿(火舌強度、破碎程度…),寫穿到底層節點;30 個範本全部備有 |
 | 調參數(進階) | 進階模式點選節點進入該節點完整參數;只露出關鍵參數,其餘收在「進階參數」摺疊內 |
 | 無縫檢查 | 預覽面板勾選「2×2 無縫」(此時暫停動畫,靜態平鋪) |
 | 匯出 | 右上「匯出 PNG」(256/512/1024) |
@@ -44,16 +45,16 @@ python -m http.server 8321
 
 **手機支援**:≤700px 自動切換直向排版 —— 精簡模式為預覽在上、模板滑桿在下(隨螢幕寬度縮放、觸控放大);範本牆改 2 欄;進階模式節點庫變橫向捲動條、畫布與檢視器上下堆疊。
 
-## 節點總覽(22 種)
+## 節點總覽(26 種)
 
-- **基礎圖形**:Shape(圓/柔邊圓/高斯/多邊形/環/方/尖刺)、Ramp(線性漸層,拖尾淡出必備)、Tile Sampler(Pattern + Mask 輸入)、Splatter Circular(Pattern 輸入)、Shape Mapper
+- **基礎圖形**:Shape(圓/柔邊圓/高斯/多邊形/環/方/尖刺)、Ramp(線性漸層)、**Blob Field(團塊高度場 — 卡通煙團骨架)**、Tile Sampler(Pattern + Mask 輸入)、Splatter Circular(Pattern 輸入)、Shape Mapper
 - **雜訊**:Perlin Noise(fBm/Billow/Ridged)、Cells/Crystal(Voronoi F1/F2−F1/裂縫/色塊)
 - **變形扭曲**:Warp(梯度/方向)、Slope Blur(斜率模糊 — 裂縫擴張/侵蝕/融化)、Swirl、Cross Section(等高線提取)、Transform 2D
 - **混合**:Blend(Normal/Add/Subtract/Multiply/Max/Min/Screen/Difference)
-- **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Bevel、Distance(距離場)
-- **上色後製**:Gradient Map(8 種色帶)、Glow、Output
+- **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Bevel、Distance(距離場)、**Cel Shade(卡通打光 — 硬切終端線)**、**Posterize(色調分離)**、**Outline(描邊)**
+- **上色後製**:Gradient Map(16 種色帶:8 組風格化色相位移 + 8 組原始漸層;含色階量化與輪廓銳利度)、Glow、Output
 
-## 內建範本(29 種,覆蓋 1MaFX 常見特效貼圖分類)
+## 內建範本(30 種,覆蓋 1MaFX 常見特效貼圖分類)
 
 | 分類 | 範本 |
 |---|---|
@@ -110,9 +111,9 @@ python -m http.server 8321
 
 ```
 index.html          介面骨架
-css/style.css       工業鍛造風深色主題
+css/style.css       深色主題(7 種可切換配色)+ 玻璃質感面板
 js/filters.js       演算法核心(純函式,無 DOM 依賴,可在 Node 直接跑)
-js/nodes.js         22 種節點定義(參數 + eval)
+js/nodes.js         26 種節點定義(參數 + eval)
 js/graph.js         DAG 模型、拓撲評估、快取、防迴圈、序列化
 js/editor.js        節點圖編輯器(拖曳/連線/平移縮放)
 js/presets.js       內建範本

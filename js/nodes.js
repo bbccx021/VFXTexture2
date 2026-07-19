@@ -93,11 +93,13 @@ const NodeDefs = {
     params: [
       { k: 'type', label: '圖形', t: 'sel', def: 'blob', opts: [['disc', '實心圓 Disc'], ['blob', '柔邊圓 Soft Disc'], ['gauss', '高斯光點 Gaussian'], ['poly', '多邊形 Polygon'], ['ring', '圓環 Ring'], ['square', '方形 Square'], ['spike', '尖刺 Spike']] },
       { k: 'size', label: '大小', t: 'f', def: 0.8, min: 0.05, max: 1.6, step: 0.01 },
-      { k: 'soft', label: '邊緣柔化', t: 'f', def: 0.06, min: 0.002, max: 1, step: 0.002 },
+      // 柔化只作用於硬邊圖形;blob/gauss 的邊緣由 falloff 控制
+      { k: 'soft', label: '邊緣柔化', t: 'f', def: 0.06, min: 0.002, max: 1, step: 0.002, show: p => p.type !== 'blob' && p.type !== 'gauss' },
       { k: 'falloff', label: '衰減曲線', t: 'f', def: 1.6, min: 0.2, max: 6, step: 0.05, show: p => p.type === 'blob' || p.type === 'spike' },
       { k: 'sides', label: '邊數', t: 'i', def: 5, min: 3, max: 12, show: p => p.type === 'poly' },
       { k: 'width', label: '寬度', t: 'f', def: 0.18, min: 0.01, max: 1, step: 0.005, show: p => p.type === 'ring' || p.type === 'spike' },
-      { k: 'rot', label: '旋轉°', t: 'f', def: 0, min: -180, max: 180, step: 1 },
+      // 旋轉對圓/柔邊圓/高斯/環等對稱圖形無意義,只在非對稱圖形顯示
+      { k: 'rot', label: '旋轉°', t: 'f', def: 0, min: -180, max: 180, step: 1, show: p => p.type === 'poly' || p.type === 'square' || p.type === 'spike' },
     ],
     eval(p, ins, ctx) {
       const { W, H } = ctx, d = new Float32Array(W * H);
