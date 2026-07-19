@@ -31,26 +31,30 @@ const Presets = (() => {
     // 🔥 火焰:柔邊圓 → 柏林雜訊方向扭曲(往上) → 漩渦 → 直方圖掃描 → 火焰漸層 → 發光
     fire: {
       nodes: [
-        ['base', 'shape', 40, 40, { type: 'blob', size: 0.72, falloff: 1.5 }],
-        ['noise', 'perlin', 40, 250, { scale: 5, octaves: 4, seed: 11 }],
-        ['warp', 'warp', 250, 130, { mode: 'dir', angle: -90, intensity: 5 }],
-        ['swirl', 'swirl', 460, 130, { amount: 70, radius: 0.9 }],
-        ['scan', 'histogramScan', 670, 130, { pos: 0.42, contrast: 0.45 }],
-        ['grad', 'gradientMap', 880, 130, { preset: 'fire', steps: 4 }],
-        ['glow', 'glow', 1090, 130, { threshold: 0.4, radius: 6, intensity: 1.1 }],
-        ['out', 'output', 1300, 130],
+        ['base', 'shape', 40, 40, { type: 'spike', size: 0.92, width: 1.15, falloff: 0.4, soft: 0.08 }],
+        ['str', 'transform', 230, 40, { sx: 1, sy: 0.92, oy: 0.03, tiling: false }],
+        ['nz', 'perlin', 230, 260, { scale: 4, octaves: 2, seed: 11 }],   // 低頻:卡通不要細碎雜訊
+        ['wp', 'warp', 420, 130, { mode: 'grad', intensity: 5 }],         // 擾動出火舌
+        ['sc', 'histogramScan', 610, 130, { pos: 0.4, contrast: 0.92 }],  // 硬邊剪影
+        ['iv1', 'invert', 800, 130, {}],
+        ['dst', 'distance', 990, 130, { dist: 0.14, curve: 1 }],
+        ['iv2', 'invert', 1180, 130, {}],                                  // ↑三連 = 內距離場(中心亮)
+        ['po', 'posterize', 1370, 130, { levels: 4, soft: 0 }],            // 同心平塗色帶
+        ['grad', 'gradientMap', 1560, 130, { preset: 'fire', steps: 4 }],
+        ['out', 'output', 1750, 130],
       ],
       links: [
-        ['base', 'warp', 0], ['noise', 'warp', 1],
-        ['warp', 'swirl'], ['swirl', 'scan'], ['scan', 'grad'],
-        ['grad', 'glow'], ['glow', 'out'],
+        ['base', 'str'],
+        ['str', 'wp', 0], ['nz', 'wp', 1],
+        ['wp', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
+        ['iv2', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
-        { label: '火舌強度', def: 0.5, targets: [['warp', 'intensity', 2, 8]] },
-        { label: '湍流細節', def: 0.4, targets: [['noise', 'scale', 3, 8]] },
-        { label: '旋轉動勢', def: 0.39, targets: [['swirl', 'amount', 0, 180]] },
-        { label: '輪廓緊實', def: 0.42, targets: [['scan', 'contrast', 0.2, 0.8]] },
-        { label: '光暈強度', def: 0.36, targets: [['glow', 'intensity', 0.3, 2.5]] },
+        { label: '火舌擾動', def: 0.44, targets: [['wp', 'intensity', 1, 7]] },
+        { label: '火焰高度', def: 0.5, targets: [['str', 'sy', 1, 1.7]] },
+        { label: '輪廓緊實', def: 0.9, targets: [['sc', 'contrast', 0.5, 0.98]] },
+        { label: '色帶層數', def: 0.33, targets: [['po', 'levels', 2, 8]] },
+        { label: '核心大小', def: 0.5, targets: [['dst', 'dist', 0.06, 0.24]] },
       ],
     },
 
@@ -60,21 +64,29 @@ const Presets = (() => {
         ['noise', 'perlin', 40, 40, { scale: 2, octaves: 2, seed: 21 }],
         ['cells', 'cells', 40, 260, { mode: 'crystal', scale: 12, seed: 9 }],
         ['warp', 'warp', 250, 130, { mode: 'grad', intensity: 0.7 }],
-        ['xsec', 'crossSection', 460, 130, { pos: 0.5, width: 0.05, curve: 1.6 }],
-        ['lv', 'levels', 670, 130, { gamma: 1.3 }],
-        ['grad', 'gradientMap', 880, 130, { preset: 'electric', steps: 4 }],
-        ['glow', 'glow', 1090, 130, { threshold: 0.3, radius: 5, intensity: 2.2 }],
-        ['out', 'output', 1300, 130],
+        // 外層電光束(粗)
+        ['xsec', 'crossSection', 460, 40, { pos: 0.5, width: 0.05, curve: 1 }],
+        ['sc', 'histogramScan', 650, 40, { pos: 0.5, contrast: 0.88 }],
+        ['lv', 'levels', 840, 40, { outHi: 0.55 }],                       // 壓成中階藍
+        // 內層亮核(細)
+        ['xsec2', 'crossSection', 460, 300, { pos: 0.5, width: 0.017, curve: 1 }],
+        ['sc2', 'histogramScan', 650, 300, { pos: 0.5, contrast: 0.9 }],
+        ['mx', 'blend', 1030, 170, { mode: 'max' }],                       // 白核疊在藍身上
+        ['grad', 'gradientMap', 1220, 170, { preset: 'electric', steps: 3 }],
+        ['out', 'output', 1410, 170],
       ],
       links: [
         ['noise', 'warp', 0], ['cells', 'warp', 1],
-        ['warp', 'xsec'], ['xsec', 'lv'], ['lv', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['warp', 'xsec'], ['xsec', 'sc'], ['sc', 'lv'],
+        ['warp', 'xsec2'], ['xsec2', 'sc2'],
+        ['sc2', 'mx', 0], ['lv', 'mx', 1],
+        ['mx', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '扭折強度', def: 0.36, targets: [['warp', 'intensity', 0.2, 1.6]] },
         { label: '分支密度', def: 0.43, targets: [['cells', 'scale', 6, 20]] },
-        { label: '亮線粗細', def: 0.23, targets: [['xsec', 'width', 0.02, 0.15]] },
-        { label: '光暈強度', def: 0.52, targets: [['glow', 'intensity', 0.8, 3.5]] },
+        { label: '閃電粗細', def: 0.35, targets: [['xsec', 'width', 0.04, 0.18]] },
+        { label: '亮核粗細', def: 0.3, targets: [['xsec2', 'width', 0.012, 0.08]] },
       ],
     },
 
@@ -524,25 +536,29 @@ const Presets = (() => {
     // 🔥⚽ 火球:柔邊圓 → 山脊柏林梯度扭曲(火舌邊緣)→ 漩渦攪動 → 直方圖掃描 → 火焰漸層 → 發光
     fireball: {
       nodes: [
-        ['base', 'shape', 40, 40, { type: 'blob', size: 0.75, falloff: 1.3 }],
-        ['nz', 'perlin', 40, 260, { mode: 'ridged', scale: 5, octaves: 4, seed: 23 }],
-        ['wp', 'warp', 230, 130, { mode: 'grad', intensity: 4 }],
-        ['sw', 'swirl', 420, 130, { amount: 50, radius: 1 }],
-        ['sc', 'histogramScan', 610, 130, { pos: 0.45, contrast: 0.5 }],
-        ['grad', 'gradientMap', 800, 130, { preset: 'fire', steps: 4 }],
-        ['glow', 'glow', 990, 130, { threshold: 0.4, radius: 6, intensity: 1.3 }],
-        ['out', 'output', 1180, 130],
+        ['base', 'shape', 40, 40, { type: 'blob', size: 0.85, falloff: 1 }],
+        ['nz', 'perlin', 40, 260, { scale: 4, octaves: 2, seed: 23 }],
+        ['wp', 'warp', 230, 130, { mode: 'grad', intensity: 5 }],
+        ['sw', 'swirl', 420, 130, { amount: 40, radius: 1 }],
+        ['sc', 'histogramScan', 610, 130, { pos: 0.42, contrast: 0.92 }],
+        ['iv1', 'invert', 800, 130, {}],
+        ['dst', 'distance', 990, 130, { dist: 0.16, curve: 1 }],
+        ['iv2', 'invert', 1180, 130, {}],
+        ['po', 'posterize', 1370, 130, { levels: 4, soft: 0 }],
+        ['grad', 'gradientMap', 1560, 130, { preset: 'fire', steps: 4 }],
+        ['out', 'output', 1750, 130],
       ],
       links: [
         ['base', 'wp', 0], ['nz', 'wp', 1],
-        ['wp', 'sw'], ['sw', 'sc'], ['sc', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['wp', 'sw'], ['sw', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
+        ['iv2', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
-        { label: '火舌強度', def: 0.42, targets: [['wp', 'intensity', 1.5, 7]] },
-        { label: '攪動旋轉', def: 0.42, targets: [['sw', 'amount', 0, 120]] },
-        { label: '湍流細節', def: 0.4, targets: [['nz', 'scale', 3, 8]] },
-        { label: '輪廓緊實', def: 0.4, targets: [['sc', 'contrast', 0.3, 0.8]] },
-        { label: '光暈強度', def: 0.32, targets: [['glow', 'intensity', 0.5, 3]] },
+        { label: '火舌擾動', def: 0.5, targets: [['wp', 'intensity', 1.5, 8]] },
+        { label: '攪動旋轉', def: 0.33, targets: [['sw', 'amount', 0, 120]] },
+        { label: '核心大小', def: 0.5, targets: [['dst', 'dist', 0.07, 0.26]] },
+        { label: '色帶層數', def: 0.33, targets: [['po', 'levels', 2, 8]] },
+        { label: '輪廓緊實', def: 0.87, targets: [['sc', 'contrast', 0.5, 0.98]] },
       ],
     },
 
