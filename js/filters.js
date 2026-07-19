@@ -244,6 +244,41 @@ const Filters = (() => {
     return out;
   }
 
+  // ---------- 多向扭曲 Multi-Directional Warp ----------
+  // 沿 N 個等分方向各取樣一次,再以 min/max/平均合成。
+  // Max 會把亮部往外拉成拖絲,Min 會把暗部吃進來收縮 — 風格化煙霧的核心手法
+  function multiWarp(src, slope, W, H, dirs, angleDeg, intensity, mode) {
+    const N = W * H, out = new Float32Array(N);
+    const k = intensity * W / 24;
+    const a0 = angleDeg * Math.PI / 180, n = Math.max(1, dirs | 0);
+    const vx = new Float32Array(n), vy = new Float32Array(n);
+    for (let d = 0; d < n; d++) {
+      const a = a0 + d * 6.283185307 / n;
+      vx[d] = Math.cos(a); vy[d] = Math.sin(a);
+    }
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x, s = slope[i] * k;
+      let acc = mode === 'min' ? Infinity : mode === 'max' ? -Infinity : 0;
+      for (let d = 0; d < n; d++) {
+        const v = sampleWrap(src, W, H, x + vx[d] * s, y + vy[d] * s);
+        if (mode === 'min') { if (v < acc) acc = v; }
+        else if (mode === 'max') { if (v > acc) acc = v; }
+        else acc += v;
+      }
+      out[i] = mode === 'avg' ? acc / n : acc;
+    }
+    return out;
+  }
+
+  // ---------- 自動色階:把實際最小/最大值拉伸到 0..1 ----------
+  function autoLevels(src, N) {
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < N; i++) { const v = src[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
+    const out = new Float32Array(N), span = Math.max(1e-5, hi - lo);
+    for (let i = 0; i < N; i++) out[i] = (src[i] - lo) / span;
+    return out;
+  }
+
   // ---------- 可分離高斯模糊(wrap) ----------
   function gaussBlur(src, W, H, sigma) {
     if (sigma < 0.3) return src.slice();
@@ -304,6 +339,6 @@ const Filters = (() => {
     clamp01, clamp, lerp, fract, mod, rnd2, hashInt,
     sampleWrap, sampleZero, perlinP, fbm, worley,
     shapeField, stampInstance, stampImage, distanceField, slopeBlur,
-    gaussBlur, gradSample, edgeFn, sstep, smax
+    multiWarp, autoLevels, gaussBlur, gradSample, edgeFn, sstep, smax
   };
 })();

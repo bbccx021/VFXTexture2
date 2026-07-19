@@ -845,6 +845,62 @@ const Presets = (() => {
       ],
     },
 
+    // 🌬 飄絮煙霧(參考 Real Time VFX 的風格化煙霧拆解):
+    //   ① 細胞雜訊當底 → 反覆「多向扭曲」拉出飄絮 → 乘柏林做暗袋 → 自動色階
+    //   ② 煙形:柔邊圓被多向扭曲成不規則輪廓 → 斜率模糊軟化邊緣
+    //   ③ 兩者相乘,再用非均勻模糊讓濃處實、淡處糊
+    wispySmoke: {
+      nodes: [
+        // ① 飄絮底
+        ['cell', 'cells', 40, 40, { mode: 'f1', scale: 5, contrast: 1, seed: 3 }],
+        ['civ', 'invert', 220, 40, {}],
+        ['clv', 'levels', 400, 40, { inLo: 0.12, inHi: 0.78 }],
+        ['n1', 'perlin', 40, 260, { scale: 4, octaves: 3, seed: 11 }],
+        ['n1b', 'blur', 220, 260, { mode: 'gauss', amount: 2 }],
+        ['mw1', 'multiWarp', 600, 40, { mode: 'max', dirs: 4, intensity: 3, angle: 0 }],
+        ['mw2', 'multiWarp', 780, 40, { mode: 'min', dirs: 4, intensity: 2, angle: 45 }],
+        ['cell2', 'cells', 400, 260, { mode: 'f1', scale: 11, seed: 7 }],
+        ['c2b', 'blur', 580, 260, { mode: 'gauss', amount: 1.5 }],
+        ['wp', 'warp', 960, 40, { mode: 'grad', intensity: 2 }],
+        ['n2', 'perlin', 780, 260, { scale: 3, octaves: 3, seed: 21 }],
+        ['mul', 'blend', 1140, 40, { mode: 'mul', opacity: 0.42 }],       // 暗袋
+        ['al', 'autoLevels', 1320, 40, { amount: 1 }],
+        // ② 煙形
+        ['sh', 'shape', 40, 500, { type: 'blob', size: 0.82, falloff: 1.3 }],
+        ['mw3', 'multiWarp', 260, 500, { mode: 'max', dirs: 4, intensity: 3.5, angle: 20 }],
+        ['shb', 'blur', 460, 620, { mode: 'gauss', amount: 4 }],
+        ['sb', 'slopeBlur', 660, 500, { mode: 'max', intensity: 1.5, samples: 7 }],
+        // ③ 合併
+        ['comb', 'blend', 1500, 260, { mode: 'mul' }],
+        ['nub', 'nonUniformBlur', 1680, 260, { amount: 2.5, bias: 0 }],
+        ['al2', 'autoLevels', 1860, 260, { amount: 1 }],
+        ['grad', 'gradientMap', 2040, 260, { preset: 'celSmoke', steps: 0, alphaGain: 4.5 }],
+        ['out', 'output', 2220, 260],
+      ],
+      links: [
+        ['cell', 'civ'], ['civ', 'clv'], ['n1', 'n1b'],
+        ['clv', 'mw1', 0], ['n1b', 'mw1', 1],
+        ['mw1', 'mw2', 0], ['n1b', 'mw2', 1],
+        ['cell2', 'c2b'],
+        ['mw2', 'wp', 0], ['c2b', 'wp', 1],
+        ['n2', 'mul', 0], ['wp', 'mul', 1],
+        ['mul', 'al'],
+        ['sh', 'mw3', 0], ['n2', 'mw3', 1],
+        ['mw3', 'shb'],
+        ['mw3', 'sb', 0], ['shb', 'sb', 1],
+        ['sb', 'comb', 0], ['al', 'comb', 1],
+        ['comb', 'nub', 0], ['n2', 'nub', 1],
+        ['nub', 'al2'], ['al2', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '飄絮拉伸', def: 0.25, targets: [['mw1', 'intensity', 0, 12]] },
+        { label: '邊緣收吃', def: 0.17, targets: [['mw2', 'intensity', 0, 12]] },
+        { label: '煙形擴散', def: 0.29, targets: [['mw3', 'intensity', 0, 12]] },
+        { label: '暗袋濃度', def: 0.55, targets: [['mul', 'opacity', 0, 1]] },
+        { label: '邊緣糊化', def: 0.12, targets: [['nub', 'amount', 0, 20]] },
+      ],
+    },
+
     // 🛡 卡通護盾:六邊形 → 內距離場切同心層 → 內描邊亮框
     celShield: {
       nodes: [
@@ -1331,6 +1387,7 @@ const Presets = (() => {
     magic:         { emoji: '🪄', name: '魔法陣', en: 'Magic Circle', cat: 'ringcat' },
     pattern:       { emoji: '🔳', name: '規則圖騰', en: 'Pattern', cat: 'ringcat' },
     celSmoke:      { emoji: '☁', name: '卡通煙團', en: 'Cel Smoke', cat: 'surface' },
+    wispySmoke:    { emoji: '🌬', name: '飄絮煙霧', en: 'Wispy Smoke', cat: 'surface' },
     celRock:       { emoji: '🪨', name: '卡通岩石', en: 'Cel Rock', cat: 'surface' },
     celPoison:     { emoji: '☠', name: '卡通毒霧', en: 'Cel Poison', cat: 'surface' },
     celSplash:     { emoji: '💦', name: '卡通水花', en: 'Cel Splash', cat: 'element' },

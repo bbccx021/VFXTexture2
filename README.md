@@ -45,16 +45,16 @@ python -m http.server 8321
 
 **手機支援**:≤700px 自動切換直向排版 —— 精簡模式為預覽在上、模板滑桿在下(隨螢幕寬度縮放、觸控放大);範本牆改 2 欄;進階模式節點庫變橫向捲動條、畫布與檢視器上下堆疊。
 
-## 節點總覽(26 種)
+## 節點總覽(29 種)
 
 - **基礎圖形**:Shape(圓/柔邊圓/高斯/多邊形/環/方/尖刺)、Ramp(線性漸層)、**Blob Field(團塊高度場 — 卡通煙團骨架)**、Tile Sampler(Pattern + Mask 輸入)、Splatter Circular(Pattern 輸入)、Shape Mapper
 - **雜訊**:Perlin Noise(fBm/Billow/Ridged)、Cells/Crystal(Voronoi F1/F2−F1/裂縫/色塊)
-- **變形扭曲**:Warp(梯度/方向)、Slope Blur(斜率模糊 — 裂縫擴張/侵蝕/融化)、Swirl、Cross Section(等高線提取)、Transform 2D
+- **變形扭曲**:Warp(梯度/方向)、**Multi-Dir Warp(多向扭曲 — Max 拉飄絮/Min 收邊)**、Slope Blur(斜率模糊 — 裂縫擴張/侵蝕/融化)、Swirl、Cross Section(等高線提取)、Transform 2D
 - **混合**:Blend(Normal/Add/Subtract/Multiply/Max/Min/Screen/Difference)
-- **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Bevel、Distance(距離場)、**Cel Shade(卡通打光 — 硬切終端線)**、**Posterize(色調分離)**、**Outline(描邊)**
+- **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Bevel、Distance(距離場)、**Cel Shade(卡通打光 — 硬切終端線)**、**Posterize(色調分離)**、**Outline(描邊)**、**Auto Levels(自動色階)**、**Non-Uniform Blur(非均勻模糊)**
 - **上色後製**:Gradient Map(16 種色帶:8 組風格化色相位移 + 8 組原始漸層;含色階量化與輪廓銳利度)、Glow、Output
 
-## 內建範本(42 種,覆蓋 1MaFX 常見特效貼圖分類)
+## 內建範本(43 種,覆蓋 1MaFX 常見特效貼圖分類)
 
 | 分類 | 範本 |
 |---|---|
@@ -64,7 +64,7 @@ python -m http.server 8321
 | 電光 / 鏡頭 | ⚡ 閃電 Lightning · 🔆 鏡頭光暈 Lens Flare |
 | 環形 / 圖騰 | 🛡 卡通護盾 Cel Shield · 🪄 魔法陣 Magic Circle · 🔳 規則圖騰 Pattern |
 | 元素 / 自然 | 💦 卡通水花 Cel Splash · 🫧 卡通泡泡 Cel Bubble · 💠 卡通水晶 Cel Crystal · 🌟 卡通星塵 Cel Stardust · 🌪 卡通龍捲風 Cel Tornado · 🔮 能量球 Plasma · ✨ 星芒閃光 Sparkle · 🟡 光塵散景 Bokeh · 🎆 煙花綻放 Firework · 🌀 傳送門 Portal · 💧 水花 Water · ❄ 冰晶 Frost · ☣ 毒液氣泡 Toxic |
-| 表面 / 氛圍 | 🪨 卡通岩石 Cel Rock · ☠ 卡通毒霧 Cel Poison · 🕸 裂縫 Cracks · 🪨 地裂 Ground Cracks · 🌫 煙霧 Smoke |
+| 表面 / 氛圍 | 🌬 飄絮煙霧 Wispy Smoke · 🪨 卡通岩石 Cel Rock · ☠ 卡通毒霧 Cel Poison · 🕸 裂縫 Cracks · 🪨 地裂 Ground Cracks · 🌫 煙霧 Smoke |
 
 每個範本都是完整節點鏈,可直接拆解學習參數。灰階輸出的範本(拖尾/衝擊波/圖騰)刻意不上色,方便在引擎粒子系統內染色。
 
@@ -113,7 +113,7 @@ python -m http.server 8321
 index.html          介面骨架
 css/style.css       深色主題(7 種可切換配色)+ 玻璃質感面板
 js/filters.js       演算法核心(純函式,無 DOM 依賴,可在 Node 直接跑)
-js/nodes.js         26 種節點定義(參數 + eval)
+js/nodes.js         29 種節點定義(參數 + eval)
 js/graph.js         DAG 模型、拓撲評估、快取、防迴圈、序列化
 js/editor.js        節點圖編輯器(拖曳/連線/平移縮放)
 js/presets.js       內建範本

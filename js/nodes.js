@@ -373,6 +373,24 @@ const NodeDefs = {
     }
   },
 
+  multiWarp: {
+    title: 'Multi-Dir Warp', zh: '多向扭曲', cat: 'distort',
+    inputs: [{ n: '輸入', t: 'g' }, { n: '強度圖', t: 'g' }], out: 'g',
+    params: [
+      { k: 'mode', label: '合成方式', t: 'sel', def: 'max', opts: [['max', '取亮 Max(拉出拖絲)'], ['min', '取暗 Min(收縮吃邊)'], ['avg', '平均 Average']] },
+      { k: 'dirs', label: '方向數', t: 'i', def: 4, min: 2, max: 8 },
+      { k: 'intensity', label: '強度', t: 'f', def: 2.5, min: 0, max: 12, step: 0.05 },
+      { k: 'angle', label: '起始角°', t: 'f', def: 0, min: -180, max: 180, step: 1 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx;
+      const src = grayOf(ins, 0, ctx);
+      const slope = ins[1] ? grayOf(ins, 1, ctx) : src;
+      if (p.intensity <= 0.001) return { t: 'g', d: src.slice() };
+      return { t: 'g', d: Filters.multiWarp(src, slope, W, H, p.dirs, p.angle, p.intensity, p.mode) };
+    }
+  },
+
   slopeBlur: {
     title: 'Slope Blur', zh: '斜率模糊', cat: 'distort',
     inputs: [{ n: '輸入', t: 'g' }, { n: '斜率圖', t: 'g' }], out: 'g',
@@ -520,6 +538,49 @@ const NodeDefs = {
       for (let i = 0; i < N; i++) {
         const t = Math.pow(Filters.clamp01((src[i] - p.inLo) / span), g);
         d[i] = p.outLo + t * (p.outHi - p.outLo);
+      }
+      return { t: 'g', d };
+    }
+  },
+
+  autoLevels: {
+    title: 'Auto Levels', zh: '自動色階', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    params: [
+      { k: 'amount', label: '套用程度', t: 'f', def: 1, min: 0, max: 1, step: 0.01 },
+    ],
+    // 把實際用到的動態範圍拉滿,層層扭曲後對比流失時很好用
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H;
+      const src = grayOf(ins, 0, ctx);
+      const norm = Filters.autoLevels(src, N);
+      if (p.amount >= 0.999) return { t: 'g', d: norm };
+      const d = new Float32Array(N);
+      for (let i = 0; i < N; i++) d[i] = src[i] + (norm[i] - src[i]) * p.amount;
+      return { t: 'g', d };
+    }
+  },
+
+  nonUniformBlur: {
+    title: 'Non-Uniform Blur', zh: '非均勻模糊', cat: 'adjust',
+    inputs: [{ n: '輸入', t: 'g' }, { n: '半徑圖', t: 'g' }], out: 'g',
+    params: [
+      { k: 'amount', label: '最大半徑', t: 'f', def: 3, min: 0, max: 20, step: 0.1 },
+      { k: 'bias', label: '半徑偏移', t: 'f', def: 0, min: -1, max: 1, step: 0.01 },
+    ],
+    // 以三層模糊金字塔插值近似逐像素變半徑,比逐像素捲積快得多
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H;
+      const src = grayOf(ins, 0, ctx);
+      if (p.amount <= 0.01) return { t: 'g', d: src.slice() };
+      const ctrl = ins[1] ? grayOf(ins, 1, ctx) : null;
+      const s = p.amount / 100 * W;
+      const b1 = Filters.gaussBlur(src, W, H, s * 0.45);
+      const b2 = Filters.gaussBlur(src, W, H, s);
+      const d = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        const t = Filters.clamp01((ctrl ? ctrl[i] : 0.5) + p.bias) * 2;   // 0..2 跨三層
+        d[i] = t <= 1 ? src[i] + (b1[i] - src[i]) * t
+                      : b1[i] + (b2[i] - b1[i]) * (t - 1);
       }
       return { t: 'g', d };
     }
