@@ -93,23 +93,28 @@ const Presets = (() => {
     // 💥 打擊爆閃:環狀尖刺 + 放射模糊 + 中心高斯光核取亮 → 聖金漸層 → 發光
     burst: {
       nodes: [
-        ['spikes', 'splatterCircular', 40, 40, { pattern: 'spike', count: 16, radius: 0.24, size: 0.3, width: 0.22, sizeRand: 0.55, seed: 4 }],
-        ['zoom', 'blur', 250, 40, { mode: 'zoom', amount: 3 }],
-        ['core', 'shape', 250, 260, { type: 'gauss', size: 0.55 }],
-        ['mix', 'blend', 460, 130, { mode: 'max' }],
-        ['grad', 'gradientMap', 670, 130, { preset: 'gold', steps: 4 }],
-        ['glow', 'glow', 880, 130, { threshold: 0.45, radius: 7, intensity: 1.4 }],
-        ['out', 'output', 1090, 130],
+        ['spikes', 'splatterCircular', 40, 40, { pattern: 'spike', count: 10, radius: 0.2, size: 0.44, width: 0.42, sizeRand: 0.35, seed: 4 }],
+        ['core', 'shape', 40, 260, { type: 'disc', size: 0.34, soft: 0.02 }],
+        ['mix', 'blend', 250, 130, { mode: 'max' }],
+        ['sc', 'histogramScan', 440, 130, { pos: 0.35, contrast: 0.9 }],   // 厚實硬邊星芒
+        ['iv1', 'invert', 630, 130, {}],
+        ['dst', 'distance', 820, 130, { dist: 0.1, curve: 1 }],
+        ['iv2', 'invert', 1010, 130, {}],
+        ['po', 'posterize', 1200, 130, { levels: 3, soft: 0 }],
+        ['grad', 'gradientMap', 1390, 130, { preset: 'gold', steps: 3 }],
+        ['out', 'output', 1580, 130],
       ],
       links: [
-        ['spikes', 'zoom'], ['core', 'mix', 0], ['zoom', 'mix', 1],
-        ['mix', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['core', 'mix', 0], ['spikes', 'mix', 1],
+        ['mix', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
+        ['iv2', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
-        { label: '尖刺數量', def: 0.35, targets: [['spikes', 'count', 8, 28]] },
-        { label: '放射拉絲', def: 0.4, targets: [['zoom', 'amount', 1, 6]] },
-        { label: '光核大小', def: 0.5, targets: [['core', 'size', 0.3, 0.8]] },
-        { label: '光暈強度', def: 0.42, targets: [['glow', 'intensity', 0.6, 2.5]] },
+        { label: '尖刺數量', def: 0.3, targets: [['spikes', 'count', 5, 20]] },
+        { label: '尖刺長度', def: 0.5, targets: [['spikes', 'size', 0.25, 0.65]] },
+        { label: '光核大小', def: 0.35, targets: [['core', 'size', 0.15, 0.7]] },
+        { label: '邊緣圓潤', def: 0.4, targets: [['dst', 'dist', 0.03, 0.2]] },
+        { label: '色帶層數', def: 0.17, targets: [['po', 'levels', 2, 8]] },
       ],
     },
 
@@ -172,9 +177,11 @@ const Presets = (() => {
         ['ih', 'shape', 1180, 1020, { type: 'disc', size: 0.36, soft: 0.015 }],
         ['iring', 'blend', 1370, 860, { mode: 'sub' }],
         ['merge', 'blend', 1370, 130, { mode: 'add' }], // 教學為 Linear Dodge (Add)
-        // ── 第五階段:柔化收尾 ──
-        ['fblur', 'blur', 1560, 130, { mode: 'gauss', amount: 0.5 }],
-        ['out', 'output', 1750, 130],
+        // ── 第五階段:卡通化收尾(中空星環不適用內距離場,改直接平塗階調)──
+        ['csc', 'histogramScan', 1560, 130, { pos: 0.28, contrast: 0.6 }],
+        ['po', 'posterize', 1750, 130, { levels: 3, soft: 0 }],
+        ['grad', 'gradientMap', 1940, 130, { preset: 'gold', steps: 3 }],
+        ['out', 'output', 2130, 130],
         // ── 替代分支:柔軟圓潤版(點選預覽)──
         ['sdist', 'distance', 1560, 360, { dist: 0.16, curve: 1 }],
         ['sscan', 'histogramScan', 1750, 360, { pos: 0.52, contrast: 0.55 }],
@@ -191,7 +198,7 @@ const Presets = (() => {
         ['ic', 'iw', 0], ['ip', 'iw', 1],
         ['ih', 'iring', 0], ['iw', 'iring', 1],
         ['iring', 'merge', 0], ['bsub', 'merge', 1],
-        ['merge', 'fblur'], ['fblur', 'out'],
+        ['merge', 'csc'], ['csc', 'po'], ['po', 'grad'], ['grad', 'out'],
         ['merge', 'sdist'], ['sdist', 'sscan'], ['sscan', 'sblur'],
       ],
       macros: [
@@ -199,7 +206,7 @@ const Presets = (() => {
         { label: '尖刺長度', def: 0.5, targets: [['splat', 'size', 0.18, 0.42]] },
         { label: '中心空洞', def: 0.47, targets: [['hole', 'size', 0.15, 0.6]] },
         { label: '破碎程度', def: 1, targets: [['bsub', 'opacity', 0, 1]] },
-        { label: '柔化收尾', def: 0.17, targets: [['fblur', 'amount', 0, 3]] },
+        { label: '色帶層數', def: 0.17, targets: [['po', 'levels', 2, 8]] },
       ],
     },
 
@@ -898,24 +905,24 @@ const Presets = (() => {
     // 🌫 煙霧:雲絮雜訊自我扭曲 → 柔邊圓遮罩增值 → 色階 → 煙灰漸層
     smoke: {
       nodes: [
-        ['noise', 'perlin', 40, 40, { mode: 'fbm', scale: 3, octaves: 5, seed: 17 }],
-        ['warp', 'warp', 250, 40, { mode: 'grad', intensity: 5 }],
-        ['mask', 'shape', 250, 260, { type: 'blob', size: 1.05, falloff: 0.85 }],
-        ['mix', 'blend', 460, 130, { mode: 'mul' }],
-        ['lv', 'levels', 670, 130, { inLo: 0.04, inHi: 0.44, gamma: 1 }],
-        ['grad', 'gradientMap', 880, 130, { preset: 'smoke', steps: 4 }],
-        ['out', 'output', 1090, 130],
+        ['blobs', 'blobField', 40, 40, { count: 8, size: 0.95, spread: 0.62, taper: 0.45, fuse: 0.4, wobble: 0.35, seed: 17 }],
+        ['cel', 'celShade', 250, 40, { tones: 3, terminator: 0.55, lightAngle: -115, relief: 0.55, shadowTone: 0.55, litTone: 0.95, edge: 0.04 }],
+        ['line', 'outline', 460, 260, { width: 0.009, side: 'inner', threshold: 0.1 }],
+        ['mx', 'blend', 660, 130, { mode: 'sub', opacity: 0.4 }],
+        ['grad', 'gradientMap', 860, 130, { preset: 'smoke', steps: 0 }],
+        ['out', 'output', 1060, 130],
       ],
       links: [
-        ['noise', 'warp', 0],
-        ['warp', 'mix', 0], ['mask', 'mix', 1],
-        ['mix', 'lv'], ['lv', 'grad'], ['grad', 'out'],
+        ['blobs', 'cel'], ['cel', 'line'],
+        ['line', 'mx', 0], ['cel', 'mx', 1],
+        ['mx', 'grad'], ['grad', 'out'],
       ],
       macros: [
-        { label: '湍流強度', def: 0.29, targets: [['warp', 'intensity', 1, 8]] },
-        { label: '細節層次', def: 0.5, targets: [['noise', 'octaves', 3, 7]] },
-        { label: '濃度', def: 0.64, targets: [['lv', 'inHi', 0.9, 0.4]] },
-        { label: '範圍大小', def: 0.5, targets: [['mask', 'size', 0.6, 1.3]] },
+        { label: '煙團數量', def: 0.4, targets: [['blobs', 'count', 4, 14]] },
+        { label: '煙團大小', def: 0.55, targets: [['blobs', 'size', 0.5, 1.3]] },
+        { label: '擴散範圍', def: 0.52, targets: [['blobs', 'spread', 0.2, 1]] },
+        { label: '手繪抖動', def: 0.35, targets: [['blobs', 'wobble', 0, 1]] },
+        { label: '陰影範圍', def: 0.5, targets: [['cel', 'terminator', 0.25, 0.85]] },
       ],
     },
   };
