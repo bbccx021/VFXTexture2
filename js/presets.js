@@ -329,27 +329,28 @@ const Presets = (() => {
     // ⭕ 環狀衝擊波:圓環被柏林扭曲(波動)→ 放射模糊 → 疊內圈餘波 → 灰階輸出(引擎內染色)
     ring: {
       nodes: [
-        ['ring', 'shape', 40, 40, { type: 'ring', size: 1, width: 0.12, soft: 0.05 }],
-        ['nz', 'perlin', 40, 260, { scale: 6, octaves: 3, seed: 19 }],
+        ['ring', 'shape', 40, 40, { type: 'ring', size: 1, width: 0.15, soft: 0.05 }],
+        ['nz', 'perlin', 40, 260, { scale: 5, octaves: 2, seed: 19 }],
         ['wp', 'warp', 230, 130, { mode: 'grad', intensity: 1.5 }],
-        ['zb', 'blur', 420, 130, { mode: 'zoom', amount: 4 }],
-        ['ring2', 'shape', 420, 350, { type: 'ring', size: 0.58, width: 0.04, soft: 0.14 }],
-        ['ad', 'blend', 610, 220, { mode: 'add', opacity: 0.6 }],
-        ['lv', 'levels', 800, 220, { inHi: 0.68 }],
-        ['out', 'output', 990, 220],
+        ['sc', 'histogramScan', 420, 130, { pos: 0.4, contrast: 0.9 }],       // 硬邊主環
+        ['ring2', 'shape', 420, 350, { type: 'ring', size: 0.58, width: 0.05, soft: 0.05 }],
+        ['sc2', 'histogramScan', 610, 350, { pos: 0.4, contrast: 0.9 }],      // 硬邊內圈
+        ['lv2', 'levels', 800, 350, { outHi: 0.55 }],                          // 內圈壓成中階
+        ['mx', 'blend', 800, 200, { mode: 'max' }],
+        ['out', 'output', 990, 200],
       ],
       links: [
         ['ring', 'wp', 0], ['nz', 'wp', 1],
-        ['wp', 'zb'],
-        ['ring2', 'ad', 0], ['zb', 'ad', 1],
-        ['ad', 'lv'], ['lv', 'out'],
+        ['wp', 'sc'],
+        ['ring2', 'sc2'], ['sc2', 'lv2'],
+        ['lv2', 'mx', 0], ['sc', 'mx', 1],
+        ['mx', 'out'],
       ],
       macros: [
         { label: '波動強度', def: 0.36, targets: [['wp', 'intensity', 0.5, 3]] },
-        { label: '環厚度', def: 0.42, targets: [['ring', 'width', 0.06, 0.25]] },
-        { label: '放射殘影', def: 0.44, targets: [['zb', 'amount', 0.5, 5]] },
-        { label: '餘波亮度', def: 0.56, targets: [['ad', 'opacity', 0, 0.8]] },
-        { label: '整體亮度', def: 0.3, targets: [['lv', 'inHi', 1, 0.5]] },
+        { label: '環厚度', def: 0.47, targets: [['ring', 'width', 0.06, 0.25]] },
+        { label: '內圈大小', def: 0.5, targets: [['ring2', 'size', 0.35, 0.8]] },
+        { label: '內圈亮度', def: 0.55, targets: [['lv2', 'outHi', 0.2, 0.85]] },
       ],
     },
 
@@ -449,8 +450,8 @@ const Presets = (() => {
         ['lead', 'ramp', 990, 440, { angle: 0, start: 0.05, end: 0.75, curve: 0.7 }],
         ['fm2', 'blend', 1180, 300, { mode: 'mul' }],
         ['lv', 'levels', 1370, 300, { gamma: 1.6, outHi: 0.92 }],
-        ['grad', 'gradientMap', 1560, 300, { preset: 'ice', steps: 4 }],
-        ['glow', 'glow', 1750, 300, { threshold: 0.4, radius: 5, intensity: 2 }],
+        ['po', 'posterize', 1560, 300, { levels: 3, soft: 0 }],       // 平塗刀光階調
+        ['grad', 'gradientMap', 1750, 300, { preset: 'ice', steps: 3 }],
         ['out', 'output', 1940, 300],
       ],
       links: [
@@ -459,13 +460,13 @@ const Presets = (() => {
         ['vmask', 'fm1', 0], ['spin', 'fm1', 1],
         ['fm1', 'recen'], ['recen', 'sc'],
         ['lead', 'fm2', 0], ['sc', 'fm2', 1],
-        ['fm2', 'lv'], ['lv', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['fm2', 'lv'], ['lv', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '弧帶厚度', def: 0.47, targets: [['ring', 'width', 0.1, 0.4]] },
-        { label: '動勢模糊', def: 0.33, targets: [['spin', 'amount', 0, 6]] },
+        { label: '動勢拉伸', def: 0.33, targets: [['spin', 'amount', 0, 6]] },
         { label: '邊緣粗糙', def: 0.3, targets: [['wp', 'intensity', 0, 2]] },
-        { label: '光暈強度', def: 0.5, targets: [['glow', 'intensity', 0.5, 3.5]] },
+        { label: '色帶層數', def: 0.17, targets: [['po', 'levels', 2, 8]] },
       ],
     },
 
@@ -482,8 +483,8 @@ const Presets = (() => {
         ['dot', 'shape', 610, 440, { type: 'gauss', size: 0.3 }],
         ['mx2', 'blend', 800, 300, { mode: 'max' }],
         ['lv', 'levels', 990, 300, { outHi: 0.8 }],
-        ['grad', 'gradientMap', 1180, 300, { preset: 'gold', steps: 4 }],
-        ['glow', 'glow', 1370, 300, { threshold: 0.55, radius: 5, intensity: 1.4 }],
+        ['po', 'posterize', 1180, 300, { levels: 3, soft: 0 }],
+        ['grad', 'gradientMap', 1370, 300, { preset: 'gold', steps: 3 }],
         ['out', 'output', 1560, 300],
       ],
       links: [
@@ -491,14 +492,14 @@ const Presets = (() => {
         ['sp', 'mx1', 0], ['wp', 'mx1', 1],
         ['mx1', 'sc'],
         ['dot', 'mx2', 0], ['sc', 'mx2', 1],
-        ['mx2', 'lv'], ['lv', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['mx2', 'lv'], ['lv', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '尖刺數量', def: 0.3, targets: [['sp', 'count', 6, 16]] },
         { label: '環扭曲', def: 0.4, targets: [['wp', 'intensity', 0.5, 3]] },
         { label: '環厚度', def: 0.43, targets: [['ring', 'width', 0.08, 0.22]] },
         { label: '中心光核', def: 0.43, targets: [['dot', 'size', 0.15, 0.5]] },
-        { label: '光暈強度', def: 0.33, targets: [['glow', 'intensity', 0.6, 3]] },
+        { label: '色帶層數', def: 0.17, targets: [['po', 'levels', 2, 8]] },
       ],
     },
 
@@ -514,29 +515,28 @@ const Presets = (() => {
         ['wp2', 'warp', 610, 220, { mode: 'grad', intensity: 2 }],
         ['ck', 'cells', 610, 440, { mode: 'edge', scale: 9, contrast: 1.3, seed: 31 }],
         ['bsub', 'blend', 800, 220, { mode: 'sub', opacity: 0.55 }],
-        ['sc', 'histogramScan', 990, 220, { pos: 0.38, contrast: 0.75 }],
-        ['fade', 'ramp', 990, 440, { angle: 90, start: 0, end: 0.85, curve: 0.6 }],
-        ['fm', 'blend', 1180, 300, { mode: 'mul' }],
-        ['lv', 'levels', 1370, 300, { outHi: 0.78 }],
-        ['grad', 'gradientMap', 1560, 300, { preset: 'ember', steps: 4 }],
-        ['glow', 'glow', 1750, 300, { threshold: 0.45, radius: 5, intensity: 1.8 }],
-        ['out', 'output', 1940, 300],
+        ['sc', 'histogramScan', 990, 220, { pos: 0.38, contrast: 0.9 }],   // 硬邊刀身
+        ['iv1', 'invert', 1180, 220, {}],
+        ['dst', 'distance', 1370, 220, { dist: 0.07, curve: 1 }],
+        ['iv2', 'invert', 1560, 220, {}],                                  // 內距離場
+        ['po', 'posterize', 1750, 220, { levels: 3, soft: 0 }],            // 同心熔岩色帶
+        ['grad', 'gradientMap', 1940, 220, { preset: 'ember', steps: 3 }],
+        ['out', 'output', 2130, 220],
       ],
       links: [
         ['tri', 't1'],
         ['t1', 'wp1', 0], ['nz', 'wp1', 1],
         ['wp1', 'wp2', 0], ['cr', 'wp2', 1],
         ['ck', 'bsub', 0], ['wp2', 'bsub', 1],
-        ['bsub', 'sc'],
-        ['fade', 'fm', 0], ['sc', 'fm', 1],
-        ['fm', 'lv'], ['lv', 'grad'], ['grad', 'glow'], ['glow', 'out'],
+        ['bsub', 'sc'], ['sc', 'iv1'], ['iv1', 'dst'], ['dst', 'iv2'],
+        ['iv2', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '刀身長度', def: 0.44, targets: [['t1', 'sy', 1, 1.8]] },
         { label: '彎折強度', def: 0.43, targets: [['wp1', 'intensity', 1.5, 5]] },
         { label: '鋸齒稜角', def: 0.5, targets: [['wp2', 'intensity', 0.5, 3.5]] },
         { label: '碎裂程度', def: 0.55, targets: [['bsub', 'opacity', 0, 1]] },
-        { label: '光暈強度', def: 0.45, targets: [['glow', 'intensity', 0.8, 3]] },
+        { label: '色帶層數', def: 0.17, targets: [['po', 'levels', 2, 8]] },
       ],
     },
 
