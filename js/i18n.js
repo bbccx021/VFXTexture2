@@ -55,7 +55,7 @@ const I18N_EN = {
   '暗血紅': 'Crimson', '烈焰洋紅': 'Magenta', '熔爐橘': 'Ember',
   /* ---- 節點分類 ---- */
   '基礎圖形': 'Basic Shapes', '特效生成': 'FX Generators', '雜訊': 'Noise', '變形扭曲': 'Distort', '混合': 'Blend',
-  '調整': 'Adjust', '上色後製': 'Color',
+  '調整': 'Adjust', '風格化': 'Stylize', '輸出': 'Output', '上色後製': 'Color',
   /* ---- 節點中文名(EN 模式下作為副標隱藏,備查)---- */
   /* ---- 範本分類 ---- */
   '打擊 / 衝擊': 'Impact / Hit', '拖尾 / 揮砍': 'Trail / Slash', '火焰 / 能量': 'Fire / Energy',

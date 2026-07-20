@@ -381,7 +381,7 @@ const UI = (() => {
     }
     let html = `<input class="lib-search" id="lib-search" type="text" placeholder="${tr('🔍 搜尋節點…')}">`;
     for (const [cat, meta] of Object.entries(NodeCats)) {
-      if (!byCat[cat]) continue;
+      if (!byCat[cat] || meta.hidden) continue;
       html += `<div class="lib-group" data-cat="${cat}">
         <div class="lib-cat"><span class="tri">▾</span>${tr(meta.zh)}<span class="cnt">${byCat[cat].length}</span></div>`;
       for (const [type, def] of byCat[cat]) {
@@ -856,6 +856,7 @@ const UI = (() => {
     const m = ctxMenuEl();
     let list = '';
     for (const [cat, meta] of Object.entries(NodeCats)) {
+      if (meta.hidden) continue;
       for (const [type, def] of Object.entries(NodeDefs)) {
         if (def.cat !== cat) continue;
         // 從輸出口拖出 → 只列出「有輸入口」的節點

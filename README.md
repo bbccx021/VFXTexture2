@@ -52,7 +52,8 @@ python -m http.server 8321
 - **雜訊**:Perlin Noise(fBm/Billow/Ridged)、Cells/Crystal(Voronoi F1/F2−F1/裂縫/色塊)
 - **變形扭曲**:Warp(梯度/方向)、**Multi-Dir Warp(多向扭曲 — Max 拉飄絮/Min 收邊)**、Slope Blur(斜率模糊 — 裂縫擴張/侵蝕/融化)、Swirl、Cross Section(等高線提取)、**Cross Profile(剖面曲線)**、Transform 2D
 - **混合**:Blend(Normal/Add/Subtract/Multiply/Max/Min/Screen/Difference)
-- **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Bevel、Distance(距離場)、**Cel Shade(卡通打光 — 硬切終端線)**、**Posterize(色調分離)**、**Outline(描邊)**、**Auto Levels(自動色階)**、**Non-Uniform Blur(非均勻模糊)**、**Bright / Contrast(亮度對比)**、**Curve(色調曲線)**、**Clamp / Remap(範圍裁切)**
+- **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Auto Levels(自動色階)、Non-Uniform Blur(非均勻模糊)、Bright / Contrast(亮度對比)、Curve(色調曲線)、Clamp / Remap(範圍裁切)
+- **風格化**:Bevel、Distance(距離場)、Cel Shade(卡通打光 — 硬切終端線)、Posterize(色調分離)、Outline(描邊)
 - **上色後製**:**Color Adjust(色彩調整 — 色相/飽和/亮度/對比/透明度)**、Gradient Map(16 種色帶:8 組風格化色相位移 + 8 組原始漸層;含色階量化與輪廓銳利度)、Glow、Output
 
 ## 內建範本(49 種,覆蓋 1MaFX 常見特效貼圖分類)

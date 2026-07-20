@@ -1173,7 +1173,7 @@ const NodeDefs = {
   },
 
   bevel: {
-    title: 'Bevel', zh: '斜角厚度', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    title: 'Bevel', zh: '斜角厚度', cat: 'stylize', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
       { k: 'radius', label: '半徑', t: 'f', def: 4, min: 0.2, max: 20, step: 0.1 },
       { k: 'curve', label: '曲率', t: 'f', def: 1.2, min: 0.2, max: 5, step: 0.05 },
@@ -1191,7 +1191,7 @@ const NodeDefs = {
   },
 
   distance: {
-    title: 'Distance', zh: '距離場', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    title: 'Distance', zh: '距離場', cat: 'stylize', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
       { k: 'dist', label: '最大距離', t: 'f', def: 0.15, min: 0.01, max: 0.6, step: 0.005 },
       { k: 'curve', label: '衰減曲線', t: 'f', def: 1, min: 0.25, max: 4, step: 0.05 },
@@ -1209,7 +1209,7 @@ const NodeDefs = {
   },
 
   celShade: {
-    title: 'Cel Shade', zh: '卡通打光', cat: 'adjust', inputs: [{ n: '高度場', t: 'g' }], out: 'g',
+    title: 'Cel Shade', zh: '卡通打光', cat: 'stylize', inputs: [{ n: '高度場', t: 'g' }], out: 'g',
     params: [
       { k: 'tones', label: '階調數', t: 'i', def: 2, min: 2, max: 4 },
       { k: 'terminator', label: '終端線位置', t: 'f', def: 0.55, min: 0.05, max: 0.95, step: 0.01 },
@@ -1257,7 +1257,7 @@ const NodeDefs = {
   },
 
   posterize: {
-    title: 'Posterize', zh: '色調分離', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    title: 'Posterize', zh: '色調分離', cat: 'stylize', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
       { k: 'levels', label: '階調數', t: 'i', def: 3, min: 2, max: 24 },
       { k: 'soft', label: '階梯柔度', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
@@ -1277,7 +1277,7 @@ const NodeDefs = {
   },
 
   outline: {
-    title: 'Outline', zh: '描邊', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    title: 'Outline', zh: '描邊', cat: 'stylize', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
       { k: 'width', label: '線寬', t: 'f', def: 0.02, min: 0.002, max: 0.12, step: 0.002 },
       { k: 'side', label: '位置', t: 'sel', def: 'outer', opts: [['outer', '外描邊'], ['inner', '內描邊'], ['both', '內外都要']] },
@@ -1377,11 +1377,14 @@ const NodeDefs = {
 // 類別中繼資料(節點庫分組 & 顏色)
 const NodeCats = {
   gen:     { zh: '基礎圖形', color: 'var(--cat-gen)' },
-  fx:      { zh: '特效生成', color: 'var(--cat-fx)' },
   noise:   { zh: '雜訊', color: 'var(--cat-noise)' },
   distort: { zh: '變形扭曲', color: 'var(--cat-distort)' },
   blend:   { zh: '混合', color: 'var(--cat-blend)' },
   adjust:  { zh: '調整', color: 'var(--cat-adjust)' },
+  stylize: { zh: '風格化', color: 'var(--cat-stylize)' },
   color:   { zh: '上色後製', color: 'var(--cat-color)' },
   out:     { zh: '輸出', color: 'var(--cat-out)' },
+  // 特效生成:完整效果的複合生成器(閃電/魔法陣…),僅供範本內部使用,
+  // 不列入節點庫與新增選單 — 節點庫只放單純的單一節點
+  fx:      { zh: '特效生成', color: 'var(--cat-fx)', hidden: true },
 };
