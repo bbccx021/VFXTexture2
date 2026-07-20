@@ -335,10 +335,84 @@ const Filters = (() => {
     const s = stops[stops.length - 1]; return [s[1], s[2], s[3]];
   }
 
+  // 序列亂數(xorshift32):線段生成需要「依呼叫順序」的穩定亂數流,rnd2 做不到
+  function seqRNG(seed) {
+    let s = (seed >>> 0) || 1;
+    return () => {
+      s ^= s << 13; s ^= s >>> 17; s ^= s << 5; s >>>= 0;
+      return s / 4294967296;
+    };
+  }
+
+  // 點到線段距離(uv 空間)
+  function segDist(px, py, ax, ay, bx, by) {
+    const vx = bx - ax, vy = by - ay;
+    const wx = px - ax, wy = py - ay;
+    const L2 = vx * vx + vy * vy;
+    let t = L2 > 0 ? (wx * vx + wy * vy) / L2 : 0;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const dx = px - (ax + vx * t), dy = py - (ay + vy * t);
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // 中點位移碎形路徑:多尺度鋸齒,比均勻折線自然(移植自 NoiseGenerator Bolt)
+  function fractalPath(rand, x0, y0, x1, y1, levels, jag) {
+    let pts = [{ x: x0, y: y0 }, { x: x1, y: y1 }];
+    for (let l = 0; l < levels; l++) {
+      const np = [pts[0]];
+      for (let k = 1; k < pts.length; k++) {
+        const a = pts[k - 1], b = pts[k];
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1e-6;
+        const disp = (rand() - 0.5) * jag * len * 2;
+        np.push({ x: mx - dy / len * disp, y: my + dx / len * disp });
+        np.push(b);
+      }
+      pts = np;
+    }
+    return pts;
+  }
+
+  // 線段集光柵化:逐列分桶 + 三層輝光(白熱核心/中暈/寬柔暈)
+  // segs: [{ax,ay,bx,by,w,b}](uv 空間);glow 縮放外圈兩層的比重
+  function rasterSegs(segs, W, H, glow) {
+    let wMax = 0;
+    for (const sg of segs) if (sg.w > wMax) wMax = sg.w;
+    const margin = wMax * 26;
+    const rowSegs = Array.from({ length: H }, () => []);
+    for (let si = 0; si < segs.length; si++) {
+      const sg = segs[si];
+      const y0 = Math.max(0, Math.floor((Math.min(sg.ay, sg.by) - margin) * H));
+      const y1 = Math.min(H - 1, Math.ceil((Math.max(sg.ay, sg.by) + margin) * H));
+      for (let j = y0; j <= y1; j++) rowSegs[j].push(si);
+    }
+    const out = new Float32Array(W * H);
+    for (let j = 0; j < H; j++) {
+      const py = (j + 0.5) / H;
+      const list = rowSegs[j];
+      for (let i = 0; i < W; i++) {
+        const px = (i + 0.5) / W;
+        let v = 0;
+        for (let s = 0; s < list.length; s++) {
+          const sg = segs[list[s]];
+          const d = segDist(px, py, sg.ax, sg.ay, sg.bx, sg.by);
+          if (d > sg.w * 24) continue;
+          const q = d / sg.w;
+          v += sg.b * (Math.exp(-q * q) + (Math.exp(-q * q / 12) * 0.28 + Math.exp(-q * q / 120) * 0.08) * glow);
+        }
+        if (v > 1) v = 1;
+        out[j * W + i] = v;
+      }
+    }
+    return out;
+  }
+
   return {
     clamp01, clamp, lerp, fract, mod, rnd2, hashInt,
     sampleWrap, sampleZero, perlinP, fbm, worley,
     shapeField, stampInstance, stampImage, distanceField, slopeBlur,
-    multiWarp, autoLevels, gaussBlur, gradSample, edgeFn, sstep, smax
+    multiWarp, autoLevels, gaussBlur, gradSample, edgeFn, sstep, smax,
+    seqRNG, segDist, fractalPath, rasterSegs
   };
 })();

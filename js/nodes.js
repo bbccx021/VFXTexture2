@@ -300,6 +300,322 @@ const NodeDefs = {
   },
 
   /* ==================== 雜訊 ==================== */
+  /* ==== 移植自 NoiseGenerator 的五個特效生成器(bbccx021.github.io/NoiseGenerator)==== */
+
+  slashArc: {
+    title: 'Slash Arc', zh: '弧月斬擊', cat: 'gen', inputs: [], out: 'g',
+    params: [
+      { k: 'radius', label: '弧半徑', t: 'f', def: 0.36, min: 0.15, max: 0.48, step: 0.005 },
+      { k: 'width', label: '弧寬', t: 'f', def: 0.22, min: 0.05, max: 0.4, step: 0.005 },
+      { k: 'span', label: '弧長°', t: 'f', def: 143, min: 40, max: 180, step: 1 },
+      { k: 'rot', label: '旋轉°', t: 'f', def: 0, min: -180, max: 180, step: 1 },
+      { k: 'streak', label: '拖絲強度', t: 'f', def: 0.9, min: 0, max: 1.5, step: 0.01 },
+      { k: 'freq', label: '絲密度', t: 'f', def: 1, min: 0.3, max: 3, step: 0.05 },
+      { k: 'seed', label: '種子', t: 'seed', def: 7 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, d = new Float32Array(W * H);
+      const ca = Math.cos(-p.rot * Math.PI / 180), sa = Math.sin(-p.rot * Math.PI / 180);
+      const rIn = p.radius - p.width / 2, rOut = p.radius + p.width / 2;
+      const fe = p.width * 0.45;                       // 內外緣羽化
+      const span1 = p.span * Math.PI / 180, span0 = span1 * 0.52;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const dx0 = (x + 0.5) / W - 0.5, dy0 = (y + 0.5) / H - 0.5;
+        const dx = dx0 * ca - dy0 * sa, dy = dx0 * sa + dy0 * ca;
+        const r = Math.sqrt(dx * dx + dy * dy);
+        const a = Math.atan2(dy, dx);
+        const band = Filters.sstep(rIn, rIn + fe, r) * (1 - Filters.sstep(rOut - fe * 0.4, rOut, r));
+        if (band <= 0) { d[y * W + x] = 0; continue; }
+        const arcT = 1 - Filters.sstep(span0, span1, Math.abs(a));
+        if (arcT <= 0) { d[y * W + x] = 0; continue; }
+        const edgeB = Filters.sstep(p.radius - p.width * 0.2, rOut, r);   // 外緣較利較亮
+        // 拖絲:沿弧向拉長、跨半徑細變化的 fbm
+        const a01 = a / (Math.PI * 2) + 0.5;
+        const str = Filters.fbm(a01 * 1.0, r * 8.8 * p.freq, 16, 3, 0.5, p.seed, 'fbm');
+        const v = band * arcT * (0.35 + edgeB * 1.1) * (0.5 + str * p.streak);
+        d[y * W + x] = Filters.clamp01(v);
+      }
+      return { t: 'g', d };
+    }
+  },
+
+  trailStrands: {
+    title: 'Trail Strands', zh: '拖尾絲束', cat: 'gen', inputs: [], out: 'g',
+    params: [
+      { k: 'strands', label: '絲束數', t: 'i', def: 4, min: 2, max: 8 },
+      { k: 'spread', label: '散開幅度', t: 'f', def: 0.26, min: 0.05, max: 0.6, step: 0.01 },
+      { k: 'decay', label: '衰減', t: 'f', def: 1, min: 0.4, max: 2.5, step: 0.05 },
+      { k: 'sway', label: '擺動', t: 'f', def: 1, min: 0, max: 3, step: 0.05 },
+      { k: 'head', label: '頭部亮核', t: 'f', def: 0.9, min: 0, max: 1.5, step: 0.05 },
+      { k: 'streak', label: '絲紋強度', t: 'f', def: 0.6, min: 0, max: 1.2, step: 0.05 },
+      { k: 'seed', label: '種子', t: 'seed', def: 12 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, d = new Float32Array(W * H);
+      const rand = Filters.seqRNG((p.seed | 0) + 101);
+      const S = p.strands | 0;
+      const yc = [], wd = [], dec = [], amp = [], wf = [], wp = [];
+      for (let k = 0; k < S; k++) {
+        yc.push(0.5 + (rand() - 0.5) * p.spread);
+        wd.push(0.015 + rand() * 0.030);
+        dec.push((1.2 + rand() * 1.0) * p.decay);
+        amp.push(0.45 + rand() * 0.55);
+        wf.push(6 + rand() * 6);
+        wp.push(rand() * 6.28);
+      }
+      for (let y = 0; y < H; y++) {
+        const v = (y + 0.5) / H;
+        for (let x = 0; x < W; x++) {
+          const u = (x + 0.5) / W;
+          let b = 0;
+          for (let k = 0; k < S; k++) {
+            const yy = yc[k] + Math.sin(u * wf[k] + wp[k]) * 0.016 * p.sway;
+            b += Math.exp(-Math.pow((v - yy) / wd[k], 2)) * Math.pow(1 - u, dec[k]) * amp[k];
+          }
+          const str = Filters.fbm(u * 0.45, v * 5.4, 8, 3, 0.5, p.seed, 'fbm');
+          const head = Math.exp(-((u - 0.05) * (u - 0.05)) / 0.004 - ((v - 0.5) * (v - 0.5)) / 0.015) * p.head;
+          d[y * W + x] = Math.min(1, (b * (0.55 + str * p.streak) + head) * Filters.sstep(0, 0.04, u));
+        }
+      }
+      return { t: 'g', d };
+    }
+  },
+
+  boltGen: {
+    title: 'Bolt', zh: '閃電束', cat: 'gen', inputs: [], out: 'g',
+    params: [
+      { k: 'jag', label: '鋸齒程度', t: 'f', def: 0.5, min: 0.15, max: 0.8, step: 0.01 },
+      { k: 'branches', label: '分支數', t: 'i', def: 3, min: 0, max: 6 },
+      { k: 'width', label: '線寬', t: 'f', def: 1, min: 0.4, max: 2.5, step: 0.05 },
+      { k: 'glow', label: '柔暈比重', t: 'f', def: 1, min: 0, max: 2, step: 0.05 },
+      { k: 'endGlow', label: '末端光球', t: 'f', def: 0.55, min: 0, max: 1.2, step: 0.05 },
+      { k: 'seed', label: '種子', t: 'seed', def: 3 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx;
+      const rand = Filters.seqRNG(p.seed | 0);
+      const segs = [];
+      const wBase = 0.0075 * p.width;
+      const addBolt = (pts, w0, w1, b0, b1) => {
+        const n = pts.length - 1;
+        for (let k = 0; k < n; k++) {
+          const t = k / n;
+          segs.push({
+            ax: pts[k].x, ay: pts[k].y, bx: pts[k + 1].x, by: pts[k + 1].y,
+            w: Math.max(1e-4, w0 + (w1 - w0) * t),
+            b: (b0 + (b1 - b0) * t) * (0.8 + rand() * 0.35),   // 每段閃爍抖動
+          });
+        }
+      };
+      // 主幹(上→下,錐形變細)
+      const xTop = 0.5 + (rand() - 0.5) * 0.10;
+      const xBot = 0.5 + (rand() - 0.5) * 0.16;
+      const main = Filters.fractalPath(rand, xTop, 0.02, xBot, 0.98, 5, p.jag);
+      addBolt(main, wBase, wBase * 0.45, 1.0, 0.85);
+      // 分支與子分支:斜出、末端收細淡出
+      for (let b = 0; b < p.branches; b++) {
+        const pi = 3 + Math.floor(rand() * (main.length - 8));
+        const pt = main[pi];
+        const dir = rand() < 0.5 ? -1 : 1;
+        const ex = pt.x + dir * (0.08 + rand() * 0.16);
+        const ey = Math.min(0.99, pt.y + 0.12 + rand() * 0.18);
+        const bp = Filters.fractalPath(rand, pt.x, pt.y, ex, ey, 4, p.jag * 0.9);
+        addBolt(bp, wBase * 0.45, wBase * 0.08, 0.5, 0.08);
+        if (rand() > 0.6) {
+          const spi = 2 + Math.floor(rand() * (bp.length - 4));
+          const sp = bp[spi];
+          const sp2 = Filters.fractalPath(rand, sp.x, sp.y,
+            sp.x + dir * (0.06 + rand() * 0.12),
+            Math.min(0.99, sp.y + 0.10 + rand() * 0.12), 3, p.jag * 0.9);
+          addBolt(sp2, wBase * 0.25, wBase * 0.05, 0.4, 0.06);
+        }
+      }
+      const d = Filters.rasterSegs(segs, W, H, p.glow);
+      if (p.endGlow > 0.001) {                          // 末端衝擊光球
+        const ex = main[main.length - 1].x, ey = main[main.length - 1].y;
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+          const dx = (x + 0.5) / W - ex, dy = (y + 0.5) / H - ey;
+          const i = y * W + x;
+          d[i] = Math.min(1, d[i] + Math.exp(-(dx * dx + dy * dy) / 0.0009) * p.endGlow);
+        }
+      }
+      return { t: 'g', d };
+    }
+  },
+
+  ringBolt: {
+    title: 'Ring Bolt', zh: '環形電圈', cat: 'gen', inputs: [], out: 'g',
+    params: [
+      { k: 'radius', label: '半徑', t: 'f', def: 0.32, min: 0.15, max: 0.42, step: 0.005 },
+      { k: 'loops', label: '環數', t: 'i', def: 2, min: 1, max: 3 },
+      { k: 'jag', label: '鋸齒程度', t: 'f', def: 0.22, min: 0.05, max: 0.5, step: 0.01 },
+      { k: 'sparks', label: '放電火花', t: 'i', def: 4, min: 0, max: 8 },
+      { k: 'width', label: '線寬', t: 'f', def: 1, min: 0.4, max: 2.5, step: 0.05 },
+      { k: 'glow', label: '柔暈比重', t: 'f', def: 1, min: 0, max: 2, step: 0.05 },
+      { k: 'seed', label: '種子', t: 'seed', def: 5 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx;
+      const rand = Filters.seqRNG(((p.seed * 2654435761) >>> 0) || 1);
+      rand(); rand();
+      const R = p.radius, wBase = 0.0065 * p.width, levels = 5;
+      const segs = [];
+      // 閉合的多尺度鋸齒偏移(首尾線性融合 → 無縫接環)
+      const closedOffsets = (jag) => {
+        let a = [0, 0];
+        for (let l = 0; l < levels; l++) {
+          const b = [a[0]];
+          for (let k = 1; k < a.length; k++) {
+            b.push((a[k - 1] + a[k]) / 2 + (rand() - 0.5) * jag / Math.pow(1.8, l));
+            b.push(a[k]);
+          }
+          a = b;
+        }
+        const m = a.length - 1;
+        for (let k = 0; k <= m; k++) { const t = k / m; a[k] = a[k] * (1 - t) + a[0] * t; }
+        return a;
+      };
+      const addLoop = (jag, phase, w, b) => {
+        const f = closedOffsets(jag);
+        const m = f.length - 1;
+        let px = null, py = null;
+        for (let k = 0; k <= m; k++) {
+          const th = k / m * Math.PI * 2 + phase;
+          const r = R * (1 + f[k]);
+          const x = 0.5 + Math.cos(th) * r, y = 0.5 + Math.sin(th) * r;
+          if (px !== null) segs.push({ ax: px, ay: py, bx: x, by: y, w, b: b * (0.75 + rand() * 0.4) });
+          px = x; py = y;
+        }
+      };
+      addLoop(p.jag, 0, wBase, 1.0);                                // 主電環
+      if (p.loops >= 2) addLoop(p.jag * 1.36, 0.9, wBase * 0.55, 0.45);   // 伴隨細環
+      if (p.loops >= 3) addLoop(p.jag * 1.7, 2.1, wBase * 0.4, 0.3);
+      // 放電火花:向外/向內短枝
+      for (let s = 0; s < p.sparks; s++) {
+        const th = rand() * Math.PI * 2;
+        let x = 0.5 + Math.cos(th) * R, y = 0.5 + Math.sin(th) * R;
+        const dir = rand() < 0.7 ? 1 : -1;
+        const len = 0.06 + rand() * 0.10;
+        for (let k = 1; k <= 4; k++) {
+          const t = k / 4;
+          const nx = 0.5 + Math.cos(th) * (R + dir * len * t) + (rand() - 0.5) * 0.03;
+          const ny = 0.5 + Math.sin(th) * (R + dir * len * t) + (rand() - 0.5) * 0.03;
+          segs.push({ ax: x, ay: y, bx: nx, by: ny, w: wBase * 0.5 * (1 - t * 0.8), b: 0.5 * (1 - t * 0.7) });
+          x = nx; y = ny;
+        }
+      }
+      return { t: 'g', d: Filters.rasterSegs(segs, W, H, p.glow) };
+    }
+  },
+
+  magicCircle: {
+    title: 'Magic Circle', zh: '魔法陣', cat: 'gen', inputs: [], out: 'g',
+    params: [
+      { k: 'scale', label: '陣形半徑', t: 'f', def: 1, min: 0.55, max: 1.2, step: 0.01 },
+      { k: 'ticks', label: '刻度數', t: 'i', def: 30, min: 12, max: 48 },
+      { k: 'star', label: '六芒星', t: 'b', def: true },
+      { k: 'runes', label: '咒文符文', t: 'b', def: true },
+      { k: 'lineW', label: '線條粗細', t: 'f', def: 1, min: 0.5, max: 3, step: 0.05 },
+      { k: 'glow', label: '柔光強度', t: 'f', def: 0.13, min: 0, max: 0.5, step: 0.01 },
+      { k: 'seed', label: '種子', t: 'seed', def: 4 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, d = new Float32Array(W * H);
+      const rand = Filters.seqRNG(p.seed | 0);
+      const RM = p.scale, LW = p.lineW;
+      const r1 = 0.44 * RM, r2 = 0.40 * RM, r3 = 0.27 * RM, rDash = 0.315 * RM, rRune = 0.355 * RM;
+      const segs = [];
+      const rot = rand() * Math.PI * 2;
+      // 符文筆畫:主豎幹 + 斜枝 + 機率副幹
+      const addRune = (cx, cy, h, ang, w, b) => {
+        const cosA = Math.cos(ang), sinA = Math.sin(ang);
+        const stroke = (x1, y1, x2, y2) => segs.push({
+          ax: cx + (x1 * cosA - y1 * sinA) * h, ay: cy + (x1 * sinA + y1 * cosA) * h,
+          bx: cx + (x2 * cosA - y2 * sinA) * h, by: cy + (x2 * sinA + y2 * cosA) * h,
+          w: w * LW, b,
+        });
+        stroke(0, -0.5, 0, 0.5);
+        const n = 1 + Math.floor(rand() * 3);
+        for (let k = 0; k < n; k++) {
+          const y0 = -0.5 + rand() * 0.7;
+          const dir = rand() < 0.5 ? -1 : 1;
+          const dy = 0.25 + rand() * 0.5;
+          const y1 = rand() < 0.35 ? y0 - dy * 0.6 : y0 + dy;
+          stroke(0, y0, dir * 0.45, Math.max(-0.55, Math.min(0.55, y1)));
+        }
+        if (rand() < 0.30) {
+          stroke(0.42, -0.5, 0.42, 0.5);
+          if (rand() < 0.5) stroke(0, -0.1 + rand() * 0.2, 0.42, -0.1 + rand() * 0.2);
+        }
+      };
+      if (p.star) for (let k = 0; k < 6; k++) {         // 六芒星弦線
+        const a1 = k / 6 * Math.PI * 2 + rot, a2 = (k + 2) / 6 * Math.PI * 2 + rot;
+        segs.push({ ax: 0.5 + Math.cos(a1) * r3, ay: 0.5 + Math.sin(a1) * r3,
+                    bx: 0.5 + Math.cos(a2) * r3, by: 0.5 + Math.sin(a2) * r3, w: 0.0024 * LW, b: 0.85 });
+      }
+      if (p.runes) {
+        for (let s = 0; s < 16; s++) {                  // 外圈 16 大符文
+          const a = s / 16 * Math.PI * 2 + rot;
+          addRune(0.5 + Math.cos(a) * rRune, 0.5 + Math.sin(a) * rRune,
+            0.050 * RM, a + Math.PI / 2 + (rand() - 0.5) * 0.08, 0.0017, 0.95);
+        }
+        for (let s = 0; s < 12; s++) {                  // 內圈 12 小符文
+          const a = s / 12 * Math.PI * 2 + rot + 0.13;
+          addRune(0.5 + Math.cos(a) * 0.292 * RM, 0.5 + Math.sin(a) * 0.292 * RM,
+            0.030 * RM, a + Math.PI / 2 + (rand() - 0.5) * 0.08, 0.0013, 0.8);
+        }
+      }
+      // 逐列分桶
+      const margin = 0.05;
+      const rowSegs = Array.from({ length: H }, () => []);
+      for (let si = 0; si < segs.length; si++) {
+        const sg = segs[si];
+        const y0 = Math.max(0, Math.floor((Math.min(sg.ay, sg.by) - margin) * H));
+        const y1 = Math.min(H - 1, Math.ceil((Math.max(sg.ay, sg.by) + margin) * H));
+        for (let j = y0; j <= y1; j++) rowSegs[j].push(si);
+      }
+      // 雙線環:[半徑, 線寬, 亮度](主線 + 伴隨細線)
+      const rings = [
+        [r1, 0.0050 * LW, 1.00], [r1 + 0.014, 0.0016 * LW, 0.70],
+        [r2, 0.0028 * LW, 0.90],
+        [r3, 0.0038 * LW, 0.90], [r3 - 0.017, 0.0014 * LW, 0.65],
+      ];
+      for (let j = 0; j < H; j++) {
+        const dy = (j + 0.5) / H - 0.5;
+        const list = rowSegs[j];
+        for (let i = 0; i < W; i++) {
+          const dx = (i + 0.5) / W - 0.5;
+          const r = Math.sqrt(dx * dx + dy * dy);
+          const a = Math.atan2(dy, dx) + Math.PI;
+          let crisp = 0, glow = 0;
+          for (let k = 0; k < rings.length; k++) {
+            const dd = r - rings[k][0], lw = rings[k][1], b = rings[k][2];
+            crisp = Math.max(crisp, b * Math.exp(-(dd * dd) / (lw * lw)));
+            glow += b * Math.exp(-(dd * dd) / (lw * lw * 60));
+          }
+          const ph = (a / (Math.PI * 2) * 30) % 1;      // 虛線環
+          const dash = Filters.sstep(0.02, 0.10, ph) * (1 - Filters.sstep(0.50, 0.58, ph));
+          crisp = Math.max(crisp, Math.exp(-((r - rDash) * (r - rDash)) / (0.0022 * 0.0022 * LW * LW)) * 0.8 * dash);
+          const tph = (a / (Math.PI * 2) * p.ticks) % 1;   // 外環刻度
+          const tick = Math.max(1 - Filters.sstep(0.04, 0.10, tph), Filters.sstep(0.90, 0.96, tph));
+          const bandT = Filters.sstep(r2 - 0.004, r2, r) * (1 - Filters.sstep(r1, r1 + 0.004, r));
+          crisp = Math.max(crisp, tick * bandT * 0.95);
+          const px = dx + 0.5, py = dy + 0.5;
+          for (let s = 0; s < list.length; s++) {
+            const sg = segs[list[s]];
+            const dd = Filters.segDist(px, py, sg.ax, sg.ay, sg.bx, sg.by);
+            if (dd > 0.05) continue;
+            if (dd < 0.012) crisp = Math.max(crisp, sg.b * Math.exp(-(dd * dd) / (sg.w * sg.w)));
+            glow += sg.b * Math.exp(-(dd * dd) / 0.0006) * 0.35;
+          }
+          const v = Math.min(1, crisp + glow * p.glow);
+          d[j * W + i] = v * (1 - Filters.sstep(0.46 * RM + 0.02, 0.5, r));
+        }
+      }
+      return { t: 'g', d };
+    }
+  },
+
   perlin: {
     title: 'Perlin Noise', zh: '柏林雜訊', cat: 'noise', inputs: [], out: 'g',
     params: [

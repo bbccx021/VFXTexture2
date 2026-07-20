@@ -1373,6 +1373,89 @@ const Presets = (() => {
         { label: '陰影範圍', def: 0.5, targets: [['cel', 'terminator', 0.25, 0.85]] },
       ],
     },
+
+    /* ==== 移植自 NoiseGenerator 的五個特效(卡通化)==== */
+
+    celSlash: {
+      nodes: [
+        ['gen', 'slashArc', 40, 40, { radius: 0.36, width: 0.22, span: 143, rot: 0, streak: 0.9, freq: 1, seed: 7 }],
+        ['po', 'posterize', 230, 40, { levels: 6, soft: 0.25 }],
+        ['grad', 'gradientMap', 420, 40, { preset: 'celIce', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 610, 40],
+      ],
+      links: [['gen', 'po'], ['po', 'grad'], ['grad', 'out']],
+      macros: [
+        { label: '弧長範圍', def: 0.74, targets: [['gen', 'span', 60, 180]] },
+        { label: '斬擊寬度', def: 0.5, targets: [['gen', 'width', 0.08, 0.36]] },
+        { label: '拖絲強度', def: 0.6, targets: [['gen', 'streak', 0, 1.5]] },
+        { label: '色帶層數', def: 0.43, targets: [['po', 'levels', 3, 10]] },
+      ],
+    },
+
+    celTrail: {
+      nodes: [
+        ['gen', 'trailStrands', 40, 40, { strands: 5, spread: 0.3, decay: 0.85, sway: 1, head: 0.9, streak: 0.6, seed: 12 }],
+        ['al', 'autoLevels', 160, 40, { amount: 0.85 }],
+        ['po', 'posterize', 300, 40, { levels: 7, soft: 0.25 }],
+        ['grad', 'gradientMap', 420, 40, { preset: 'celFire', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 610, 40],
+      ],
+      links: [['gen', 'al'], ['al', 'po'], ['po', 'grad'], ['grad', 'out']],
+      macros: [
+        { label: '絲束數量', def: 0.33, targets: [['gen', 'strands', 2, 8]] },
+        { label: '擺動幅度', def: 0.33, targets: [['gen', 'sway', 0, 3]] },
+        { label: '拖尾衰減', def: 0.29, targets: [['gen', 'decay', 0.5, 2.2]] },
+        { label: '色帶層數', def: 0.57, targets: [['po', 'levels', 3, 10]] },
+      ],
+    },
+
+    celBolt: {
+      nodes: [
+        ['gen', 'boltGen', 40, 40, { jag: 0.5, branches: 3, width: 1, glow: 1, endGlow: 0.55, seed: 3 }],
+        ['po', 'posterize', 230, 40, { levels: 5, soft: 0.18 }],
+        ['grad', 'gradientMap', 420, 40, { preset: 'celGold', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 610, 40],
+      ],
+      links: [['gen', 'po'], ['po', 'grad'], ['grad', 'out']],
+      macros: [
+        { label: '鋸齒程度', def: 0.54, targets: [['gen', 'jag', 0.2, 0.8]] },
+        { label: '分支數量', def: 0.5, targets: [['gen', 'branches', 0, 6]] },
+        { label: '光暈強度', def: 0.44, targets: [['gen', 'glow', 0.2, 2]] },
+        { label: '色帶層數', def: 0.4, targets: [['po', 'levels', 3, 8]] },
+      ],
+    },
+
+    celRingBolt: {
+      nodes: [
+        ['gen', 'ringBolt', 40, 40, { radius: 0.32, loops: 2, jag: 0.32, sparks: 5, width: 1, glow: 1, seed: 5 }],
+        ['po', 'posterize', 230, 40, { levels: 5, soft: 0.18 }],
+        ['grad', 'gradientMap', 420, 40, { preset: 'celIce', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 610, 40],
+      ],
+      links: [['gen', 'po'], ['po', 'grad'], ['grad', 'out']],
+      macros: [
+        { label: '電圈半徑', def: 0.58, targets: [['gen', 'radius', 0.18, 0.42]] },
+        { label: '鋸齒程度', def: 0.6, targets: [['gen', 'jag', 0.05, 0.5]] },
+        { label: '放電火花', def: 0.62, targets: [['gen', 'sparks', 0, 8]] },
+        { label: '色帶層數', def: 0.4, targets: [['po', 'levels', 3, 8]] },
+      ],
+    },
+
+    celMagicCircle: {
+      nodes: [
+        ['gen', 'magicCircle', 40, 40, { scale: 1, ticks: 30, star: true, runes: true, lineW: 1, glow: 0.13, seed: 4 }],
+        ['po', 'posterize', 230, 40, { levels: 6, soft: 0.2 }],
+        ['grad', 'gradientMap', 420, 40, { preset: 'celGold', steps: 0, alphaGain: 3.5 }],
+        ['out', 'output', 610, 40],
+      ],
+      links: [['gen', 'po'], ['po', 'grad'], ['grad', 'out']],
+      macros: [
+        { label: '陣形半徑', def: 0.69, targets: [['gen', 'scale', 0.6, 1.2]] },
+        { label: '線條粗細', def: 0.21, targets: [['gen', 'lineW', 0.6, 2.5]] },
+        { label: '柔光強度', def: 0.33, targets: [['gen', 'glow', 0, 0.4]] },
+        { label: '刻度密度', def: 0.5, targets: [['gen', 'ticks', 12, 48]] },
+      ],
+    },
   };
 
   // 範本牆中繼資料:分類順序 + 每個範本的顯示資訊
@@ -1398,6 +1481,11 @@ const Presets = (() => {
     stylizedTrail: { emoji: '🎗', name: '風格化拖尾', en: 'Stylized', cat: 'trail' },
     slash:         { emoji: '⚔', name: '近戰揮砍', en: 'Melee Slash', cat: 'trail' },
     groundSlash:   { emoji: '🌋', name: '地面斬擊', en: 'Ground Slash', cat: 'trail' },
+    celSlash:      { emoji: '🌙', name: '卡通斬月', en: 'Cel Slash', cat: 'trail' },
+    celTrail:      { emoji: '☄', name: '卡通拖尾', en: 'Cel Trail', cat: 'trail' },
+    celBolt:       { emoji: '🌩', name: '卡通閃電束', en: 'Cel Bolt', cat: 'light' },
+    celRingBolt:   { emoji: '💫', name: '卡通電圈', en: 'Cel Ring Bolt', cat: 'ringcat' },
+    celMagicCircle:{ emoji: '🔯', name: '卡通魔法陣', en: 'Cel Magic Circle', cat: 'ringcat' },
     fire:          { emoji: '🔥', name: '火焰', en: 'Flame', cat: 'energy' },
     fireball:      { emoji: '☄', name: '火球', en: 'Fireball', cat: 'energy' },
     projectile:    { emoji: '🚀', name: '投射物', en: 'Projectile', cat: 'energy' },

@@ -45,24 +45,25 @@ python -m http.server 8321
 
 **手機支援**:≤700px 自動切換直向排版 —— 精簡模式為預覽在上、模板滑桿在下(隨螢幕寬度縮放、觸控放大);範本牆改 2 欄;進階模式節點庫變橫向捲動條、畫布與檢視器上下堆疊。
 
-## 節點總覽(29 種)
+## 節點總覽(34 種)
 
 - **基礎圖形**:Shape(圓/柔邊圓/高斯/多邊形/環/方/尖刺)、Ramp(線性漸層)、**Blob Field(團塊高度場 — 卡通煙團骨架)**、Tile Sampler(Pattern + Mask 輸入)、Splatter Circular(Pattern 輸入)、Shape Mapper
+- **特效生成器**(移植自 NoiseGenerator):**Slash Arc(弧月斬擊)**、**Trail Strands(拖尾絲束)**、**Bolt(閃電束 — 碎形折線)**、**Ring Bolt(環形電圈)**、**Magic Circle(魔法陣)**
 - **雜訊**:Perlin Noise(fBm/Billow/Ridged)、Cells/Crystal(Voronoi F1/F2−F1/裂縫/色塊)
 - **變形扭曲**:Warp(梯度/方向)、**Multi-Dir Warp(多向扭曲 — Max 拉飄絮/Min 收邊)**、Slope Blur(斜率模糊 — 裂縫擴張/侵蝕/融化)、Swirl、Cross Section(等高線提取)、Transform 2D
 - **混合**:Blend(Normal/Add/Subtract/Multiply/Max/Min/Screen/Difference)
 - **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Bevel、Distance(距離場)、**Cel Shade(卡通打光 — 硬切終端線)**、**Posterize(色調分離)**、**Outline(描邊)**、**Auto Levels(自動色階)**、**Non-Uniform Blur(非均勻模糊)**
 - **上色後製**:Gradient Map(16 種色帶:8 組風格化色相位移 + 8 組原始漸層;含色階量化與輪廓銳利度)、Glow、Output
 
-## 內建範本(43 種,覆蓋 1MaFX 常見特效貼圖分類)
+## 內建範本(48 種,覆蓋 1MaFX 常見特效貼圖分類)
 
 | 分類 | 範本 |
 |---|---|
 | 打擊 / 衝擊 | 🧨 卡通爆炸 Cel Explosion · 🍄 卡通蘑菇雲 Cel Mushroom · 🧊 卡通冰爆 Cel Ice Burst · ⚡ 卡通落雷 Cel Thunder · 💢 碎裂衝擊 Impact · 🎯 圓形撞擊 Circle Impact · 💥 打擊爆閃 Hit Burst · ⭕ 環狀衝擊波 Shockwave |
-| 拖尾 / 揮砍 | ➰ 一般拖尾 Trail · 🎗 風格化拖尾 Stylized Trail · ⚔ 近戰揮砍 Melee Slash · 🌋 地面斬擊 Ground Slash |
+| 拖尾 / 揮砍 | ➰ 一般拖尾 Trail · 🎗 風格化拖尾 Stylized Trail · ⚔ 近戰揮砍 Melee Slash · 🌋 地面斬擊 Ground Slash · 🌙 卡通斬月 Cel Slash · ☄ 卡通拖尾 Cel Trail |
 | 火焰 / 能量 | 🔥 火焰 Flame · ☄ 火球 Fireball · 🚀 投射物 Projectile · 🔫 槍口火光 Muzzle Flash · 🎇 火花碎片 Sparks · 🎞 碎片四格圖 2×2 Flipbook |
-| 電光 / 鏡頭 | ⚡ 閃電 Lightning · 🔆 鏡頭光暈 Lens Flare |
-| 環形 / 圖騰 | 🛡 卡通護盾 Cel Shield · 🪄 魔法陣 Magic Circle · 🔳 規則圖騰 Pattern |
+| 電光 / 鏡頭 | ⚡ 閃電 Lightning · 🔆 鏡頭光暈 Lens Flare · 🌩 卡通閃電束 Cel Bolt |
+| 環形 / 圖騰 | 🛡 卡通護盾 Cel Shield · 🪄 魔法陣 Magic Circle · 🔯 卡通魔法陣 Cel Magic Circle · 💫 卡通電圈 Cel Ring Bolt · 🔳 規則圖騰 Pattern |
 | 元素 / 自然 | 💦 卡通水花 Cel Splash · 🫧 卡通泡泡 Cel Bubble · 💠 卡通水晶 Cel Crystal · 🌟 卡通星塵 Cel Stardust · 🌪 卡通龍捲風 Cel Tornado · 🔮 能量球 Plasma · ✨ 星芒閃光 Sparkle · 🟡 光塵散景 Bokeh · 🎆 煙花綻放 Firework · 🌀 傳送門 Portal · 💧 水花 Water · ❄ 冰晶 Frost · ☣ 毒液氣泡 Toxic |
 | 表面 / 氛圍 | 🌬 飄絮煙霧 Wispy Smoke · 🪨 卡通岩石 Cel Rock · ☠ 卡通毒霧 Cel Poison · 🕸 裂縫 Cracks · 🪨 地裂 Ground Cracks · 🌫 煙霧 Smoke |
 
@@ -113,7 +114,7 @@ python -m http.server 8321
 index.html          介面骨架
 css/style.css       深色主題(7 種可切換配色)+ 玻璃質感面板
 js/filters.js       演算法核心(純函式,無 DOM 依賴,可在 Node 直接跑)
-js/nodes.js         29 種節點定義(參數 + eval)
+js/nodes.js         34 種節點定義(參數 + eval)
 js/graph.js         DAG 模型、拓撲評估、快取、防迴圈、序列化
 js/editor.js        節點圖編輯器(拖曳/連線/平移縮放)
 js/presets.js       內建範本
