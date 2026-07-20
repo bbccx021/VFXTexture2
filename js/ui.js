@@ -942,7 +942,6 @@ const UI = (() => {
 
     // 範本牆 & 變體
     document.getElementById('btn-gallery').addEventListener('click', openGallery);
-    document.getElementById('btn-variant').addEventListener('click', randomVariant);
 
     // 精簡 / 進階模式切換
     const modeBtn = document.getElementById('btn-mode');
