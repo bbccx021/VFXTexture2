@@ -48,7 +48,7 @@ const UI = (() => {
     shape: ['rot', 'falloff'],
     ramp: ['curve', 'mirror'],
     tileSampler: ['sizeRand', 'rotRand', 'briRand', 'coverage', 'maskThreshold', 'maskInvert'],
-    splatterCircular: ['width', 'sizeRand', 'angJitter', 'radJitter', 'rotOff', 'rotJit', 'briRand', 'sharp'],
+    splatterCircular: ['width', 'sizeRand', 'angJitter', 'radJitter', 'rotOff', 'widthRand', 'briRand', 'sharp'],
     shapeMapper: ['phase', 'flip'],
     perlin: ['gain'],
     cells: ['contrast'],
@@ -642,27 +642,10 @@ const UI = (() => {
       wrap.innerHTML = '<div class="params-empty">此節點沒有參數</div>';
       return;
     }
-    // 依 ADV 表分成「關鍵」與「進階」兩組(先套用 show 條件)
-    const advKeys = new Set(ADV[node.type] || []);
-    const keyParams = [], advParams = [];
+    // 全部參數攤平顯示(套用 show 條件),不再摺疊進階區
     for (const p of def.params) {
       if (p.show && !p.show(node.params)) continue;
-      (advKeys.has(p.k) ? advParams : keyParams).push(p);
-    }
-    keyParams.forEach(p => wrap.appendChild(makeParamRow(node, p)));
-
-    if (advParams.length) {
-      const open = advOpen.has(node.type);
-      const tg = document.createElement('div');
-      tg.className = 'adv-toggle';
-      tg.innerHTML = `<span class="tri">${open ? '▾' : '▸'}</span>進階參數(${advParams.length})`;
-      tg.addEventListener('click', () => {
-        if (advOpen.has(node.type)) advOpen.delete(node.type);
-        else advOpen.add(node.type);
-        showParams(node);
-      });
-      wrap.appendChild(tg);
-      if (open) advParams.forEach(p => wrap.appendChild(makeParamRow(node, p)));
+      wrap.appendChild(makeParamRow(node, p));
     }
   }
 

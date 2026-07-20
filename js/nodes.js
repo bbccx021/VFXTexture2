@@ -243,8 +243,7 @@ const NodeDefs = {
       { k: 'sizeRand', label: '長度隨機', t: 'f', def: 0.5, min: 0, max: 1, step: 0.01 },
       { k: 'angJitter', label: '角度抖動', t: 'f', def: 0.3, min: 0, max: 1, step: 0.01 },
       { k: 'radJitter', label: '半徑抖動', t: 'f', def: 0.15, min: 0, max: 1, step: 0.01 },
-      { k: 'orient', label: '朝向', t: 'sel', def: 'out', opts: [['out', '徑向朝外'], ['in', '徑向朝內'], ['tangent', '切線方向'], ['up', '固定朝上'], ['random', '隨機']] },
-      { k: 'rotJit', label: '自轉抖動', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
+      { k: 'widthRand', label: '粗細隨機', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
       { k: 'briRand', label: '亮度隨機', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
       { k: 'sharp', label: '尖刺銳度', t: 'f', def: 1.6, min: 0.8, max: 4, step: 0.05 },
       { k: 'rotOff', label: '整體旋轉°', t: 'f', def: 0, min: -180, max: 180, step: 1 },
@@ -263,20 +262,15 @@ const NodeDefs = {
         const sz = p.size * (1 - p.sizeRand * r3);
         if (sz < 0.002) continue;
         const cx = 0.5 + Math.cos(a) * rad, cy = 0.5 + Math.sin(a) * rad;
-        // 朝向:徑向朝外/朝內、切線、固定朝上、隨機;再疊每根自轉抖動
-        let rot = p.orient === 'in' ? a - Math.PI / 2
-          : p.orient === 'tangent' ? a
-          : p.orient === 'up' ? 0
-          : p.orient === 'random' ? r4 * 6.283185
-          : a + Math.PI / 2;
-        rot += (r5 - 0.5) * p.rotJit * Math.PI;
-        const bri = 1 - p.briRand * Filters.rnd2(i, 71, p.seed + 211);
+        const rot = a + Math.PI / 2;                       // 徑向朝外(圖像上緣朝外)
+        const w = p.width * (1 - p.widthRand * r4);        // 每根粗細隨機分布
+        const bri = 1 - p.briRand * r5;
         if (img) {
-          Filters.stampImage(d, W, H, cx, cy, sz * p.width, sz, rot, img, W, H, bri);
+          Filters.stampImage(d, W, H, cx, cy, sz * w, sz, rot, img, W, H, bri);
         } else {
           const isStreak = p.pattern === 'streak';
           const sp = { type: isStreak ? 'blob' : p.pattern, size: 1, soft: 0.04, falloff: isStreak ? p.sharp + 0.6 : p.sharp, width: 0.9, sides: 5 };
-          Filters.stampInstance(d, W, H, cx, cy, sz * p.width, sz, rot, sp, bri);
+          Filters.stampInstance(d, W, H, cx, cy, sz * w, sz, rot, sp, bri);
         }
       }
       return { t: 'g', d };
