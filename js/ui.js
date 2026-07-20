@@ -346,6 +346,7 @@ const UI = (() => {
     Editor.rebuild();
     Editor.select({ kind: 'node', id: node.id });
     App.onGraphChanged();
+    return node;
   }
 
   function buildLibrary() {
@@ -805,18 +806,21 @@ const UI = (() => {
     openMenuAt(cx, cy);
   }
   // 畫布選單:搜尋 + 新增節點於游標處
-  function showCanvasMenu(cx, cy) {
+  // connectFrom = { nodeId, out, portIdx }:從連接埠拖到空白處時傳入,選定後自動接線
+  function showCanvasMenu(cx, cy, connectFrom) {
     const world = Editor.toWorld(cx, cy);
     const m = ctxMenuEl();
     let list = '';
     for (const [cat, meta] of Object.entries(NodeCats)) {
       for (const [type, def] of Object.entries(NodeDefs)) {
         if (def.cat !== cat) continue;
+        // 從輸出口拖出 → 只列出「有輸入口」的節點
+        if (connectFrom && connectFrom.out && !(def.inputs && def.inputs.length)) continue;
         list += `<div class="cm-item cm-node" data-type="${type}" data-search="${(def.title + ' ' + def.zh).toLowerCase()}">
           <span class="dot" style="background:${meta.color}"></span>${def.title}<span class="k">${def.zh}</span></div>`;
       }
     }
-    m.innerHTML = `<input class="cm-search" type="text" placeholder="🔍 新增節點於此…"><div class="cm-list">${list}</div>`;
+    m.innerHTML = `<input class="cm-search" type="text" placeholder="${connectFrom ? '🔍 新增並自動連接…' : '🔍 新增節點於此…'}"><div class="cm-list">${list}</div>`;
     const search = m.querySelector('.cm-search');
     search.addEventListener('input', () => {
       const q = search.value.trim().toLowerCase();
@@ -825,7 +829,13 @@ const UI = (() => {
       });
     });
     m.querySelectorAll('.cm-node').forEach(el => el.addEventListener('click', () => {
-      addNodeAt(el.dataset.type, world.x + 75, world.y + 66, false); // addNodeAt 會扣回節點半寬高
+      const node = addNodeAt(el.dataset.type, world.x + 75, world.y + 66, false); // addNodeAt 會扣回節點半寬高
+      if (connectFrom && node) {
+        if (connectFrom.out) App.graph.addLink(connectFrom.nodeId, node.id, 0);
+        else App.graph.addLink(node.id, connectFrom.nodeId, connectFrom.portIdx);
+        Editor.drawWires();
+        App.onGraphChanged();
+      }
       closeMenu();
     }));
     // Enter 直接加入第一個符合的節點;Esc 關閉

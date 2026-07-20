@@ -248,6 +248,7 @@ const Editor = (() => {
       };
       const cur = toWorld(e.clientX, e.clientY);
       temp.x = cur.x; temp.y = cur.y;
+      const startSX = e.clientX, startSY = e.clientY;
       drawWires();
       const mv = ev => {
         const c = toWorld(ev.clientX, ev.clientY);
@@ -266,6 +267,13 @@ const Editor = (() => {
           if (temp.out && !oOut) ok = App.graph.addLink(temp.nodeId, oNode, oIdx);
           else if (!temp.out && oOut) ok = App.graph.addLink(oNode, temp.nodeId, temp.portIdx);
           if (ok) { App.history.commit(snap); App.onGraphChanged(); }
+        } else {
+          // 拖到空白畫布放開 → 開「新增並自動連接」選單
+          const overCanvas = t && t.closest && t.closest('#viewport') && !t.closest('.node');
+          const moved = Math.hypot(ev.clientX - startSX, ev.clientY - startSY) > 12;
+          if (overCanvas && moved) {
+            UI.showCanvasMenu(ev.clientX, ev.clientY, { nodeId: temp.nodeId, out: temp.out, portIdx: temp.portIdx });
+          }
         }
         temp = null;
         drawWires();
