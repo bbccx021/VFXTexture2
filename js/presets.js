@@ -1365,6 +1365,56 @@ const Presets = (() => {
       ],
     },
 
+    /* ==== SD 教學串法:風格化閃電(Stripe 碎裂 → 多向扭曲 → 剖面分支 → 雙層模糊輝光)==== */
+    stylizedLightning: {
+      nodes: [
+        // 一、主體:長條 - 圓點散佈 = 碎裂邊緣
+        ['st', 'shape', 40, 40, { type: 'square', size: 1.15, soft: 0.03 }],
+        ['stT', 'transform', 220, 40, { sx: 0.055, sy: 1.2, tiling: false }],
+        ['ts', 'tileSampler', 40, 260, { pattern: 'disc', count: 11, size: 0.4, sizeRand: 0.5, posRand: 1.2, coverage: 0.55, seed: 5 }],
+        ['sub', 'blend', 400, 130, { mode: 'sub', opacity: 0.7 }],
+        // 二、主閃電扭曲 + 銳利化
+        ['cl1', 'cells', 400, 330, { mode: 'crystal', scale: 6, seed: 9 }],
+        ['mw1', 'warp', 580, 130, { mode: 'grad', intensity: 4.5 }],
+        ['sc1', 'histogramScan', 760, 130, { pos: 0.55, contrast: 0.9 }],
+        // 三、細節分支:塊狀雜訊 → 垂直剖面(鏡像漸層)→ 扭曲 → 清理
+        ['pn', 'perlin', 580, 460, { scale: 5, octaves: 2, seed: 21 }],
+        ['cp', 'crossProfile', 760, 460, { axis: 'v', style: 'line', lineW: 2.5, row: 0.5, scale: 0.5, base: 0.25, soft: 5 }],
+        ['mw2', 'warp', 940, 460, { mode: 'grad', intensity: 2.5 }],
+        ['sc2', 'histogramScan', 1120, 460, { pos: 0.5, contrast: 0.78 }],
+        ['add', 'blend', 1120, 260, { mode: 'add', opacity: 0.75 }],
+        // 四、二次扭曲 + 雙層模糊 Max 輝光
+        ['mw3', 'warp', 1300, 260, { mode: 'grad', intensity: 1.2 }],
+        ['b1', 'blur', 1480, 180, { mode: 'gauss', amount: 0.4 }],
+        ['b2', 'blur', 1480, 380, { mode: 'gauss', amount: 3.2 }],
+        ['mx', 'blend', 1660, 260, { mode: 'max', opacity: 0.55 }],
+        // 五、上色輸出
+        ['po', 'posterize', 1840, 260, { levels: 12, soft: 0.55 }],
+        ['grad', 'gradientMap', 2020, 260, { preset: 'celIce', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 2200, 260],
+      ],
+      links: [
+        ['st', 'stT'],
+        ['stT', 'ts', 1],                     // 長條當 Mask,圓點只落在長條上
+        ['ts', 'sub', 0], ['stT', 'sub', 1],
+        ['sub', 'mw1', 0], ['cl1', 'mw1', 1],
+        ['mw1', 'sc1'],
+        ['pn', 'cp'], ['cp', 'mw2', 0], ['pn', 'mw2', 1], ['mw2', 'sc2'],
+        ['sc2', 'add', 0], ['sc1', 'add', 1],
+        ['add', 'mw3', 0], ['cl1', 'mw3', 1],
+        ['mw3', 'b1'], ['mw3', 'b2'],
+        ['b1', 'mx', 0], ['b2', 'mx', 1],
+        ['mx', 'po'], ['po', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '碎裂程度', def: 0.62, targets: [['ts', 'coverage', 0, 1]] },
+        { label: '扭曲強度', def: 0.5, targets: [['mw1', 'intensity', 1, 8], ['mw3', 'intensity', 0.3, 2.4]] },
+        { label: '分支強度', def: 0.75, targets: [['add', 'opacity', 0, 1]] },
+        { label: '光暈範圍', def: 0.3, targets: [['b2', 'amount', 1.5, 7]] },
+        { label: '色帶層數', def: 0.69, targets: [['po', 'levels', 3, 16]] },
+      ],
+    },
+
     /* ==== 移植自 NoiseGenerator 的五個特效(卡通化)==== */
 
     celSlash: {
@@ -1473,6 +1523,7 @@ const Presets = (() => {
     stylizedTrail: { emoji: '🎗', name: '風格化拖尾', en: 'Stylized', cat: 'trail' },
     slash:         { emoji: '⚔', name: '近戰揮砍', en: 'Melee Slash', cat: 'trail' },
     groundSlash:   { emoji: '🌋', name: '地面斬擊', en: 'Ground Slash', cat: 'trail' },
+    stylizedLightning: { emoji: '⛈', name: '風格化閃電', en: 'Stylized Lightning', cat: 'light' },
     celSlash:      { emoji: '🌙', name: '卡通斬月', en: 'Cel Slash', cat: 'trail' },
     celTrail:      { emoji: '☄', name: '卡通拖尾', en: 'Cel Trail', cat: 'trail' },
     celBolt:       { emoji: '🌩', name: '卡通閃電束', en: 'Cel Bolt', cat: 'light' },
