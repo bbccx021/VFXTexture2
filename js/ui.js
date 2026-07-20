@@ -159,7 +159,7 @@ const UI = (() => {
     }
     paintPreview(res);
     const ms = performance.now() - t0;
-    perfEl.textContent = `⏱ ${ms.toFixed(0)} ms · ${App.graph.nodes.size} 節點 · ${res}²`;
+    perfEl.textContent = `⏱ ${ms.toFixed(0)} ms · ${App.graph.nodes.size} ${tr('節點')} · ${res}²`;
     scheduleAutosave();
   }
 
@@ -356,16 +356,16 @@ const UI = (() => {
     for (const [type, def] of Object.entries(NodeDefs)) {
       (byCat[def.cat] = byCat[def.cat] || []).push([type, def]);
     }
-    let html = '<input class="lib-search" id="lib-search" type="text" placeholder="🔍 搜尋節點…">';
+    let html = `<input class="lib-search" id="lib-search" type="text" placeholder="${tr('🔍 搜尋節點…')}">`;
     for (const [cat, meta] of Object.entries(NodeCats)) {
       if (!byCat[cat]) continue;
       html += `<div class="lib-group" data-cat="${cat}">
-        <div class="lib-cat"><span class="tri">▾</span>${meta.zh}<span class="cnt">${byCat[cat].length}</span></div>`;
+        <div class="lib-cat"><span class="tri">▾</span>${tr(meta.zh)}<span class="cnt">${byCat[cat].length}</span></div>`;
       for (const [type, def] of byCat[cat]) {
         html += `<div class="lib-item" data-type="${type}" data-search="${(def.title + ' ' + def.zh).toLowerCase()}"
           style="--nc:${meta.color}">
           <canvas class="lib-thumb" width="96" height="96"></canvas>
-          <div class="lib-txt"><span class="nm">${def.title}</span><span class="zh">${def.zh}</span></div>
+          <div class="lib-txt"><span class="nm">${def.title}</span><span class="zh">${window.APP_LANG === 'en' ? '' : def.zh}</span></div>
         </div>`;
       }
       html += '</div>';
@@ -472,7 +472,7 @@ const UI = (() => {
 
     if (p.t === 'f' || p.t === 'i') {
       const fmt = v => p.t === 'i' ? String(v) : (+v).toFixed(p.step >= 1 ? 0 : 2);
-      row.innerHTML = `<div class="plabel"><span>${p.label}</span><span class="pval">${fmt(node.params[p.k])}</span></div>`;
+      row.innerHTML = `<div class="plabel"><span>${tr(p.label)}</span><span class="pval">${fmt(node.params[p.k])}</span></div>`;
       const inp = document.createElement('input');
       inp.type = 'range';
       inp.min = p.min; inp.max = p.max; inp.step = p.t === 'i' ? 1 : (p.step || 0.01);
@@ -488,7 +488,7 @@ const UI = (() => {
       });
       row.appendChild(inp);
     } else if (p.t === 'sel') {
-      row.innerHTML = `<div class="plabel"><span>${p.label}</span></div>`;
+      row.innerHTML = `<div class="plabel"><span>${tr(p.label)}</span></div>`;
       const s = document.createElement('select');
       for (const [v, lb] of p.opts) {
         const o = document.createElement('option');
@@ -499,10 +499,10 @@ const UI = (() => {
       s.addEventListener('change', () => { App.history.push(); commit(s.value, true); });
       row.appendChild(s);
     } else if (p.t === 'b') {
-      row.innerHTML = `<label class="chk"><input type="checkbox" ${node.params[p.k] ? 'checked' : ''}> ${p.label}</label>`;
+      row.innerHTML = `<label class="chk"><input type="checkbox" ${node.params[p.k] ? 'checked' : ''}> ${tr(p.label)}</label>`;
       row.querySelector('input').addEventListener('change', e => { App.history.push(); commit(e.target.checked, true); });
     } else if (p.t === 'seed') {
-      row.innerHTML = `<div class="plabel"><span>${p.label}</span></div>`;
+      row.innerHTML = `<div class="plabel"><span>${tr(p.label)}</span></div>`;
       const d = document.createElement('div');
       d.className = 'seed-row';
       const inp = document.createElement('input');
@@ -544,20 +544,20 @@ const UI = (() => {
   }
 
   function showMacros(wrap, nameEl) {
-    nameEl.textContent = '✨ 模板控制';
+    nameEl.textContent = tr('✨ 模板控制');
     wrap.innerHTML = '';
 
     // ── 特效種類下拉(全部範本,依分類分組)──
     const pick = document.createElement('div');
     pick.className = 'prow macro-pick';
-    pick.innerHTML = `<div class="plabel"><span>特效種類</span></div>`;
+    pick.innerHTML = `<div class="plabel"><span>${tr('特效種類')}</span></div>`;
     const psel = document.createElement('select');
     for (const [catKey, catName] of Presets.cats) {
-      const og = document.createElement('optgroup'); og.label = catName;
+      const og = document.createElement('optgroup'); og.label = tr(catName);
       for (const [nm, meta] of Object.entries(Presets.meta)) {
         if (meta.cat !== catKey) continue;
         const o = document.createElement('option');
-        o.value = nm; o.textContent = `${meta.emoji} ${meta.name}`;
+        o.value = nm; o.textContent = `${meta.emoji} ${window.APP_LANG === 'en' ? meta.en : meta.name}`;
         if (nm === App.graph._presetName) o.selected = true;
         og.appendChild(o);
       }
@@ -569,7 +569,7 @@ const UI = (() => {
 
     const note = document.createElement('div');
     note.className = 'macro-note';
-    note.textContent = '以特效語言調整整條節點鏈;點任何節點可進入進階參數。';
+    note.textContent = tr('以特效語言調整整條節點鏈;點任何節點可進入進階參數。');
     wrap.appendChild(note);
 
     // ── 巨集滑桿 ──
@@ -577,7 +577,7 @@ const UI = (() => {
       const row = document.createElement('div');
       row.className = 'prow';
       const pct = v => Math.round(v * 100) + '%';
-      row.innerHTML = `<div class="plabel"><span>${m.label}</span><span class="pval">${pct(m.value)}</span></div>`;
+      row.innerHTML = `<div class="plabel"><span>${tr(m.label)}</span><span class="pval">${pct(m.value)}</span></div>`;
       const inp = document.createElement('input');
       inp.type = 'range'; inp.min = 0; inp.max = 1; inp.step = 0.01;
       inp.value = m.value;
@@ -602,7 +602,7 @@ const UI = (() => {
       const cur = gmNodes[0].params.preset;
       const row = document.createElement('div');
       row.className = 'prow color-row';
-      row.innerHTML = `<div class="plabel"><span>🎨 配色</span></div>`;
+      row.innerHTML = `<div class="plabel"><span>${tr('🎨 配色')}</span></div>`;
       const cs = document.createElement('select');
       for (const [v, lb] of pd.opts) {
         const o = document.createElement('option');
@@ -642,7 +642,7 @@ const UI = (() => {
         wrap.querySelector('#mk-advanced').addEventListener('click', () => document.getElementById('btn-mode').click());
         return;
       }
-      wrap.innerHTML = '<div class="params-empty">點選節點以編輯參數</div>';
+      wrap.innerHTML = `<div class="params-empty">${tr('點選節點以編輯參數')}</div>`;
       nameEl.textContent = '';
       return;
     }
@@ -650,7 +650,7 @@ const UI = (() => {
     nameEl.textContent = `${def.title} #${node.id}`;
     wrap.innerHTML = '';
     if (!def.params.length) {
-      wrap.innerHTML = '<div class="params-empty">此節點沒有參數</div>';
+      wrap.innerHTML = `<div class="params-empty">${tr('此節點沒有參數')}</div>`;
       return;
     }
     // 全部參數攤平顯示(套用 show 條件),不再摺疊進階區
@@ -670,21 +670,21 @@ const UI = (() => {
     for (const [catKey, catName] of Presets.cats) {
       const items = Object.entries(Presets.meta).filter(([, m]) => m.cat === catKey);
       if (!items.length) continue;
-      html += `<div class="g-cat">${catName}</div><div class="g-grid">`;
+      html += `<div class="g-cat">${tr(catName)}</div><div class="g-grid">`;
       for (const [name, m] of items) {
         html += `<div class="g-card" data-preset="${name}" title="載入「${m.name}」節點鏈">
           <canvas width="128" height="128"></canvas>
-          <div class="g-name"><span>${m.emoji} ${m.name}</span><span class="en">${m.en}</span></div></div>`;
+          <div class="g-name"><span>${m.emoji} ${window.APP_LANG === 'en' ? m.en : m.name}</span><span class="en">${window.APP_LANG === 'en' ? '' : m.en}</span></div></div>`;
       }
       html += '</div>';
     }
     let hasAuto = false;
     try { hasAuto = !!localStorage.getItem('texforge_autosave'); } catch (e) {}
-    html += `<div class="g-cat">工作階段</div><div class="g-grid">`;
+    html += `<div class="g-cat">${tr('工作階段')}</div><div class="g-grid">`;
     if (hasAuto) {
       html += `<div class="g-card g-blank" data-preset="__autosave" title="載入自動存檔的節點圖">
         <div class="g-plus">⏪</div>
-        <div class="g-name"><span>上次的工作</span><span class="en">Autosave</span></div></div>`;
+        <div class="g-name"><span>${tr('上次的工作')}</span><span class="en">${window.APP_LANG === 'en' ? '' : 'Autosave'}</span></div></div>`;
     }
     html += `<div class="g-card g-blank" data-preset="" title="空白畫布,只留一個 Output 節點">
         <div class="g-plus">＋</div>
@@ -787,9 +787,9 @@ const UI = (() => {
     const m = ctxMenuEl();
     m.innerHTML = `
       <div class="cm-title">${def.title} <span>#${id}</span></div>
-      <div class="cm-item" data-act="dup">📄 複製節點<span class="k">Ctrl+D</span></div>
-      <div class="cm-item" data-act="disc">✂ 斷開所有連線</div>
-      <div class="cm-item cm-danger" data-act="del">🗑 刪除節點<span class="k">Del</span></div>`;
+      <div class="cm-item" data-act="dup">${tr('📄 複製節點')}<span class="k">Ctrl+D</span></div>
+      <div class="cm-item" data-act="disc">${tr('✂ 斷開所有連線')}</div>
+      <div class="cm-item cm-danger" data-act="del">${tr('🗑 刪除節點')}<span class="k">Del</span></div>`;
     m.querySelectorAll('.cm-item').forEach(el => el.addEventListener('click', () => {
       const act = el.dataset.act;
       if (act === 'dup') Editor.duplicateNode(id);
@@ -817,10 +817,10 @@ const UI = (() => {
         // 從輸出口拖出 → 只列出「有輸入口」的節點
         if (connectFrom && connectFrom.out && !(def.inputs && def.inputs.length)) continue;
         list += `<div class="cm-item cm-node" data-type="${type}" data-search="${(def.title + ' ' + def.zh).toLowerCase()}">
-          <span class="dot" style="background:${meta.color}"></span>${def.title}<span class="k">${def.zh}</span></div>`;
+          <span class="dot" style="background:${meta.color}"></span>${def.title}<span class="k">${window.APP_LANG === 'en' ? '' : def.zh}</span></div>`;
       }
     }
-    m.innerHTML = `<input class="cm-search" type="text" placeholder="${connectFrom ? '🔍 新增並自動連接…' : '🔍 新增節點於此…'}"><div class="cm-list">${list}</div>`;
+    m.innerHTML = `<input class="cm-search" type="text" placeholder="${tr(connectFrom ? '🔍 新增並自動連接…' : '🔍 新增節點於此…')}"><div class="cm-list">${list}</div>`;
     const search = m.querySelector('.cm-search');
     search.addEventListener('input', () => {
       const q = search.value.trim().toLowerCase();
@@ -929,6 +929,15 @@ const UI = (() => {
     previewCtx = previewCv.getContext('2d');
     perfEl = document.getElementById('perf');
     initTheme();
+    applyStaticLang();
+    const langSel = document.getElementById('lang-select');
+    if (langSel) {
+      langSel.value = window.APP_LANG;
+      langSel.addEventListener('change', () => {
+        try { localStorage.setItem('texforge_lang', langSel.value); } catch (e) {}
+        location.reload();   // 全頁重繪最穩,節點圖由自動存檔恢復
+      });
+    }
     initInspectorResize();
     buildLibrary();
 
@@ -949,7 +958,7 @@ const UI = (() => {
       const app = document.getElementById('app');
       app.classList.toggle('simple', !advanced);
       modeBtn.classList.toggle('on', advanced);
-      modeBtn.textContent = advanced ? '🎛 精簡' : '🔧 進階';
+      modeBtn.textContent = tr(advanced ? '🎛 精簡' : '🔧 進階');
       modeBtn.title = advanced ? '返回精簡模式:只保留結果預覽與模板滑桿' : '進階模式:展開底層節點編輯器';
       try { localStorage.setItem('texforge_mode', advanced ? 'advanced' : 'simple'); } catch (e) {}
       if (advanced) {
