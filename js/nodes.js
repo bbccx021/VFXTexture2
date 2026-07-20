@@ -389,6 +389,7 @@ const NodeDefs = {
       { k: 'width', label: '線寬', t: 'f', def: 1, min: 0.4, max: 2.5, step: 0.05 },
       { k: 'headW', label: '頭端粗細', t: 'f', def: 1, min: 0.05, max: 1.5, step: 0.01 },
       { k: 'tailW', label: '尾端粗細', t: 'f', def: 0.45, min: 0.05, max: 1.5, step: 0.01 },
+      { k: 'taperLen', label: '收細距離', t: 'f', def: 0.35, min: 0.05, max: 0.5, step: 0.01 },
       { k: 'glow', label: '柔暈比重', t: 'f', def: 1, min: 0, max: 2, step: 0.05 },
       { k: 'endGlow', label: '末端光球', t: 'f', def: 0.55, min: 0, max: 1.2, step: 0.05 },
       { k: 'seed', label: '種子', t: 'seed', def: 3 },
@@ -409,11 +410,27 @@ const NodeDefs = {
           });
         }
       };
-      // 主幹(上→下,錐形變細)
+      // 主幹(上→下):寬度剖面 = 兩端細、中段全寬;taperLen 控制端點到全寬的過渡距離
+      const L = Math.max(0.02, Math.min(0.5, p.taperLen));
+      const prof = t => {
+        if (t < L) return p.headW + (1 - p.headW) * Filters.sstep(0, L, t);
+        if (t > 1 - L) return 1 + (p.tailW - 1) * Filters.sstep(1 - L, 1, t);
+        return 1;
+      };
       const xTop = 0.5 + (rand() - 0.5) * 0.10;
       const xBot = 0.5 + (rand() - 0.5) * 0.16;
       const main = Filters.fractalPath(rand, xTop, 0.02, xBot, 0.98, 5, p.jag);
-      addBolt(main, wBase * p.headW, wBase * p.tailW, 1.0, 0.85);
+      {
+        const n = main.length - 1;
+        for (let k = 0; k < n; k++) {
+          const t = k / n;
+          segs.push({
+            ax: main[k].x, ay: main[k].y, bx: main[k + 1].x, by: main[k + 1].y,
+            w: Math.max(1e-4, wBase * prof(t)),
+            b: (1.0 - 0.15 * t) * (0.8 + rand() * 0.35),
+          });
+        }
+      }
       // 分支與子分支:斜出、末端收細淡出
       for (let b = 0; b < p.branches; b++) {
         const pi = 3 + Math.floor(rand() * (main.length - 8));

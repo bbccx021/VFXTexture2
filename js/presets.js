@@ -965,7 +965,7 @@ const Presets = (() => {
     celThunder: {
       nodes: [
         // 使用者調校配方(2026-07-20):純雷束無地面環,錐形收細 + 柔邊光暈帶
-        ['bolt', 'boltGen', 40, 40, { jag: 0.5, branches: 3, width: 1.2, headW: 0.77, tailW: 0.22, glow: 0.95, endGlow: 0.35, seed: 7 }],
+        ['bolt', 'boltGen', 40, 40, { jag: 0.5, branches: 3, width: 1.2, headW: 0.77, tailW: 0.22, taperLen: 0.35, glow: 0.95, endGlow: 0.35, seed: 7 }],
         ['bT', 'transform', 240, 40, { sy: 0.85, oy: -0.06, tiling: false }],
         ['po', 'posterize', 440, 40, { levels: 10, soft: 0.47 }],
         ['grad', 'gradientMap', 640, 40, { preset: 'celIce', steps: 0, alphaGain: 4 }],
@@ -978,7 +978,7 @@ const Presets = (() => {
         { label: '鋸齒程度', def: 0.5, targets: [['bolt', 'jag', 0.2, 0.8]] },
         { label: '分支數量', def: 0.5, targets: [['bolt', 'branches', 0, 6]] },
         { label: '雷束粗細', def: 0.47, targets: [['bolt', 'width', 0.5, 2]] },
-        { label: '雷擊光球', def: 0.29, targets: [['bolt', 'endGlow', 0, 1.2]] },
+        { label: '收細距離', def: 0.67, targets: [['bolt', 'taperLen', 0.05, 0.5]] },
         { label: '色帶層數', def: 0.54, targets: [['po', 'levels', 3, 16]] },
       ],
     },
@@ -1402,7 +1402,7 @@ const Presets = (() => {
 
     celBolt: {
       nodes: [
-        ['gen', 'boltGen', 40, 40, { jag: 0.34, branches: 3, width: 1, glow: 1, endGlow: 0.55, seed: 12 }],
+        ['gen', 'boltGen', 40, 40, { jag: 0.34, branches: 3, width: 1.15, headW: 0.25, tailW: 0.2, taperLen: 0.32, glow: 1, endGlow: 0.55, seed: 12 }],
         ['po', 'posterize', 230, 40, { levels: 5, soft: 0.18 }],
         ['grad', 'gradientMap', 420, 40, { preset: 'celGold', steps: 0, alphaGain: 4 }],
         ['out', 'output', 610, 40],
@@ -1412,6 +1412,7 @@ const Presets = (() => {
         { label: '鋸齒程度', def: 0.35, targets: [['gen', 'jag', 0.15, 0.7]] },
         { label: '分支數量', def: 0.5, targets: [['gen', 'branches', 0, 6]] },
         { label: '光暈強度', def: 0.44, targets: [['gen', 'glow', 0.2, 2]] },
+        { label: '收細距離', def: 0.6, targets: [['gen', 'taperLen', 0.05, 0.5]] },
         { label: '色帶層數', def: 0.15, targets: [['po', 'levels', 3, 16]] },
       ],
     },
