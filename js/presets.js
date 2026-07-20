@@ -964,8 +964,8 @@ const Presets = (() => {
     // ⚡ 卡通落雷:垂直錐體被晶格雜訊折成雷柱 + 壓扁的地面衝擊環,雙層(藍身白核)
     celThunder: {
       nodes: [
-        // 使用者調校配方(2026-07-20):純雷束無地面環,錐形收細 + 柔邊光暈帶
-        ['bolt', 'boltGen', 40, 40, { jag: 0.5, branches: 3, width: 1.2, headW: 0.77, tailW: 0.22, taperLen: 0.35, glow: 0.95, endGlow: 0.35, seed: 7 }],
+        // 使用者調校配方 v2(2026-07-20):細膩短收細 + 低光暈
+        ['bolt', 'boltGen', 40, 40, { jag: 0.45, branches: 3, width: 0.95, headW: 0.31, tailW: 0.4, taperLen: 0.16, glow: 0.55, endGlow: 0.25, seed: 1367 }],
         ['bT', 'transform', 240, 40, { sy: 0.85, oy: -0.06, tiling: false }],
         ['po', 'posterize', 440, 40, { levels: 10, soft: 0.47 }],
         ['grad', 'gradientMap', 640, 40, { preset: 'celIce', steps: 0, alphaGain: 4 }],
@@ -975,10 +975,10 @@ const Presets = (() => {
         ['bolt', 'bT'], ['bT', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
-        { label: '鋸齒程度', def: 0.5, targets: [['bolt', 'jag', 0.2, 0.8]] },
+        { label: '鋸齒程度', def: 0.42, targets: [['bolt', 'jag', 0.2, 0.8]] },
         { label: '分支數量', def: 0.5, targets: [['bolt', 'branches', 0, 6]] },
-        { label: '雷束粗細', def: 0.47, targets: [['bolt', 'width', 0.5, 2]] },
-        { label: '收細距離', def: 0.67, targets: [['bolt', 'taperLen', 0.05, 0.5]] },
+        { label: '雷束粗細', def: 0.3, targets: [['bolt', 'width', 0.5, 2]] },
+        { label: '收細距離', def: 0.24, targets: [['bolt', 'taperLen', 0.05, 0.5]] },
         { label: '色帶層數', def: 0.54, targets: [['po', 'levels', 3, 16]] },
       ],
     },

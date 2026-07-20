@@ -280,6 +280,21 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 #app.simple #insp-resize { display:none; }   /* 精簡模式為自適應雙欄,不需拖曳 */
 
 #params-sec { flex:1; min-height:0; display:flex; flex-direction:column; }
+#btn-variant {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin:2px 14px 10px;
+  padding:9px 12px;
+  font-family:var(--font-disp); font-size:13px; font-weight:700; letter-spacing:2px;
+  color:var(--text);
+  background:linear-gradient(180deg, var(--panel-2), var(--panel));
+  border:1px solid var(--acc); border-radius:8px;
+  box-shadow:0 0 10px var(--acc-soft), inset 0 1px 0 #ffffff14;
+  cursor:pointer;
+}
+#btn-variant .dice { font-size:22px; line-height:1; transition:transform .35s cubic-bezier(.3,1.6,.5,1); }
+#btn-variant:hover { background:var(--acc-soft); box-shadow:0 0 16px var(--acc-soft); }
+#btn-variant:hover .dice { transform:rotate(138deg) scale(1.15); }
+#btn-variant:active .dice { transform:rotate(360deg) scale(0.92); }
 #params { flex:1; overflow-y:auto; padding:2px 14px 20px; }
 .params-empty { color:var(--text-faint); font-size:12px; padding:10px 2px; }
 
