@@ -241,10 +241,15 @@ const UI = (() => {
     nonUniformBlur: '非均勻模糊 — 由半徑圖控制各處模糊量',
     swirl: '以中心為軸螺旋扭曲(火舌、氣流)',
     crossSection: '從灰階提取等高線亮帶(閃電/拖尾)',
+    crossProfile: '剖面曲線 — 取一條掃描線,亮度化為山稜/波形填充輪廓',
     transform: '縮放/旋轉/平移,可關閉拼貼',
     blend: '雙圖混合 — 減去挖空、取亮疊加、增值遮罩',
     histogramScan: '把柔和漸層掃成高對比硬邊輪廓',
     levels: '色階 — 黑白點與 Gamma 重新映射',
+    brightContrast: '亮度對比 — 最直接的明暗與反差控制',
+    curve: '色調曲線 — 五點控制暗部/中間調/亮部,做 S 曲線或反差',
+    clampRange: '範圍裁切 — 只保留某段灰階並拉伸回滿幅,挑亮度層做遮罩',
+    colorAdjust: '色彩調整 — 上色後修色相/飽和/亮度/對比/透明度',
     invert: '反轉灰階',
     blur: '高斯/方向/放射/旋轉模糊',
     bevel: '為扁平圖形加內斜角假厚度',
@@ -263,8 +268,9 @@ const UI = (() => {
     warp: ['stripes', 'perlin'], blend: ['stripes', 'blob'],
     slopeBlur: ['stripes', 'perlin'],
     multiWarp: ['blob', 'perlin'], autoLevels: ['perlin'], nonUniformBlur: ['stripes', 'perlin'],
-    histogramScan: ['perlin'], crossSection: ['perlin'],
+    histogramScan: ['perlin'], crossSection: ['perlin'], crossProfile: ['perlin'],
     levels: ['perlin'], gradientMap: ['perlin'], shapeMapper: ['spike'],
+    brightContrast: ['perlin'], curve: ['perlin'], clampRange: ['perlin'],
     distance: ['spike'], bevel: ['disc'],
     celShade: ['blob'], posterize: ['perlin'], outline: ['disc'],
   };
@@ -276,6 +282,10 @@ const UI = (() => {
     bevel: { radius: 10, curve: 1.4 },
     shapeMapper: { count: 10, r0: 0.3, r1: 0.8 },
     tileSampler: { size: 1.15, briRand: 0.5 },
+    brightContrast: { contrast: 2.4 },
+    curve: { p1: 0.08, p3: 0.92 },
+    clampRange: { lo: 0.35, hi: 0.7 },
+    colorAdjust: { sat: 2.2, hue: 60 },
   };
   const demoCache = {};
   function demoBuf(kind, R) {

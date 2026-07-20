@@ -772,6 +772,35 @@ const NodeDefs = {
     }
   },
 
+  crossProfile: {
+    title: 'Cross Profile', zh: '剖面曲線', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    // 取一條水平掃描線,把亮度當高度畫成填充剖面(山稜/波形輪廓)
+    params: [
+      { k: 'row', label: '取樣線位置', t: 'f', def: 0.5, min: 0, max: 1, step: 0.005 },
+      { k: 'scale', label: '高度幅度', t: 'f', def: 1, min: 0.1, max: 1.5, step: 0.01 },
+      { k: 'base', label: '基準高度', t: 'f', def: 0, min: 0, max: 0.9, step: 0.01 },
+      { k: 'soft', label: '邊緣柔度(px)', t: 'f', def: 1.5, min: 0.5, max: 24, step: 0.5 },
+      { k: 'flip', label: '上下翻轉', t: 'b', def: false },
+      { k: 'invert', label: '黑白反轉', t: 'b', def: false },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, d = new Float32Array(W * H);
+      const src = grayOf(ins, 0, ctx);
+      const ry = Math.min(H - 1, Math.max(0, Math.round(p.row * (H - 1))));
+      const prof = new Float32Array(W);
+      for (let x = 0; x < W; x++) prof[x] = Filters.clamp01(p.base + src[ry * W + x] * p.scale);
+      const k = H / Math.max(0.5, p.soft);   // 每單位高度差對應的斜率(soft 越小邊越利)
+      for (let y = 0; y < H; y++) {
+        const u = p.flip ? (y + 0.5) / H : 1 - (y + 0.5) / H;   // 預設剖面立在底部
+        for (let x = 0; x < W; x++) {
+          let v = Filters.clamp01((prof[x] - u) * k + 0.5);
+          d[y * W + x] = p.invert ? 1 - v : v;
+        }
+      }
+      return { t: 'g', d };
+    }
+  },
+
   crossSection: {
     title: 'Cross Section', zh: '等高線提取', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
@@ -881,6 +910,125 @@ const NodeDefs = {
         d[i] = p.outLo + t * (p.outHi - p.outLo);
       }
       return { t: 'g', d };
+    }
+  },
+
+  brightContrast: {
+    title: 'Bright / Contrast', zh: '亮度對比', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    params: [
+      { k: 'brightness', label: '亮度', t: 'f', def: 0, min: -1, max: 1, step: 0.01 },
+      { k: 'contrast', label: '對比', t: 'f', def: 1, min: 0, max: 4, step: 0.02 },
+      { k: 'pivot', label: '對比軸心', t: 'f', def: 0.5, min: 0, max: 1, step: 0.01 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H, d = new Float32Array(N);
+      const src = grayOf(ins, 0, ctx);
+      for (let i = 0; i < N; i++) {
+        d[i] = Filters.clamp01((src[i] - p.pivot) * p.contrast + p.pivot + p.brightness);
+      }
+      return { t: 'g', d };
+    }
+  },
+
+  curve: {
+    title: 'Curve', zh: '色調曲線', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    // 五個控制點(輸入 0 / .25 / .5 / .75 / 1 的輸出值),Catmull-Rom 插值成 LUT
+    params: [
+      { k: 'p0', label: '黑點 (0.00)', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
+      { k: 'p1', label: '暗部 (0.25)', t: 'f', def: 0.25, min: 0, max: 1, step: 0.01 },
+      { k: 'p2', label: '中間 (0.50)', t: 'f', def: 0.5, min: 0, max: 1, step: 0.01 },
+      { k: 'p3', label: '亮部 (0.75)', t: 'f', def: 0.75, min: 0, max: 1, step: 0.01 },
+      { k: 'p4', label: '白點 (1.00)', t: 'f', def: 1, min: 0, max: 1, step: 0.01 },
+      { k: 'amount', label: '套用程度', t: 'f', def: 1, min: 0, max: 1, step: 0.01 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H, d = new Float32Array(N);
+      const src = grayOf(ins, 0, ctx);
+      const cp = [p.p0, p.p1, p.p2, p.p3, p.p4];
+      const LUT = new Float32Array(257);
+      for (let i = 0; i <= 256; i++) {
+        const t = i / 256 * 4;                 // 0..4 段參數
+        const k = Math.min(3, Math.floor(t)), f = t - k;
+        const y0 = cp[Math.max(0, k - 1)], y1 = cp[k], y2 = cp[k + 1], y3 = cp[Math.min(4, k + 2)];
+        const v = 0.5 * ((2 * y1) + (-y0 + y2) * f
+          + (2 * y0 - 5 * y1 + 4 * y2 - y3) * f * f
+          + (-y0 + 3 * y1 - 3 * y2 + y3) * f * f * f);
+        LUT[i] = Filters.clamp01(v);
+      }
+      for (let i = 0; i < N; i++) {
+        const x = Filters.clamp01(src[i]) * 256;
+        const k = Math.min(255, x | 0);
+        const v = LUT[k] + (LUT[k + 1] - LUT[k]) * (x - k);
+        d[i] = src[i] + (v - src[i]) * p.amount;
+      }
+      return { t: 'g', d };
+    }
+  },
+
+  clampRange: {
+    title: 'Clamp / Remap', zh: '範圍裁切', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    // 只保留某段灰階(其餘裁掉),再拉伸回 0~1 — 挑出特定亮度層做遮罩很好用
+    params: [
+      { k: 'lo', label: '下限', t: 'f', def: 0, min: 0, max: 1, step: 0.005 },
+      { k: 'hi', label: '上限', t: 'f', def: 1, min: 0, max: 1, step: 0.005 },
+      { k: 'stretch', label: '拉伸回滿幅', t: 'b', def: true },
+      { k: 'invert', label: '反轉結果', t: 'b', def: false },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H, d = new Float32Array(N);
+      const src = grayOf(ins, 0, ctx);
+      const lo = Math.min(p.lo, p.hi), hi = Math.max(p.lo, p.hi);
+      const span = Math.max(1e-5, hi - lo);
+      for (let i = 0; i < N; i++) {
+        let v = Math.max(lo, Math.min(hi, src[i]));
+        if (p.stretch) v = (v - lo) / span;
+        d[i] = p.invert ? 1 - v : v;
+      }
+      return { t: 'g', d };
+    }
+  },
+
+  colorAdjust: {
+    title: 'Color Adjust', zh: '色彩調整', cat: 'color', inputs: [{ n: '輸入', t: 'c' }], out: 'c',
+    // 上色之後的整體修圖:色相 / 飽和 / 亮度 / 對比 / 透明度
+    params: [
+      { k: 'hue', label: '色相偏移°', t: 'f', def: 0, min: -180, max: 180, step: 1 },
+      { k: 'sat', label: '飽和度', t: 'f', def: 1, min: 0, max: 3, step: 0.02 },
+      { k: 'brightness', label: '亮度', t: 'f', def: 0, min: -1, max: 1, step: 0.01 },
+      { k: 'contrast', label: '對比', t: 'f', def: 1, min: 0, max: 4, step: 0.02 },
+      { k: 'alpha', label: '透明度倍率', t: 'f', def: 1, min: 0, max: 3, step: 0.02 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H;
+      const src = bufConvert(ins[0], 'c', ctx);
+      const d = new Float32Array(N * 4);
+      if (!src) return { t: 'c', d };
+      const a = p.hue * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a);
+      // 繞亮度軸旋轉色相的標準 RGB 矩陣
+      const m = [
+        0.213 + c * 0.787 - sn * 0.213, 0.715 - c * 0.715 - sn * 0.715, 0.072 - c * 0.072 + sn * 0.928,
+        0.213 - c * 0.213 + sn * 0.143, 0.715 + c * 0.285 + sn * 0.140, 0.072 - c * 0.072 - sn * 0.283,
+        0.213 - c * 0.213 - sn * 0.787, 0.715 - c * 0.715 + sn * 0.715, 0.072 + c * 0.928 + sn * 0.072,
+      ];
+      for (let i = 0; i < N; i++) {
+        const j = i * 4;
+        let r = src.d[j], g = src.d[j + 1], b = src.d[j + 2];
+        if (p.hue !== 0) {
+          const nr = r * m[0] + g * m[1] + b * m[2];
+          const ng = r * m[3] + g * m[4] + b * m[5];
+          const nb = r * m[6] + g * m[7] + b * m[8];
+          r = nr; g = ng; b = nb;
+        }
+        const luma = r * 0.299 + g * 0.587 + b * 0.114;
+        r = luma + (r - luma) * p.sat;
+        g = luma + (g - luma) * p.sat;
+        b = luma + (b - luma) * p.sat;
+        d[j]     = Filters.clamp01((r - 0.5) * p.contrast + 0.5 + p.brightness);
+        d[j + 1] = Filters.clamp01((g - 0.5) * p.contrast + 0.5 + p.brightness);
+        d[j + 2] = Filters.clamp01((b - 0.5) * p.contrast + 0.5 + p.brightness);
+        d[j + 3] = Filters.clamp01(src.d[j + 3] * p.alpha);
+      }
+      return { t: 'c', d };
     }
   },
 
