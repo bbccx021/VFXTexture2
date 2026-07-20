@@ -243,6 +243,10 @@ const NodeDefs = {
       { k: 'sizeRand', label: '長度隨機', t: 'f', def: 0.5, min: 0, max: 1, step: 0.01 },
       { k: 'angJitter', label: '角度抖動', t: 'f', def: 0.3, min: 0, max: 1, step: 0.01 },
       { k: 'radJitter', label: '半徑抖動', t: 'f', def: 0.15, min: 0, max: 1, step: 0.01 },
+      { k: 'orient', label: '朝向', t: 'sel', def: 'out', opts: [['out', '徑向朝外'], ['in', '徑向朝內'], ['tangent', '切線方向'], ['up', '固定朝上'], ['random', '隨機']] },
+      { k: 'rotJit', label: '自轉抖動', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
+      { k: 'briRand', label: '亮度隨機', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
+      { k: 'sharp', label: '尖刺銳度', t: 'f', def: 1.6, min: 0.8, max: 4, step: 0.05 },
       { k: 'rotOff', label: '整體旋轉°', t: 'f', def: 0, min: -180, max: 180, step: 1 },
       { k: 'seed', label: '種子', t: 'seed', def: 7 },
     ],
@@ -253,18 +257,26 @@ const NodeDefs = {
       for (let i = 0; i < p.count; i++) {
         const r1 = Filters.rnd2(i, 3, p.seed), r2 = Filters.rnd2(i, 17, p.seed + 41);
         const r3 = Filters.rnd2(i, 29, p.seed + 83);
+        const r4 = Filters.rnd2(i, 47, p.seed + 131), r5 = Filters.rnd2(i, 59, p.seed + 173);
         const a = base + (i / p.count) * 6.283185 + (r1 - 0.5) * p.angJitter * (6.283185 / p.count);
         const rad = p.radius * (1 + (r2 - 0.5) * 2 * p.radJitter);
         const sz = p.size * (1 - p.sizeRand * r3);
         if (sz < 0.002) continue;
         const cx = 0.5 + Math.cos(a) * rad, cy = 0.5 + Math.sin(a) * rad;
-        // 尖刺/光條/輸入圖案 沿徑向朝外(圖像上緣朝外)
+        // 朝向:徑向朝外/朝內、切線、固定朝上、隨機;再疊每根自轉抖動
+        let rot = p.orient === 'in' ? a - Math.PI / 2
+          : p.orient === 'tangent' ? a
+          : p.orient === 'up' ? 0
+          : p.orient === 'random' ? r4 * 6.283185
+          : a + Math.PI / 2;
+        rot += (r5 - 0.5) * p.rotJit * Math.PI;
+        const bri = 1 - p.briRand * Filters.rnd2(i, 71, p.seed + 211);
         if (img) {
-          Filters.stampImage(d, W, H, cx, cy, sz * p.width, sz, a + Math.PI / 2, img, W, H, 1);
+          Filters.stampImage(d, W, H, cx, cy, sz * p.width, sz, rot, img, W, H, bri);
         } else {
           const isStreak = p.pattern === 'streak';
-          const sp = { type: isStreak ? 'blob' : p.pattern, size: 1, soft: 0.04, falloff: isStreak ? 2.2 : 1.6, width: 0.9, sides: 5 };
-          Filters.stampInstance(d, W, H, cx, cy, sz * p.width, sz, a + Math.PI / 2, sp, 1);
+          const sp = { type: isStreak ? 'blob' : p.pattern, size: 1, soft: 0.04, falloff: isStreak ? p.sharp + 0.6 : p.sharp, width: 0.9, sides: 5 };
+          Filters.stampInstance(d, W, H, cx, cy, sz * p.width, sz, rot, sp, bri);
         }
       }
       return { t: 'g', d };

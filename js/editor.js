@@ -5,6 +5,8 @@
    ============================================================ */
 
 const Editor = (() => {
+  let clipNode = null;                  // Ctrl+C 複製的節點(型別+參數)
+  let lastMouse = { x: 260, y: 200 };   // 畫布世界座標,Ctrl+V 貼上位置
   const NODE_W = 150;
   const PORT_Y0 = 46, PORT_DY = 22;
 
@@ -55,6 +57,11 @@ const Editor = (() => {
       applyView();
     }, { passive: false });
 
+    vp.addEventListener('mousemove', e => {
+      const w = toWorld(e.clientX, e.clientY);
+      lastMouse = { x: w.x - 70, y: w.y - 30 };   // 讓節點中心落在游標處
+    });
+
     // ---- 鍵盤快捷鍵 ----
     window.addEventListener('keydown', e => {
       const typing = document.activeElement && /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName);
@@ -70,6 +77,30 @@ const Editor = (() => {
       }
       if (ctrl && k === 'd') {
         if (!typing && sel && sel.kind === 'node') { e.preventDefault(); duplicateNode(sel.id); }
+        return;
+      }
+      if (ctrl && k === 'c') {
+        if (!typing && sel && sel.kind === 'node') {
+          const src = App.graph.nodes.get(sel.id);
+          if (src) {
+            clipNode = { type: src.type, params: JSON.parse(JSON.stringify(src.params)) };
+            const h = document.getElementById('hint');
+            if (h) h.textContent = '已複製節點:' + ((NodeDefs[src.type] && NodeDefs[src.type].zh) || src.type) + '(Ctrl+V 貼上)';
+            e.preventDefault();
+          }
+        }
+        return;
+      }
+      if (ctrl && k === 'v') {
+        if (!typing && clipNode) {
+          e.preventDefault();
+          App.history.push();
+          const n = App.graph.addNode(clipNode.type, lastMouse.x, lastMouse.y);
+          Object.assign(n.params, JSON.parse(JSON.stringify(clipNode.params)));
+          rebuild();
+          select({ kind: 'node', id: n.id });
+          App.onGraphChanged();
+        }
         return;
       }
       if (k === 'f' && !ctrl && !typing) { fitView(); return; }

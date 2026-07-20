@@ -48,7 +48,7 @@ const UI = (() => {
     shape: ['rot', 'falloff'],
     ramp: ['curve', 'mirror'],
     tileSampler: ['sizeRand', 'rotRand', 'briRand', 'coverage', 'maskThreshold', 'maskInvert'],
-    splatterCircular: ['width', 'sizeRand', 'angJitter', 'radJitter', 'rotOff'],
+    splatterCircular: ['width', 'sizeRand', 'angJitter', 'radJitter', 'rotOff', 'rotJit', 'briRand', 'sharp'],
     shapeMapper: ['phase', 'flip'],
     perlin: ['gain'],
     cells: ['contrast'],
