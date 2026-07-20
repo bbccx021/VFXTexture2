@@ -1053,7 +1053,7 @@ const NodeDefs = {
   posterize: {
     title: 'Posterize', zh: '色調分離', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
-      { k: 'levels', label: '階調數', t: 'i', def: 3, min: 2, max: 10 },
+      { k: 'levels', label: '階調數', t: 'i', def: 3, min: 2, max: 24 },
       { k: 'soft', label: '階梯柔度', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
       { k: 'bias', label: '階調偏移', t: 'f', def: 0, min: -0.5, max: 0.5, step: 0.01 },
     ],

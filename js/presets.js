@@ -984,7 +984,7 @@ const Presets = (() => {
         { label: '分支數量', def: 0.5, targets: [['bolt', 'branches', 0, 6]] },
         { label: '雷擊光球', def: 0.71, targets: [['bolt', 'endGlow', 0, 1.2]] },
         { label: '地面環大小', def: 0.5, targets: [['ground', 'size', 0.6, 1.3]] },
-        { label: '色帶層數', def: 0.4, targets: [['po', 'levels', 3, 8]] },
+        { label: '色帶層數', def: 0.15, targets: [['po', 'levels', 3, 16]] },
       ],
     },
 
@@ -1384,7 +1384,7 @@ const Presets = (() => {
         { label: '弧長範圍', def: 0.74, targets: [['gen', 'span', 60, 180]] },
         { label: '斬擊寬度', def: 0.5, targets: [['gen', 'width', 0.08, 0.36]] },
         { label: '拖絲強度', def: 0.6, targets: [['gen', 'streak', 0, 1.5]] },
-        { label: '色帶層數', def: 0.43, targets: [['po', 'levels', 3, 10]] },
+        { label: '色帶層數', def: 0.23, targets: [['po', 'levels', 3, 16]] },
       ],
     },
 
@@ -1401,7 +1401,7 @@ const Presets = (() => {
         { label: '絲束數量', def: 0.33, targets: [['gen', 'strands', 2, 8]] },
         { label: '擺動幅度', def: 0.33, targets: [['gen', 'sway', 0, 3]] },
         { label: '拖尾衰減', def: 0.29, targets: [['gen', 'decay', 0.5, 2.2]] },
-        { label: '色帶層數', def: 0.57, targets: [['po', 'levels', 3, 10]] },
+        { label: '色帶層數', def: 0.31, targets: [['po', 'levels', 3, 16]] },
       ],
     },
 
@@ -1417,7 +1417,7 @@ const Presets = (() => {
         { label: '鋸齒程度', def: 0.35, targets: [['gen', 'jag', 0.15, 0.7]] },
         { label: '分支數量', def: 0.5, targets: [['gen', 'branches', 0, 6]] },
         { label: '光暈強度', def: 0.44, targets: [['gen', 'glow', 0.2, 2]] },
-        { label: '色帶層數', def: 0.4, targets: [['po', 'levels', 3, 8]] },
+        { label: '色帶層數', def: 0.15, targets: [['po', 'levels', 3, 16]] },
       ],
     },
 
@@ -1433,7 +1433,7 @@ const Presets = (() => {
         { label: '電圈半徑', def: 0.58, targets: [['gen', 'radius', 0.18, 0.42]] },
         { label: '鋸齒程度', def: 0.6, targets: [['gen', 'jag', 0.05, 0.5]] },
         { label: '放電火花', def: 0.62, targets: [['gen', 'sparks', 0, 8]] },
-        { label: '色帶層數', def: 0.4, targets: [['po', 'levels', 3, 8]] },
+        { label: '色帶層數', def: 0.15, targets: [['po', 'levels', 3, 16]] },
       ],
     },
 
