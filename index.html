@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=67">
+<link rel="stylesheet" href="css/style.css?v=68">
 </head>
 <body>
 <div id="app" class="simple">
@@ -65,10 +65,13 @@
 
   <div id="body">
     <aside id="library">
+      <button id="lib-collapse" class="panel-toggle" title="收合節點庫">◀</button>
       <div class="lib-title">節點庫</div>
       <div id="lib-list"></div>
     </aside>
 
+    <button id="lib-expand" class="panel-expand left hidden" title="展開節點庫">▶</button>
+    <button id="insp-expand" class="panel-expand right hidden" title="展開預覽面板">◀</button>
     <main id="viewport">
       <div id="world">
         <svg id="wires"></svg>
@@ -78,6 +81,7 @@
 
     <aside id="inspector">
       <div id="insp-resize" title="拖曳調整預覽面板寬度"></div>
+      <button id="insp-collapse" class="panel-toggle" title="收合預覽面板">▶</button>
       <section id="preview-sec">
         <div class="sec-title">預覽<span id="preview-src"></span><button id="preview-pin" title="鎖定預覽顯示 Output(調中間節點也能盯著最終結果)">📌</button></div>
         <div id="preview-wrap"><canvas id="preview" width="512" height="512"></canvas></div>
@@ -119,13 +123,13 @@
   </div>
 </div>
 
-<script src="js/i18n.js?v=67"></script>
-<script src="js/filters.js?v=67"></script>
-<script src="js/nodes.js?v=67"></script>
-<script src="js/graph.js?v=67"></script>
-<script src="js/editor.js?v=67"></script>
-<script src="js/presets.js?v=67"></script>
-<script src="js/ui.js?v=67"></script>
-<script src="js/main.js?v=67"></script>
+<script src="js/i18n.js?v=68"></script>
+<script src="js/filters.js?v=68"></script>
+<script src="js/nodes.js?v=68"></script>
+<script src="js/graph.js?v=68"></script>
+<script src="js/editor.js?v=68"></script>
+<script src="js/presets.js?v=68"></script>
+<script src="js/ui.js?v=68"></script>
+<script src="js/main.js?v=68"></script>
 </body>
 </html>

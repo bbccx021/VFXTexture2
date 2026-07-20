@@ -88,6 +88,28 @@ const UI = (() => {
     if (sel) sel.addEventListener('change', e => applyTheme(e.target.value));
   }
 
+  // ---------- 面板收合(節點庫 / 預覽面板;進階模式)----------
+  function initPanelToggles() {
+    const app = document.getElementById('app');
+    const apply = () => {
+      let lib = false, insp = false;
+      try {
+        lib = localStorage.getItem('texforge_libclosed') === '1';
+        insp = localStorage.getItem('texforge_inspclosed') === '1';
+      } catch (e) {}
+      app.classList.toggle('lib-closed', lib);
+      app.classList.toggle('insp-closed', insp);
+      document.getElementById('lib-expand').classList.toggle('hidden', !lib);
+      document.getElementById('insp-expand').classList.toggle('hidden', !insp);
+    };
+    const setFlag = (key, v) => { try { localStorage.setItem(key, v ? '1' : '0'); } catch (e) {} apply(); };
+    document.getElementById('lib-collapse').addEventListener('click', () => setFlag('texforge_libclosed', true));
+    document.getElementById('lib-expand').addEventListener('click', () => setFlag('texforge_libclosed', false));
+    document.getElementById('insp-collapse').addEventListener('click', () => setFlag('texforge_inspclosed', true));
+    document.getElementById('insp-expand').addEventListener('click', () => setFlag('texforge_inspclosed', false));
+    apply();
+  }
+
   // ---------- 進階模式預覽面板寬度(拖曳左緣自由縮放)----------
   function initInspectorResize() {
     const rs = document.getElementById('insp-resize');
@@ -930,6 +952,7 @@ const UI = (() => {
     perfEl = document.getElementById('perf');
     initTheme();
     applyStaticLang();
+    initPanelToggles();
     const langSel = document.getElementById('lang-select');
     if (langSel) {
       langSel.value = window.APP_LANG;

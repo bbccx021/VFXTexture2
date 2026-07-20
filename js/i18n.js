@@ -149,6 +149,8 @@ const I18N_EN = {
   '高度位移': 'Height Offset', '高度縮放': 'Height Scale', '黑白反轉': 'Invert', '黑點 (0.00)': 'Black (0.00)',
   '黑點位置': 'Black Point',
   '節點': 'nodes',
+  '收合節點庫': 'Collapse node library', '展開節點庫': 'Expand node library',
+  '收合預覽面板': 'Collapse preview panel', '展開預覽面板': 'Expand preview panel',
   /* ---- 巨集滑桿標籤 ---- */
   '中心光核': 'Core Glow', '中心大小': 'Center Size', '中心空洞': 'Center Hole', '亮核大小': 'Core Size',
   '亮核粗細': 'Core Width', '亮框粗細': 'Frame Width', '亮邊粗細': 'Rim Width', '光暈強度': 'Glow Amount',
@@ -220,6 +222,8 @@ window.applyStaticLang = function () {
     const t = [...el.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
     if (t) t.textContent = tr(t.textContent.trim());
   });
+  [['#lib-collapse','收合節點庫'],['#lib-expand','展開節點庫'],['#insp-collapse','收合預覽面板'],['#insp-expand','展開預覽面板']]
+    .forEach(([sel, zh]) => { const el = document.querySelector(sel); if (el) el.title = tr(zh); });
   const pe = document.querySelector('.params-empty');
   if (pe) pe.textContent = tr('點選節點以編輯參數');
 };
