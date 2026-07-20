@@ -150,6 +150,7 @@ const I18N_EN = {
   '黑點位置': 'Black Point',
   '節點': 'nodes',
   '🌐 語言': '🌐 Language', '🎨 主題': '🎨 Theme',
+  '點擊直接輸入數值': 'Click to type a value', '點擊直接輸入 0~100': 'Click to type 0-100',
   '收合節點庫': 'Collapse node library', '展開節點庫': 'Expand node library',
   '收合預覽面板': 'Collapse preview panel', '展開預覽面板': 'Expand preview panel',
   /* ---- 巨集滑桿標籤 ---- */

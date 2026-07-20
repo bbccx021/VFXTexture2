@@ -280,6 +280,28 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 #insp-resize:hover, #insp-resize.dragging { background:var(--acc-soft); }
 #app.simple #insp-resize { display:none; }   /* 精簡模式為自適應雙欄,不需拖曳 */
 
+/* ---- 精簡模式:預覽下方大匯出按鈕 ---- */
+#export-bar { display:none; }
+#app.simple #export-bar {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin-top:12px;
+}
+#app.simple #export-bar #btn-export {
+  font-size:14.5px; font-weight:700; letter-spacing:1px;
+  padding:11px 26px; border-radius:9px;
+  box-shadow:0 6px 22px var(--acc-soft), 0 0 0 1px var(--acc);
+}
+#app.simple #export-bar label { font-size:12px; color:var(--text-dim); }
+
+/* 可點擊編輯的數值 */
+.pval { cursor:pointer; }
+.pval:hover { color:var(--acc); text-decoration:underline dotted; }
+.pval-edit {
+  width:64px; padding:1px 4px; font-size:11.5px; text-align:right;
+  background:var(--panel-2); color:var(--text);
+  border:1px solid var(--acc); border-radius:4px; outline:none;
+}
+
 /* ---- 頂列 ⚙ 設定選單 ---- */
 #settings-menu {
   position:fixed; top:52px; right:10px; z-index:80;

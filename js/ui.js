@@ -496,6 +496,15 @@ const UI = (() => {
     if (p.t === 'f' || p.t === 'i') {
       const fmt = v => p.t === 'i' ? String(v) : (+v).toFixed(p.step >= 1 ? 0 : 2);
       row.innerHTML = `<div class="plabel"><span>${tr(p.label)}</span><span class="pval">${fmt(node.params[p.k])}</span></div>`;
+      const pv = row.querySelector('.pval');
+      pv.title = '點擊直接輸入數值';
+      pv.addEventListener('click', () => {
+        editValueInline(pv, node.params[p.k], p.min, p.max, p.t === 'i', v => {
+          App.history.push();
+          commit(v);
+          showParams(node);            // 重繪整列讓滑桿同步
+        });
+      });
       const inp = document.createElement('input');
       inp.type = 'range';
       inp.min = p.min; inp.max = p.max; inp.step = p.t === 'i' ? 1 : (p.step || 0.01);
@@ -601,6 +610,17 @@ const UI = (() => {
       row.className = 'prow';
       const pct = v => Math.round(v * 100) + '%';
       row.innerHTML = `<div class="plabel"><span>${tr(m.label)}</span><span class="pval">${pct(m.value)}</span></div>`;
+      const pv = row.querySelector('.pval');
+      pv.title = '點擊直接輸入 0~100';
+      pv.addEventListener('click', () => {
+        editValueInline(pv, Math.round(m.value * 100), 0, 100, true, v => {
+          App.history.push();
+          m.value = v / 100;
+          applyMacro(m);
+          requestRender();
+          showParams(null);
+        });
+      });
       const inp = document.createElement('input');
       inp.type = 'range'; inp.min = 0; inp.max = 1; inp.step = 0.01;
       inp.value = m.value;
@@ -940,6 +960,54 @@ const UI = (() => {
     } else done(false);
   }
 
+  // 精簡模式把「輸出解析度 + 匯出按鈕」移到預覽下方;進階模式移回頂列
+  function placeExportControls(advanced) {
+    const lb = document.getElementById('lb-export');
+    const res = document.getElementById('export-res');
+    const btn = document.getElementById('btn-export');
+    if (advanced) {
+      const anchor = document.getElementById('btn-recipe');
+      anchor.parentNode.insertBefore(lb, anchor);
+      anchor.parentNode.insertBefore(res, anchor);
+      anchor.parentNode.insertBefore(btn, document.getElementById('btn-settings'));
+    } else {
+      const bar = document.getElementById('export-bar');
+      bar.appendChild(lb); bar.appendChild(res); bar.appendChild(btn);
+    }
+  }
+
+  // 數值點擊直接輸入(參數與模板滑桿共用)
+  function editValueInline(pvalEl, current, min, max, isInt, apply) {
+    if (pvalEl.querySelector('input')) return;
+    const old = pvalEl.textContent;
+    const inp = document.createElement('input');
+    inp.type = 'number'; inp.className = 'pval-edit';
+    inp.min = min; inp.max = max; inp.step = isInt ? 1 : 'any';
+    inp.value = current;
+    pvalEl.textContent = ''; pvalEl.appendChild(inp);
+    inp.focus(); inp.select();
+    let done = false;
+    const finish = ok => {
+      if (done) return; done = true;
+      if (ok && inp.value !== '') {
+        let v = +inp.value;
+        if (!isNaN(v)) {
+          v = Math.max(min, Math.min(max, v));
+          if (isInt) v = Math.round(v);
+          apply(v);
+          return;                      // apply 端負責重繪列
+        }
+      }
+      pvalEl.textContent = old;
+    };
+    inp.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter') finish(true);
+      else if (ev.key === 'Escape') finish(false);
+      ev.stopPropagation();
+    });
+    inp.addEventListener('blur', () => finish(true));
+  }
+
   function setGraph(g) {
     App.graph = g;
     Editor.select(null);
@@ -989,6 +1057,7 @@ const UI = (() => {
       const app = document.getElementById('app');
       app.classList.toggle('simple', !advanced);
       modeBtn.classList.toggle('on', advanced);
+      placeExportControls(advanced);
       modeBtn.textContent = tr(advanced ? '🎛 精簡' : '🔧 進階');
       modeBtn.title = advanced ? '返回精簡模式:只保留結果預覽與模板滑桿' : '進階模式:展開底層節點編輯器';
       try { localStorage.setItem('texforge_mode', advanced ? 'advanced' : 'simple'); } catch (e) {}
