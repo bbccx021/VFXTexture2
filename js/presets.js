@@ -780,9 +780,12 @@ const Presets = (() => {
     celIceBurst: {
       nodes: [
         ['core', 'blobField', 40, 40, { count: 5, size: 0.56, spread: 0.3, taper: 0.2, fuse: 0.5, wobble: 0.25, seed: 17 }],
-        ['shard', 'splatterCircular', 40, 300, { pattern: 'spike', count: 12, radius: 0.28, size: 0.42, width: 0.24, sizeRand: 0.45, angJitter: 0.25, seed: 6 }],
+        ['shard', 'splatterCircular', 40, 300, { pattern: 'spike', count: 9, radius: 0.22, size: 0.26, width: 0.55, sizeRand: 0.4, angJitter: 0.25, seed: 6 }],
         ['un', 'blend', 240, 150, { mode: 'max' }],
-        ['cel', 'celShade', 440, 150, { tones: 3, terminator: 0.52, lightAngle: -125, relief: 0.9, shadowTone: 0.3, litTone: 0.96, edge: 0.02 }],
+        ['xtal', 'cells', 240, 400, { mode: 'crystal', scale: 5, contrast: 1.5, seed: 9 }],
+        ['xlv', 'levels', 340, 400, { outLo: 0.55 }],                // 晶格重映射到 0.55~1:只刻淺槽,不整體壓暗
+        ['xm', 'blend', 440, 300, { mode: 'mul', opacity: 0.75 }],   // 晶格刻進高度場 → 打光切出稜面
+        ['cel', 'celShade', 440, 150, { tones: 4, terminator: 0.44, lightAngle: -125, relief: 0.9, shadowTone: 0.42, litTone: 0.97, edge: 0.02 }],
         ['line', 'outline', 640, 360, { width: 0.008, side: 'inner', threshold: 0.1 }],
         ['sub', 'blend', 840, 200, { mode: 'sub', opacity: 0.45 }],
         ['grad', 'gradientMap', 1040, 200, { preset: 'celIce', steps: 0, alphaGain: 4 }],
@@ -790,14 +793,14 @@ const Presets = (() => {
       ],
       links: [
         ['shard', 'un', 0], ['core', 'un', 1],
-        ['un', 'cel'], ['cel', 'line'],
+        ['xtal', 'xlv'], ['xlv', 'xm', 0], ['un', 'xm', 1], ['xm', 'cel'], ['cel', 'line'],
         ['line', 'sub', 0], ['cel', 'sub', 1],
         ['sub', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '冰刺數量', def: 0.4, targets: [['shard', 'count', 5, 20]] },
         { label: '冰刺長度', def: 0.5, targets: [['shard', 'size', 0.2, 0.65]] },
-        { label: '冰刺銳度', def: 0.35, targets: [['shard', 'width', 0.1, 0.5]] },
+        { label: '晶格質感', def: 0.75, targets: [['xm', 'opacity', 0, 1]] },
         { label: '核心大小', def: 0.45, targets: [['core', 'size', 0.3, 0.9]] },
         { label: '稜面強度', def: 0.45, targets: [['cel', 'relief', 0.3, 1.8]] },
       ],
