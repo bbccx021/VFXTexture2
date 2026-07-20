@@ -243,6 +243,10 @@ const NodeDefs = {
       { k: 'sizeRand', label: '長度隨機', t: 'f', def: 0.5, min: 0, max: 1, step: 0.01 },
       { k: 'angJitter', label: '角度抖動', t: 'f', def: 0.3, min: 0, max: 1, step: 0.01 },
       { k: 'radJitter', label: '半徑抖動', t: 'f', def: 0.15, min: 0, max: 1, step: 0.01 },
+      { k: 'spread', label: '弧長範圍°', t: 'f', def: 360, min: 10, max: 360, step: 1 },
+      { k: 'sizeFade', label: '大小漸變(首→尾)', t: 'f', def: 0, min: -1, max: 1, step: 0.01 },
+      { k: 'radFade', label: '半徑螺旋(首→尾)', t: 'f', def: 0, min: -1, max: 1, step: 0.01 },
+      { k: 'briFade', label: '亮度衰減(首→尾)', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
       { k: 'widthRand', label: '粗細隨機', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
       { k: 'briRand', label: '亮度隨機', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
       { k: 'sharp', label: '尖刺銳度', t: 'f', def: 1.6, min: 0.8, max: 4, step: 0.05 },
@@ -253,18 +257,22 @@ const NodeDefs = {
       const { W, H } = ctx, d = new Float32Array(W * H);
       const img = ins[0] ? grayOf(ins, 0, ctx) : null; // Pattern Image 輸入
       const base = p.rotOff * Math.PI / 180;
+      const spreadRad = p.spread * Math.PI / 180;
+      // 滿圈時均分整圓;弧段時首尾都落在端點上
+      const denom = p.spread >= 359.5 ? p.count : Math.max(1, p.count - 1);
       for (let i = 0; i < p.count; i++) {
         const r1 = Filters.rnd2(i, 3, p.seed), r2 = Filters.rnd2(i, 17, p.seed + 41);
         const r3 = Filters.rnd2(i, 29, p.seed + 83);
         const r4 = Filters.rnd2(i, 47, p.seed + 131), r5 = Filters.rnd2(i, 59, p.seed + 173);
-        const a = base + (i / p.count) * 6.283185 + (r1 - 0.5) * p.angJitter * (6.283185 / p.count);
-        const rad = p.radius * (1 + (r2 - 0.5) * 2 * p.radJitter);
-        const sz = p.size * (1 - p.sizeRand * r3);
+        const t = p.count > 1 ? i / (p.count - 1) : 0;     // 序列進度 0..1(首→尾漸變用)
+        const a = base + (i / denom) * spreadRad + (r1 - 0.5) * p.angJitter * (spreadRad / denom);
+        const rad = p.radius * (1 + (r2 - 0.5) * 2 * p.radJitter) * (1 + p.radFade * t);
+        const sz = p.size * (1 - p.sizeRand * r3) * Math.max(0, 1 + p.sizeFade * t);
         if (sz < 0.002) continue;
         const cx = 0.5 + Math.cos(a) * rad, cy = 0.5 + Math.sin(a) * rad;
         const rot = a + Math.PI / 2;                       // 徑向朝外(圖像上緣朝外)
         const w = p.width * (1 - p.widthRand * r4);        // 每根粗細隨機分布
-        const bri = 1 - p.briRand * r5;
+        const bri = (1 - p.briRand * r5) * (1 - p.briFade * t);
         if (img) {
           Filters.stampImage(d, W, H, cx, cy, sz * w, sz, rot, img, W, H, bri);
         } else {
