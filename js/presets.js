@@ -964,34 +964,27 @@ const Presets = (() => {
     // ⚡ 卡通落雷:垂直錐體被晶格雜訊折成雷柱 + 壓扁的地面衝擊環,雙層(藍身白核)
     celThunder: {
       nodes: [
-        ['bolt', 'shape', 40, 40, { type: 'spike', size: 1, width: 0.3, falloff: 0.35, soft: 0.05 }],
-        ['cells', 'cells', 40, 260, { mode: 'crystal', scale: 9, seed: 3 }],
-        ['wp', 'warp', 240, 40, { mode: 'grad', intensity: 1.6 }],           // 折成鋸齒雷柱
-        ['ground', 'shape', 40, 480, { type: 'ring', size: 1, width: 0.13, soft: 0.04 }],
-        ['gT', 'transform', 240, 480, { sy: 0.3, oy: 0.34, tiling: false }],  // 壓扁成地面環
-        ['un', 'blend', 440, 200, { mode: 'max' }],
-        ['sc', 'histogramScan', 640, 200, { pos: 0.42, contrast: 0.85 }],
-        ['lv', 'levels', 840, 200, { outHi: 0.58 }],                          // 外層電光
-        ['sc2', 'histogramScan', 640, 420, { pos: 0.62, contrast: 0.9 }],     // 內層亮核
-        ['mx', 'blend', 1040, 280, { mode: 'max' }],
-        ['grad', 'gradientMap', 1240, 280, { preset: 'celIce', steps: 0, alphaGain: 4 }],
-        ['out', 'output', 1440, 280],
+        // 碎形折線閃電(移植自 NoiseGenerator Bolt):主幹錐形變細 + 斜出分支 + 末端衝擊光球
+        ['bolt', 'boltGen', 40, 40, { jag: 0.5, branches: 3, width: 1.2, glow: 1, endGlow: 0.85, seed: 7 }],
+        ['bT', 'transform', 240, 40, { sy: 0.85, oy: -0.06, tiling: false }],   // 收短讓末端光球落在地面環上
+        ['ground', 'shape', 40, 300, { type: 'ring', size: 1, width: 0.13, soft: 0.04 }],
+        ['gT', 'transform', 240, 300, { sy: 0.3, oy: 0.34, tiling: false }],    // 壓扁成地面衝擊環
+        ['un', 'blend', 440, 170, { mode: 'max' }],
+        ['po', 'posterize', 640, 170, { levels: 5, soft: 0.18 }],               // 三層輝光 → 平塗光暈帶
+        ['grad', 'gradientMap', 840, 170, { preset: 'celIce', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1040, 170],
       ],
       links: [
-        ['bolt', 'wp', 0], ['cells', 'wp', 1],
-        ['ground', 'gT'],
-        ['wp', 'un', 0], ['gT', 'un', 1],
-        ['un', 'sc'], ['sc', 'lv'],
-        ['un', 'sc2'],
-        ['sc2', 'mx', 0], ['lv', 'mx', 1],
-        ['mx', 'grad'], ['grad', 'out'],
+        ['bolt', 'bT'], ['ground', 'gT'],
+        ['bT', 'un', 0], ['gT', 'un', 1],
+        ['un', 'po'], ['po', 'grad'], ['grad', 'out'],
       ],
       macros: [
-        { label: '雷柱粗細', def: 0.35, targets: [['bolt', 'width', 0.12, 0.6]] },
-        { label: '鋸齒程度', def: 0.4, targets: [['wp', 'intensity', 0.4, 3]] },
-        { label: '折點密度', def: 0.4, targets: [['cells', 'scale', 4, 16]] },
+        { label: '鋸齒程度', def: 0.5, targets: [['bolt', 'jag', 0.2, 0.8]] },
+        { label: '分支數量', def: 0.5, targets: [['bolt', 'branches', 0, 6]] },
+        { label: '雷擊光球', def: 0.71, targets: [['bolt', 'endGlow', 0, 1.2]] },
         { label: '地面環大小', def: 0.5, targets: [['ground', 'size', 0.6, 1.3]] },
-        { label: '亮核範圍', def: 0.45, targets: [['sc2', 'pos', 0.4, 0.85]] },
+        { label: '色帶層數', def: 0.4, targets: [['po', 'levels', 3, 8]] },
       ],
     },
 
@@ -1414,14 +1407,14 @@ const Presets = (() => {
 
     celBolt: {
       nodes: [
-        ['gen', 'boltGen', 40, 40, { jag: 0.5, branches: 3, width: 1, glow: 1, endGlow: 0.55, seed: 3 }],
+        ['gen', 'boltGen', 40, 40, { jag: 0.34, branches: 3, width: 1, glow: 1, endGlow: 0.55, seed: 12 }],
         ['po', 'posterize', 230, 40, { levels: 5, soft: 0.18 }],
         ['grad', 'gradientMap', 420, 40, { preset: 'celGold', steps: 0, alphaGain: 4 }],
         ['out', 'output', 610, 40],
       ],
       links: [['gen', 'po'], ['po', 'grad'], ['grad', 'out']],
       macros: [
-        { label: '鋸齒程度', def: 0.54, targets: [['gen', 'jag', 0.2, 0.8]] },
+        { label: '鋸齒程度', def: 0.35, targets: [['gen', 'jag', 0.15, 0.7]] },
         { label: '分支數量', def: 0.5, targets: [['gen', 'branches', 0, 6]] },
         { label: '光暈強度', def: 0.44, targets: [['gen', 'glow', 0.2, 2]] },
         { label: '色帶層數', def: 0.4, targets: [['po', 'levels', 3, 8]] },

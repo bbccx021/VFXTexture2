@@ -336,12 +336,15 @@ const Filters = (() => {
   }
 
   // 序列亂數(xorshift32):線段生成需要「依呼叫順序」的穩定亂數流,rnd2 做不到
+  // seed 先乘 Knuth 常數並暖機兩輪 — 否則小 seed 的第一個輸出幾乎相同(混合不足)
   function seqRNG(seed) {
-    let s = (seed >>> 0) || 1;
-    return () => {
+    let s = ((seed * 2654435761) >>> 0) || 1;
+    const next = () => {
       s ^= s << 13; s ^= s >>> 17; s ^= s << 5; s >>>= 0;
       return s / 4294967296;
     };
+    next(); next();
+    return next;
   }
 
   // 點到線段距離(uv 空間)
