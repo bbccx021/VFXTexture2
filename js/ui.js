@@ -75,14 +75,14 @@ const UI = (() => {
     const t = THEMES[name] || THEMES.teal;
     const s = document.documentElement.style;
     for (const [k, v] of Object.entries(t.v)) s.setProperty(k, v);
-    try { localStorage.setItem('texforge_theme', name); } catch (e) {}
+    try { localStorage.setItem('texforge_theme2', name); } catch (e) {}
     const sel = document.getElementById('theme-select');
     if (sel && sel.value !== name) sel.value = name;
   }
   function initTheme() {
-    let saved = 'teal';
-    try { saved = localStorage.getItem('texforge_theme') || 'teal'; } catch (e) {}
-    if (!THEMES[saved]) saved = 'teal';
+    let saved = null;
+    try { saved = localStorage.getItem('texforge_theme2'); } catch (e) {}
+    if (!saved || !THEMES[saved]) saved = 'indigo';   // 預設皇家藍
     applyTheme(saved);
     const sel = document.getElementById('theme-select');
     if (sel) sel.addEventListener('change', e => applyTheme(e.target.value));
@@ -830,6 +830,51 @@ const UI = (() => {
     cv.toBlob(b => download(`texforge_${res}.png`, b), 'image/png');
   }
 
+  // 匯出配方:目前圖的節點(含調整後參數)/連線/模板滑桿 → presets.js 規格文字
+  // 只輸出與預設值不同的參數,貼回 SPECS 即可成為新範本
+  function exportRecipe() {
+    const g = App.graph;
+    const key = id => 'n' + id;
+    const fmtV = v => typeof v === 'string' ? "'" + v + "'"
+      : typeof v === 'boolean' ? String(v)
+      : String(Math.round(v * 1000) / 1000);
+    const lines = [];
+    lines.push('    ' + (g._presetName || 'myPreset') + '_custom: {');
+    lines.push('      nodes: [');
+    for (const n of g.nodes.values()) {
+      const def = NodeDefs[n.type];
+      const diff = def.params
+        .filter(p => n.params[p.k] !== p.def)
+        .map(p => p.k + ': ' + fmtV(n.params[p.k]));
+      lines.push("        ['" + key(n.id) + "', '" + n.type + "', " + Math.round(n.x) + ', ' + Math.round(n.y)
+        + (diff.length ? ', { ' + diff.join(', ') + ' }' : '') + '],');
+    }
+    lines.push('      ],');
+    lines.push('      links: [');
+    lines.push('        ' + g.links.map(l =>
+      "['" + key(l.from) + "', '" + key(l.to) + "'" + (l.toPort ? ', ' + l.toPort : '') + ']').join(', '));
+    lines.push('      ],');
+    if (g._macros && g._macros.length) {
+      lines.push('      macros: [');
+      for (const m of g._macros) {
+        const t = m.targets.map(x => "['" + key(x.id) + "', '" + x.param + "', " + x.pmin + ', ' + x.pmax + ']').join(', ');
+        lines.push("        { label: '" + m.label + "', def: " + Math.round(m.value * 100) / 100 + ', targets: [' + t + '] },');
+      }
+      lines.push('      ],');
+    }
+    lines.push('    },');
+    const text = lines.join('\n');
+    console.log(text);
+    const btn = document.getElementById('btn-recipe');
+    const done = copied => {
+      if (!copied) download('vfxgen_recipe.txt', new Blob([text], { type: 'text/plain' }));
+      if (btn) { const old = btn.textContent; btn.textContent = copied ? '已複製 ✓' : '已下載 ✓'; setTimeout(() => { btn.textContent = old; }, 1600); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => done(true), () => done(false));
+    } else done(false);
+  }
+
   function setGraph(g) {
     App.graph = g;
     Editor.select(null);
@@ -851,6 +896,7 @@ const UI = (() => {
     document.getElementById('preview-bg').addEventListener('change', requestRender);
     document.getElementById('preview-tile').addEventListener('change', requestRender);
     document.getElementById('btn-export').addEventListener('click', exportPNG);
+    document.getElementById('btn-recipe').addEventListener('click', exportRecipe);
 
     // 範本牆 & 變體
     document.getElementById('btn-gallery').addEventListener('click', openGallery);
