@@ -349,6 +349,17 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
   border-left:1px solid var(--line); background:var(--panel);
 }
 
+/* 桌面窄視窗(視窗貼半屏等):收窄參數欄、預覽自適應,雙欄不變 */
+@media (min-width: 481px) and (max-width: 1020px) {
+  #topbar { height:auto; min-height:48px; flex-wrap:wrap; gap:6px; padding:6px 10px; }
+  #topbar button, #topbar select { white-space:nowrap; writing-mode:horizontal-tb; }
+  .brand-sub { display:none; }
+  .tb-spacer { display:none; }
+  #app.simple #preview-sec { padding:16px 18px; }
+  #app.simple #preview-wrap { width:min(100%, 52vh); }
+  #app.simple #params-sec { width:320px; }
+}
+
 #btn-mode.on { border-color:var(--cy); color:var(--cy); }
 #btn-mode.on:hover { background:var(--cy); color:#0a1416; }
 
@@ -501,7 +512,7 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
 /* ============================================================
    手機 / 直向排版(≤700px):以精簡模式為主,直向堆疊 + 隨螢幕縮放
    ============================================================ */
-@media (max-width: 700px) {
+@media (max-width: 700px) and (pointer: coarse), (max-width: 480px) {
   body { font-size:14px; }
 
   /* 頂列:自動換行、觸控放大、省略次要文字 */
@@ -532,7 +543,7 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
   }
   #app.simple #preview-wrap {
     /* 隨螢幕縮放:以寬度為主,並受高度上限約束 */
-    width:min(92vw, 52vh); box-shadow:0 12px 36px #000a;
+    width:min(92vw, 48vh, 420px); box-shadow:0 12px 36px #000a;
   }
   #app.simple #params-sec {
     width:auto; flex:none;
