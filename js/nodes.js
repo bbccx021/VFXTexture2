@@ -781,27 +781,52 @@ const NodeDefs = {
   },
 
   crossProfile: {
-    title: 'Cross Profile', zh: '剖面曲線', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
-    // 取一條水平掃描線,把亮度當高度畫成填充剖面(山稜/波形輪廓)
+    title: 'Cross Section', zh: '剖面曲線', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    // 取一條掃描線,把亮度當高度畫成剖面圖(對齊 SD Cross Section:切向/繪製樣式/位移縮放)
     params: [
+      { k: 'axis', label: '切片方向', t: 'sel', def: 'h', opts: [['h', '水平切(剖面立在下方)'], ['v', '垂直切(剖面靠左)']] },
       { k: 'row', label: '取樣線位置', t: 'f', def: 0.5, min: 0, max: 1, step: 0.005 },
-      { k: 'scale', label: '高度幅度', t: 'f', def: 1, min: 0.1, max: 1.5, step: 0.01 },
-      { k: 'base', label: '基準高度', t: 'f', def: 0, min: 0, max: 0.9, step: 0.01 },
+      { k: 'style', label: '繪製樣式', t: 'sel', def: 'solid', opts: [['solid', '實心 Solid'], ['gradient', '漸層 Gradient'], ['gmirror', '鏡像漸層 Mirrored'], ['line', '線條 Line']] },
+      { k: 'scale', label: '高度縮放', t: 'f', def: 1, min: 0.1, max: 1.5, step: 0.01 },
+      { k: 'base', label: '高度位移', t: 'f', def: 0, min: 0, max: 0.9, step: 0.01 },
+      { k: 'lineW', label: '線條粗細(px)', t: 'f', def: 3, min: 1, max: 24, step: 0.5, show: p => p.style === 'line' },
       { k: 'soft', label: '邊緣柔度(px)', t: 'f', def: 1.5, min: 0.5, max: 24, step: 0.5 },
-      { k: 'flip', label: '上下翻轉', t: 'b', def: false },
+      { k: 'flip', label: '翻轉方向', t: 'b', def: false },
       { k: 'invert', label: '黑白反轉', t: 'b', def: false },
     ],
     eval(p, ins, ctx) {
       const { W, H } = ctx, d = new Float32Array(W * H);
       const src = grayOf(ins, 0, ctx);
-      const ry = Math.min(H - 1, Math.max(0, Math.round(p.row * (H - 1))));
-      const prof = new Float32Array(W);
-      for (let x = 0; x < W; x++) prof[x] = Filters.clamp01(p.base + src[ry * W + x] * p.scale);
-      const k = H / Math.max(0.5, p.soft);   // 每單位高度差對應的斜率(soft 越小邊越利)
+      const vert = p.axis === 'v';
+      const A = vert ? H : W;                 // 剖面取樣長度
+      const across = vert ? W : H;            // 高度方向的像素數
+      const prof = new Float32Array(A);
+      if (vert) {
+        const cx = Math.min(W - 1, Math.max(0, Math.round(p.row * (W - 1))));
+        for (let y = 0; y < H; y++) prof[y] = Filters.clamp01(p.base + src[y * W + cx] * p.scale);
+      } else {
+        const ry = Math.min(H - 1, Math.max(0, Math.round(p.row * (H - 1))));
+        for (let x = 0; x < W; x++) prof[x] = Filters.clamp01(p.base + src[ry * W + x] * p.scale);
+      }
+      const k = across / Math.max(0.5, p.soft);   // 填充邊緣的抗鋸齒斜率
       for (let y = 0; y < H; y++) {
-        const u = p.flip ? (y + 0.5) / H : 1 - (y + 0.5) / H;   // 預設剖面立在底部
         for (let x = 0; x < W; x++) {
-          let v = Filters.clamp01((prof[x] - u) * k + 0.5);
+          const h = prof[vert ? y : x];
+          // u = 距基準邊的高度(水平切:底部;垂直切:左緣;flip 反向)
+          let u = vert ? (x + 0.5) / W : 1 - (y + 0.5) / H;
+          if (p.flip) u = 1 - u;
+          let v;
+          if (p.style === 'line') {
+            const dist = Math.abs(h - u) * across;
+            v = Filters.clamp01((p.lineW / 2 + p.soft / 2 - dist) / Math.max(0.25, p.soft));
+          } else {
+            const fill = Filters.clamp01((h - u) * k + 0.5);
+            if (p.style === 'solid') v = fill;
+            else {
+              const t = h > 1e-4 ? Filters.clamp01(u / h) : 0;   // 0=基準邊 → 1=曲線頂
+              v = fill * (p.style === 'gmirror' ? 1 - Math.abs(2 * t - 1) : t);
+            }
+          }
           d[y * W + x] = p.invert ? 1 - v : v;
         }
       }
