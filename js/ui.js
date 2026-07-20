@@ -818,6 +818,14 @@ const UI = (() => {
       addNodeAt(el.dataset.type, world.x + 75, world.y + 66, false); // addNodeAt 會扣回節點半寬高
       closeMenu();
     }));
+    // Enter 直接加入第一個符合的節點;Esc 關閉
+    search.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter') {
+        const first = [...m.querySelectorAll('.cm-node')].find(el => el.style.display !== 'none');
+        if (first) { ev.preventDefault(); first.click(); }
+      } else if (ev.key === 'Escape') closeMenu();
+    });
+    setTimeout(() => search.focus(), 0);
     openMenuAt(cx, cy);
     search.focus();
   }

@@ -7,6 +7,7 @@
 const Editor = (() => {
   let clipNode = null;                  // Ctrl+C 複製的節點(型別+參數)
   let lastMouse = { x: 260, y: 200 };   // 畫布世界座標,Ctrl+V 貼上位置
+  let lastScreen = { x: 0, y: 0 };      // 游標螢幕座標,空白鍵開新增節點選單用
   const NODE_W = 150;
   const PORT_Y0 = 46, PORT_DY = 22;
 
@@ -60,6 +61,7 @@ const Editor = (() => {
     vp.addEventListener('mousemove', e => {
       const w = toWorld(e.clientX, e.clientY);
       lastMouse = { x: w.x - 70, y: w.y - 30 };   // 讓節點中心落在游標處
+      lastScreen = { x: e.clientX, y: e.clientY };
     });
 
     // ---- 鍵盤快捷鍵 ----
@@ -101,6 +103,13 @@ const Editor = (() => {
           select({ kind: 'node', id: n.id });
           App.onGraphChanged();
         }
+        return;
+      }
+      if (e.code === 'Space' && !ctrl && !typing
+          && !(document.activeElement && document.activeElement.tagName === 'BUTTON')) {
+        e.preventDefault();
+        const p = lastScreen.x ? lastScreen : { x: innerWidth / 2, y: innerHeight / 2 };
+        UI.showCanvasMenu(p.x, p.y);
         return;
       }
       if (k === 'f' && !ctrl && !typing) { fitView(); return; }
