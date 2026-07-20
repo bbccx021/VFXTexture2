@@ -63,13 +63,14 @@ const UI = (() => {
 
   // ---------- 介面主題(配色)----------
   const THEMES = {
-    teal:    { zh: '深海青', v: { '--bg': '#08100f', '--panel': '#0e1a18', '--panel-2': '#142523', '--line': '#1e332f', '--line-soft': '#172824', '--text': '#d6ece8', '--text-dim': '#7d9c96', '--text-faint': '#4a625d', '--acc': '#17c3a6', '--acc-2': '#34e0c0', '--acc-soft': '#17c3a633', '--on-acc': '#04120e', '--cy': '#ffcc55' } },
-    indigo:  { zh: '皇家藍', v: { '--bg': '#090b14', '--panel': '#10131f', '--panel-2': '#171b2b', '--line': '#232842', '--line-soft': '#191d31', '--text': '#dbe0f0', '--text-dim': '#808aad', '--text-faint': '#4c5476', '--acc': '#4d7cff', '--acc-2': '#6f97ff', '--acc-soft': '#4d7cff33', '--on-acc': '#ffffff', '--cy': '#43e0d0' } },
-    emerald: { zh: '翡翠綠', v: { '--bg': '#08110c', '--panel': '#0e1a12', '--panel-2': '#14251a', '--line': '#1f3527', '--line-soft': '#17281d', '--text': '#dcefe0', '--text-dim': '#82a08c', '--text-faint': '#4d6656', '--acc': '#24c26a', '--acc-2': '#43e08a', '--acc-soft': '#24c26a33', '--on-acc': '#04160c', '--cy': '#f0c04a' } },
-    violet:  { zh: '電馭紫', v: { '--bg': '#0b0c12', '--panel': '#13141d', '--panel-2': '#191b26', '--line': '#262a38', '--line-soft': '#1d2130', '--text': '#d9dcea', '--text-dim': '#838aa0', '--text-faint': '#4e5468', '--acc': '#9d5bff', '--acc-2': '#b47dff', '--acc-soft': '#9d5bff33', '--on-acc': '#ffffff', '--cy': '#3fd8e2' } },
-    crimson: { zh: '暗血紅', v: { '--bg': '#0c0a0b', '--panel': '#16110f', '--panel-2': '#1e1715', '--line': '#2f2320', '--line-soft': '#241b18', '--text': '#ecdedb', '--text-dim': '#9a867f', '--text-faint': '#5f4e49', '--acc': '#d62236', '--acc-2': '#f0384c', '--acc-soft': '#d6223633', '--on-acc': '#ffffff', '--cy': '#e6a23f' } },
-    magenta: { zh: '烈焰洋紅', v: { '--bg': '#0d0b0f', '--panel': '#17131a', '--panel-2': '#1e1922', '--line': '#302632', '--line-soft': '#241d28', '--text': '#ecdce6', '--text-dim': '#9a8592', '--text-faint': '#5f4e5a', '--acc': '#ff2e63', '--acc-2': '#ff5c85', '--acc-soft': '#ff2e6333', '--on-acc': '#ffffff', '--cy': '#3fd8e2' } },
-    ember:   { zh: '熔爐橘', v: { '--bg': '#0b0d10', '--panel': '#14110d', '--panel-2': '#1c1811', '--line': '#2a2318', '--line-soft': '#1f1a12', '--text': '#e6ded0', '--text-dim': '#97897a', '--text-faint': '#574d40', '--acc': '#ff7a1a', '--acc-2': '#ff9440', '--acc-soft': '#ff7a1a33', '--on-acc': '#140a02', '--cy': '#3fd8e2' } },
+    studio:  { zh: '工作室黑', v: { '--bg': '#0a0a0c', '--panel': '#131316', '--panel-2': '#1a1a1e', '--line': '#26262c', '--line-soft': '#1e1e23', '--text': '#e4e4ea', '--text-dim': '#a2a2ae', '--text-faint': '#6b6b78', '--acc': '#4da3ff', '--acc-2': '#74b8ff', '--acc-soft': '#4da3ff30', '--on-acc': '#04101c', '--cy': '#ffc95c', '--track': '#33333c' } },
+    teal:    { zh: '深海青', v: { '--bg': '#08100f', '--panel': '#0e1a18', '--panel-2': '#142523', '--line': '#1e332f', '--line-soft': '#172824', '--text': '#d6ece8', '--text-dim': '#93b3ac', '--text-faint': '#5f7a74', '--track': '#2a453f', '--acc': '#17c3a6', '--acc-2': '#34e0c0', '--acc-soft': '#17c3a633', '--on-acc': '#04120e', '--cy': '#ffcc55' } },
+    indigo:  { zh: '皇家藍', v: { '--bg': '#090b14', '--panel': '#10131f', '--panel-2': '#171b2b', '--line': '#232842', '--line-soft': '#191d31', '--text': '#dbe0f0', '--text-dim': '#97a2c4', '--text-faint': '#646e93', '--track': '#2e3554', '--acc': '#4d7cff', '--acc-2': '#6f97ff', '--acc-soft': '#4d7cff33', '--on-acc': '#ffffff', '--cy': '#43e0d0' } },
+    emerald: { zh: '翡翠綠', v: { '--bg': '#08110c', '--panel': '#0e1a12', '--panel-2': '#14251a', '--line': '#1f3527', '--line-soft': '#17281d', '--text': '#dcefe0', '--text-dim': '#98b7a2', '--text-faint': '#647f6e', '--track': '#2a4634', '--acc': '#24c26a', '--acc-2': '#43e08a', '--acc-soft': '#24c26a33', '--on-acc': '#04160c', '--cy': '#f0c04a' } },
+    violet:  { zh: '電馭紫', v: { '--bg': '#0b0c12', '--panel': '#13141d', '--panel-2': '#191b26', '--line': '#262a38', '--line-soft': '#1d2130', '--text': '#d9dcea', '--text-dim': '#9aa1b7', '--text-faint': '#666d84', '--track': '#333849', '--acc': '#9d5bff', '--acc-2': '#b47dff', '--acc-soft': '#9d5bff33', '--on-acc': '#ffffff', '--cy': '#3fd8e2' } },
+    crimson: { zh: '暗血紅', v: { '--bg': '#0c0a0b', '--panel': '#16110f', '--panel-2': '#1e1715', '--line': '#2f2320', '--line-soft': '#241b18', '--text': '#ecdedb', '--text-dim': '#b19c95', '--text-faint': '#7a6660', '--track': '#3d2f2b', '--acc': '#d62236', '--acc-2': '#f0384c', '--acc-soft': '#d6223633', '--on-acc': '#ffffff', '--cy': '#e6a23f' } },
+    magenta: { zh: '烈焰洋紅', v: { '--bg': '#0d0b0f', '--panel': '#17131a', '--panel-2': '#1e1922', '--line': '#302632', '--line-soft': '#241d28', '--text': '#ecdce6', '--text-dim': '#b19caa', '--text-faint': '#7a6674', '--track': '#3e3241', '--acc': '#ff2e63', '--acc-2': '#ff5c85', '--acc-soft': '#ff2e6333', '--on-acc': '#ffffff', '--cy': '#3fd8e2' } },
+    ember:   { zh: '熔爐橘', v: { '--bg': '#0b0d10', '--panel': '#14110d', '--panel-2': '#1c1811', '--line': '#2a2318', '--line-soft': '#1f1a12', '--text': '#e6ded0', '--text-dim': '#b0a290', '--text-faint': '#726555', '--track': '#392f22', '--acc': '#ff7a1a', '--acc-2': '#ff9440', '--acc-soft': '#ff7a1a33', '--on-acc': '#140a02', '--cy': '#3fd8e2' } },
   };
   function applyTheme(name) {
     const t = THEMES[name] || THEMES.teal;
@@ -82,7 +83,7 @@ const UI = (() => {
   function initTheme() {
     let saved = null;
     try { saved = localStorage.getItem('texforge_theme2'); } catch (e) {}
-    if (!saved || !THEMES[saved]) saved = 'indigo';   // 預設皇家藍
+    if (!saved || !THEMES[saved]) saved = 'studio';   // 預設工作室黑(中性底不干擾貼圖判色)
     applyTheme(saved);
     const sel = document.getElementById('theme-select');
     if (sel) sel.addEventListener('change', e => applyTheme(e.target.value));
@@ -688,13 +689,14 @@ const UI = (() => {
 
   function buildGallery() {
     const body = document.getElementById('gallery-body');
+    const CAT_COLORS = { hit: '#ff6a4d', trail: '#4dc3ff', energy: '#ffab33', light: '#ffe14d', ringcat: '#b07dff', element: '#4dffa0', surface: '#8a97a8' };
     let html = '';
     for (const [catKey, catName] of Presets.cats) {
       const items = Object.entries(Presets.meta).filter(([, m]) => m.cat === catKey);
       if (!items.length) continue;
       html += `<div class="g-cat">${tr(catName)}</div><div class="g-grid">`;
       for (const [name, m] of items) {
-        html += `<div class="g-card" data-preset="${name}" title="載入「${m.name}」節點鏈">
+        html += `<div class="g-card" data-preset="${name}" style="--gc:${CAT_COLORS[catKey] || 'var(--line)'}" title="載入「${m.name}」節點鏈">
           <canvas width="128" height="128"></canvas>
           <div class="g-name"><span>${m.emoji} ${window.APP_LANG === 'en' ? m.en : m.name}</span><span class="en">${window.APP_LANG === 'en' ? '' : m.en}</span></div></div>`;
       }
@@ -953,6 +955,12 @@ const UI = (() => {
     initTheme();
     applyStaticLang();
     initPanelToggles();
+    const smBtn = document.getElementById('btn-settings');
+    const sm = document.getElementById('settings-menu');
+    smBtn.addEventListener('click', e => { e.stopPropagation(); sm.classList.toggle('hidden'); });
+    document.addEventListener('click', e => {
+      if (!sm.classList.contains('hidden') && !sm.contains(e.target)) sm.classList.add('hidden');
+    });
     const langSel = document.getElementById('lang-select');
     if (langSel) {
       langSel.value = window.APP_LANG;

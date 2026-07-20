@@ -51,7 +51,7 @@ const I18N_EN = {
   '🖼 範本牆按鈕': 'Gallery',
   '🔧 進階編輯': 'Advanced Edit',
   /* ---- 主題 ---- */
-  '深海青': 'Deep Teal', '皇家藍': 'Royal Blue', '翡翠綠': 'Emerald', '電馭紫': 'Cyber Violet',
+  '工作室黑': 'Studio Black', '深海青': 'Deep Teal', '皇家藍': 'Royal Blue', '翡翠綠': 'Emerald', '電馭紫': 'Cyber Violet',
   '暗血紅': 'Crimson', '烈焰洋紅': 'Magenta', '熔爐橘': 'Ember',
   /* ---- 節點分類 ---- */
   '基礎圖形': 'Generators', '雜訊': 'Noise', '變形扭曲': 'Distort', '混合': 'Blend',
@@ -149,6 +149,7 @@ const I18N_EN = {
   '高度位移': 'Height Offset', '高度縮放': 'Height Scale', '黑白反轉': 'Invert', '黑點 (0.00)': 'Black (0.00)',
   '黑點位置': 'Black Point',
   '節點': 'nodes',
+  '🌐 語言': '🌐 Language', '🎨 主題': '🎨 Theme',
   '收合節點庫': 'Collapse node library', '展開節點庫': 'Expand node library',
   '收合預覽面板': 'Collapse preview panel', '展開預覽面板': 'Expand preview panel',
   /* ---- 巨集滑桿標籤 ---- */
@@ -214,8 +215,7 @@ window.applyStaticLang = function () {
   document.querySelectorAll('#preview-bg option').forEach(o => { o.textContent = tr(o.textContent.trim()); });
   // 主題選項
   document.querySelectorAll('#theme-select option').forEach(o => {
-    const zh = o.textContent.replace('🎨 ', '').trim();
-    o.textContent = '🎨 ' + tr(zh);
+    o.textContent = tr(o.textContent.trim());
   });
   // 區塊標題(預覽/參數 — sec-title 的第一個文字節點)
   document.querySelectorAll('.sec-title').forEach(el => {
@@ -224,6 +224,7 @@ window.applyStaticLang = function () {
   });
   [['#lib-collapse','收合節點庫'],['#lib-expand','展開節點庫'],['#insp-collapse','收合預覽面板'],['#insp-expand','展開預覽面板']]
     .forEach(([sel, zh]) => { const el = document.querySelector(sel); if (el) el.title = tr(zh); });
+  document.querySelectorAll('#settings-menu .sm-label').forEach(l => { l.textContent = tr(l.textContent.trim()); });
   const pe = document.querySelector('.params-empty');
   if (pe) pe.textContent = tr('點選節點以編輯參數');
 };

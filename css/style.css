@@ -280,6 +280,20 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 #insp-resize:hover, #insp-resize.dragging { background:var(--acc-soft); }
 #app.simple #insp-resize { display:none; }   /* 精簡模式為自適應雙欄,不需拖曳 */
 
+/* ---- 頂列 ⚙ 設定選單 ---- */
+#settings-menu {
+  position:fixed; top:52px; right:10px; z-index:80;
+  min-width:210px; padding:10px 12px;
+  background:var(--panel); border:1px solid var(--line); border-radius:9px;
+  box-shadow:0 14px 40px #000c;
+}
+#settings-menu.hidden { display:none; }
+.sm-row { display:flex; align-items:center; gap:8px; margin:7px 0; }
+.sm-row select { flex:1; }
+.sm-row button { flex:1; }
+.sm-label { font-size:11.5px; color:var(--text-dim); white-space:nowrap; }
+.sm-sep { border-top:1px solid var(--line-soft); margin:9px -12px; }
+
 /* ---- 面板收合:節點庫 / 預覽面板 ---- */
 .panel-toggle {
   position:absolute; top:50%; transform:translateY(-50%);
@@ -326,7 +340,7 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 }
 .prow input[type="range"] {
   width:100%; height:4px; -webkit-appearance:none; appearance:none;
-  background:linear-gradient(90deg, var(--acc) var(--fill,50%), var(--line) var(--fill,50%));
+  background:linear-gradient(90deg, var(--acc) var(--fill,50%), var(--track, var(--line)) var(--fill,50%));
   border-radius:2px; outline:none; cursor:pointer;
 }
 .prow input[type="range"]::-webkit-slider-thumb {
@@ -481,6 +495,7 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
 .g-card {
   cursor:pointer; overflow:hidden; position:relative;
   background:#000; border:1px solid var(--line); border-radius:9px;
+  border-left:3px solid var(--gc, var(--line));   /* 分類色條 */
   transition:transform .15s, border-color .15s, box-shadow .15s;
 }
 .g-card:hover {
