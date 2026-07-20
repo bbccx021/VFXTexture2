@@ -389,8 +389,6 @@ const NodeDefs = {
       { k: 'width', label: '線寬', t: 'f', def: 1, min: 0.4, max: 2.5, step: 0.05 },
       { k: 'headW', label: '頭端粗細', t: 'f', def: 1, min: 0.05, max: 1.5, step: 0.01 },
       { k: 'tailW', label: '尾端粗細', t: 'f', def: 0.45, min: 0.05, max: 1.5, step: 0.01 },
-      { k: 'insetHead', label: '頭端內縮', t: 'f', def: 0.02, min: 0.02, max: 0.45, step: 0.005 },
-      { k: 'insetTail', label: '尾端內縮', t: 'f', def: 0.02, min: 0.02, max: 0.45, step: 0.005 },
       { k: 'glow', label: '柔暈比重', t: 'f', def: 1, min: 0, max: 2, step: 0.05 },
       { k: 'endGlow', label: '末端光球', t: 'f', def: 0.55, min: 0, max: 1.2, step: 0.05 },
       { k: 'seed', label: '種子', t: 'seed', def: 3 },
@@ -414,7 +412,7 @@ const NodeDefs = {
       // 主幹(上→下,錐形變細)
       const xTop = 0.5 + (rand() - 0.5) * 0.10;
       const xBot = 0.5 + (rand() - 0.5) * 0.16;
-      const main = Filters.fractalPath(rand, xTop, p.insetHead, xBot, 1 - p.insetTail, 5, p.jag);
+      const main = Filters.fractalPath(rand, xTop, 0.02, xBot, 0.98, 5, p.jag);
       addBolt(main, wBase * p.headW, wBase * p.tailW, 1.0, 0.85);
       // 分支與子分支:斜出、末端收細淡出
       for (let b = 0; b < p.branches; b++) {
@@ -422,8 +420,7 @@ const NodeDefs = {
         const pt = main[pi];
         const dir = rand() < 0.5 ? -1 : 1;
         const ex = pt.x + dir * (0.08 + rand() * 0.16);
-        const yMax = 1 - p.insetTail + 0.02;                     // 分支不垂出主幹內縮範圍
-        const ey = Math.min(yMax, pt.y + 0.12 + rand() * 0.18);
+        const ey = Math.min(0.99, pt.y + 0.12 + rand() * 0.18);
         const bp = Filters.fractalPath(rand, pt.x, pt.y, ex, ey, 4, p.jag * 0.9);
         addBolt(bp, wBase * 0.45, wBase * 0.08, 0.5, 0.08);
         if (rand() > 0.6) {
@@ -431,7 +428,7 @@ const NodeDefs = {
           const sp = bp[spi];
           const sp2 = Filters.fractalPath(rand, sp.x, sp.y,
             sp.x + dir * (0.06 + rand() * 0.12),
-            Math.min(yMax, sp.y + 0.10 + rand() * 0.12), 3, p.jag * 0.9);
+            Math.min(0.99, sp.y + 0.10 + rand() * 0.12), 3, p.jag * 0.9);
           addBolt(sp2, wBase * 0.25, wBase * 0.05, 0.4, 0.06);
         }
       }
