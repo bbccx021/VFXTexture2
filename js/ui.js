@@ -88,6 +88,36 @@ const UI = (() => {
     if (sel) sel.addEventListener('change', e => applyTheme(e.target.value));
   }
 
+  // ---------- 進階模式預覽面板寬度(拖曳左緣自由縮放)----------
+  function initInspectorResize() {
+    const rs = document.getElementById('insp-resize');
+    if (!rs) return;
+    try {
+      const w = +localStorage.getItem('texforge_inspw');
+      if (w >= 280) document.documentElement.style.setProperty('--insp-w', w + 'px');
+    } catch (e) {}
+    rs.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startW = document.getElementById('inspector').getBoundingClientRect().width;
+      rs.classList.add('dragging');
+      rs.setPointerCapture(e.pointerId);
+      let w = startW;
+      const move = ev => {
+        w = Math.max(280, Math.min(innerWidth * 0.7, startW + (startX - ev.clientX)));
+        document.documentElement.style.setProperty('--insp-w', w + 'px');
+      };
+      const up = () => {
+        rs.classList.remove('dragging');
+        rs.removeEventListener('pointermove', move);
+        rs.removeEventListener('pointerup', up);
+        try { localStorage.setItem('texforge_inspw', Math.round(w)); } catch (e2) {}
+      };
+      rs.addEventListener('pointermove', move);
+      rs.addEventListener('pointerup', up);
+    });
+  }
+
   // ---------- buffer → canvas ----------
   function bufToCanvas(buf, W) {
     const cv = document.createElement('canvas');
@@ -888,6 +918,7 @@ const UI = (() => {
     previewCtx = previewCv.getContext('2d');
     perfEl = document.getElementById('perf');
     initTheme();
+    initInspectorResize();
     buildLibrary();
 
     document.getElementById('preview-res').addEventListener('change', () => {

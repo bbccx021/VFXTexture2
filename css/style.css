@@ -236,7 +236,8 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 
 /* ---- 檢視器 ---- */
 #inspector {
-  width:300px; flex-shrink:0;
+  width:var(--insp-w, 460px); flex-shrink:0;
+  position:relative;
   background:var(--panel);
   border-left:1px solid var(--line);
   display:flex; flex-direction:column;
@@ -270,6 +271,13 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 .preview-ctl select { padding:3px 6px; font-size:11px; }
 .chk { display:flex; align-items:center; gap:5px; cursor:pointer; }
 .chk input { accent-color:var(--acc); }
+
+#insp-resize {
+  position:absolute; left:0; top:0; bottom:0; width:6px;
+  cursor:ew-resize; z-index:5;
+}
+#insp-resize:hover, #insp-resize.dragging { background:var(--acc-soft); }
+#app.simple #insp-resize { display:none; }   /* 精簡模式為自適應雙欄,不需拖曳 */
 
 #params-sec { flex:1; min-height:0; display:flex; flex-direction:column; }
 #params { flex:1; overflow-y:auto; padding:2px 14px 20px; }
