@@ -317,7 +317,7 @@ const NodeDefs = {
   /* ==== 移植自 NoiseGenerator 的五個特效生成器(bbccx021.github.io/NoiseGenerator)==== */
 
   slashArc: {
-    title: 'Slash Arc', zh: '弧月斬擊', cat: 'gen', inputs: [], out: 'g',
+    title: 'Slash Arc', zh: '弧月斬擊', cat: 'fx', inputs: [], out: 'g',
     params: [
       { k: 'radius', label: '弧半徑', t: 'f', def: 0.36, min: 0.15, max: 0.48, step: 0.005 },
       { k: 'width', label: '弧寬', t: 'f', def: 0.22, min: 0.05, max: 0.4, step: 0.005 },
@@ -354,7 +354,7 @@ const NodeDefs = {
   },
 
   trailStrands: {
-    title: 'Trail Strands', zh: '拖尾絲束', cat: 'gen', inputs: [], out: 'g',
+    title: 'Trail Strands', zh: '拖尾絲束', cat: 'fx', inputs: [], out: 'g',
     params: [
       { k: 'strands', label: '絲束數', t: 'i', def: 4, min: 2, max: 8 },
       { k: 'spread', label: '散開幅度', t: 'f', def: 0.26, min: 0.05, max: 0.6, step: 0.01 },
@@ -396,7 +396,7 @@ const NodeDefs = {
   },
 
   boltGen: {
-    title: 'Bolt', zh: '閃電束', cat: 'gen', inputs: [], out: 'g',
+    title: 'Bolt', zh: '閃電束', cat: 'fx', inputs: [], out: 'g',
     params: [
       { k: 'jag', label: '鋸齒程度', t: 'f', def: 0.5, min: 0.15, max: 0.8, step: 0.01 },
       { k: 'branches', label: '分支數', t: 'i', def: 3, min: 0, max: 6 },
@@ -477,7 +477,7 @@ const NodeDefs = {
   },
 
   ringBolt: {
-    title: 'Ring Bolt', zh: '環形電圈', cat: 'gen', inputs: [], out: 'g',
+    title: 'Ring Bolt', zh: '環形電圈', cat: 'fx', inputs: [], out: 'g',
     params: [
       { k: 'radius', label: '半徑', t: 'f', def: 0.32, min: 0.15, max: 0.42, step: 0.005 },
       { k: 'loops', label: '環數', t: 'i', def: 2, min: 1, max: 3 },
@@ -542,7 +542,7 @@ const NodeDefs = {
   },
 
   magicCircle: {
-    title: 'Magic Circle', zh: '魔法陣', cat: 'gen', inputs: [], out: 'g',
+    title: 'Magic Circle', zh: '魔法陣', cat: 'fx', inputs: [], out: 'g',
     params: [
       { k: 'scale', label: '陣形半徑', t: 'f', def: 1, min: 0.55, max: 1.2, step: 0.01 },
       { k: 'ticks', label: '刻度數', t: 'i', def: 30, min: 12, max: 48 },
@@ -781,7 +781,7 @@ const NodeDefs = {
   },
 
   crossProfile: {
-    title: 'Cross Section', zh: '剖面曲線', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    title: 'Cross Profile', zh: '剖面曲線', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     // 取一條掃描線,把亮度當高度畫成剖面圖(對齊 SD Cross Section:切向/繪製樣式/位移縮放)
     params: [
       { k: 'axis', label: '切片方向', t: 'sel', def: 'h', opts: [['h', '水平切(剖面立在下方)'], ['v', '垂直切(剖面靠左)']] },
@@ -1377,6 +1377,7 @@ const NodeDefs = {
 // 類別中繼資料(節點庫分組 & 顏色)
 const NodeCats = {
   gen:     { zh: '基礎圖形', color: 'var(--cat-gen)' },
+  fx:      { zh: '特效生成', color: 'var(--cat-fx)' },
   noise:   { zh: '雜訊', color: 'var(--cat-noise)' },
   distort: { zh: '變形扭曲', color: 'var(--cat-distort)' },
   blend:   { zh: '混合', color: 'var(--cat-blend)' },

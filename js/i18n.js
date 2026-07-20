@@ -54,7 +54,7 @@ const I18N_EN = {
   '工作室黑': 'Studio Black', '深海青': 'Deep Teal', '皇家藍': 'Royal Blue', '翡翠綠': 'Emerald', '電馭紫': 'Cyber Violet',
   '暗血紅': 'Crimson', '烈焰洋紅': 'Magenta', '熔爐橘': 'Ember',
   /* ---- 節點分類 ---- */
-  '基礎圖形': 'Generators', '雜訊': 'Noise', '變形扭曲': 'Distort', '混合': 'Blend',
+  '基礎圖形': 'Basic Shapes', '特效生成': 'FX Generators', '雜訊': 'Noise', '變形扭曲': 'Distort', '混合': 'Blend',
   '調整': 'Adjust', '上色後製': 'Color',
   /* ---- 節點中文名(EN 模式下作為副標隱藏,備查)---- */
   /* ---- 範本分類 ---- */
