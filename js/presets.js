@@ -1417,6 +1417,7 @@ const Presets = (() => {
         { label: '鋸齒程度', def: 0.35, targets: [['gen', 'jag', 0.15, 0.7]] },
         { label: '分支數量', def: 0.5, targets: [['gen', 'branches', 0, 6]] },
         { label: '光暈強度', def: 0.44, targets: [['gen', 'glow', 0.2, 2]] },
+        { label: '頭尾內縮', def: 0, targets: [['gen', 'insetHead', 0.02, 0.3], ['gen', 'insetTail', 0.02, 0.3]] },
         { label: '色帶層數', def: 0.15, targets: [['po', 'levels', 3, 16]] },
       ],
     },
