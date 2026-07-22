@@ -1365,6 +1365,66 @@ const Presets = (() => {
       ],
     },
 
+    /* ==== SD 教學串法:能量環(圓環相減 → 斜率模糊漸層 → 環形雜訊多向扭曲 → 中心柔化)==== */
+    energyRing: {
+      nodes: [
+        // 一、基礎環:大圓 − 小圓
+        ['big', 'shape', 40, 40, { type: 'disc', size: 0.9, soft: 0.02 }],
+        ['sml', 'shape', 40, 240, { type: 'disc', size: 0.78, soft: 0.02 }],
+        ['ring', 'blend', 240, 130, { mode: 'sub' }],
+        // 二、邊緣漸層:柔圓當斜率圖,外圈保持亮、往中心平滑衰減
+        ['soft1', 'shape', 240, 380, { type: 'blob', size: 1.05, falloff: 1.6 }],
+        ['sb1', 'slopeBlur', 440, 130, { mode: 'blur', intensity: 4.5, samples: 28 }],
+        // 三、扭曲:雜訊經環形映射 → 模糊 → 多向扭曲(不規則邊緣細節)
+        ['nz', 'perlin', 440, 380, { scale: 7, octaves: 3, seed: 13 }],
+        ['smb', 'blur', 620, 380, { mode: 'gauss', amount: 0.8 }],
+                ['mw', 'warp', 340, 130, { mode: 'grad', intensity: 1.4 }],
+        // 四、細節層:負強度 Max 斜率模糊往外擴展,再 Max 疊回
+        ['soft2', 'shape', 840, 380, { type: 'blob', size: 0.85, falloff: 2 }],
+        ['sb2', 'slopeBlur', 840, 130, { mode: 'max', intensity: -2, samples: 16 }],
+        ['db', 'blur', 1000, 130, { mode: 'gauss', amount: 0.6 }],
+        ['mx', 'blend', 1160, 200, { mode: 'max', opacity: 0.55 }],
+        ['core', 'blend', 1160, 60, { mode: 'max', opacity: 0.6 }],
+        // 五、中心局部扭曲:雜訊 × 柔圓遮罩,只擾動中心區
+        ['cn', 'perlin', 1000, 430, { scale: 4, octaves: 2, seed: 31 }],
+        ['cmask', 'shape', 1000, 570, { type: 'blob', size: 1.1, falloff: 1.4 }],
+        ['cmul', 'blend', 1160, 500, { mode: 'mul' }],
+        ['cmb', 'blur', 1300, 500, { mode: 'gauss', amount: 1.5 }],
+        ['cw', 'warp', 1320, 200, { mode: 'grad', intensity: 1.2 }],
+        // 六、中心漸層修飾:減去縮小柔圓再大幅模糊 → 黑到灰的平滑過渡
+        ['soft3', 'shape', 1320, 640, { type: 'blob', size: 0.55, falloff: 2.4 }],
+        ['s3b', 'blur', 1460, 640, { mode: 'gauss', amount: 8 }],
+        ['csub', 'blend', 1480, 200, { mode: 'sub', opacity: 0.55 }],
+        // 七、平衡與上色
+        ['al', 'autoLevels', 1640, 200, { amount: 0.9 }],
+        ['fin', 'blur', 1780, 200, { mode: 'gauss', amount: 0.5 }],
+        ['grad', 'gradientMap', 1920, 200, { preset: 'celMagic', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 2080, 200],
+      ],
+      links: [
+        ['sml', 'ring', 0], ['big', 'ring', 1],
+        ['mw', 'sb1', 0], ['soft1', 'sb1', 1],
+        ['nz', 'smb'],
+        ['ring', 'mw', 0], ['smb', 'mw', 1],
+        ['sb1', 'sb2', 0], ['soft2', 'sb2', 1],
+        ['sb2', 'db'],
+        ['db', 'mx', 0], ['sb1', 'mx', 1],
+        ['mw', 'core', 0], ['mx', 'core', 1],
+        ['cn', 'cmul', 0], ['cmask', 'cmul', 1], ['cmul', 'cmb'],
+        ['core', 'cw', 0], ['cmb', 'cw', 1],
+        ['soft3', 's3b'],
+        ['s3b', 'csub', 0], ['cw', 'csub', 1],
+        ['csub', 'al'], ['al', 'fin'], ['fin', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '環厚度', def: 0.35, targets: [['sml', 'size', 0.84, 0.4]] },
+        { label: '邊緣暈開', def: 0.3, targets: [['sb1', 'intensity', 0.5, 6]] },
+        { label: '邊緣擾動', def: 0.35, targets: [['mw', 'intensity', 0, 4]] },
+        { label: '有機擾動', def: 0.4, targets: [['cw', 'intensity', 0, 3]] },
+        { label: '外圈亮線', def: 0.6, targets: [['core', 'opacity', 0, 1]] },
+      ],
+    },
+
     /* ==== SD 教學串法:風格化閃電(Stripe 碎裂 → 多向扭曲 → 剖面分支 → 雙層模糊輝光)==== */
     stylizedLightning: {
       nodes: [
@@ -1524,6 +1584,7 @@ const Presets = (() => {
     slash:         { emoji: '⚔', name: '近戰揮砍', en: 'Melee Slash', cat: 'trail' },
     groundSlash:   { emoji: '🌋', name: '地面斬擊', en: 'Ground Slash', cat: 'trail' },
     stylizedLightning: { emoji: '⛈', name: '風格化閃電', en: 'Stylized Lightning', cat: 'light' },
+    energyRing:    { emoji: '🌀', name: '能量環', en: 'Energy Ring', cat: 'ringcat' },
     celSlash:      { emoji: '🌙', name: '卡通斬月', en: 'Cel Slash', cat: 'trail' },
     celTrail:      { emoji: '☄', name: '卡通拖尾', en: 'Cel Trail', cat: 'trail' },
     celBolt:       { emoji: '🌩', name: '卡通閃電束', en: 'Cel Bolt', cat: 'light' },

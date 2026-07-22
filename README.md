@@ -56,7 +56,7 @@ python -m http.server 8321
 - **風格化**:Bevel、Distance(距離場)、Cel Shade(卡通打光 — 硬切終端線)、Posterize(色調分離)、Outline(描邊)
 - **上色後製**:**Color Adjust(色彩調整 — 色相/飽和/亮度/對比/透明度)**、Gradient Map(16 種色帶:8 組風格化色相位移 + 8 組原始漸層;含色階量化與輪廓銳利度)、Glow、Output
 
-## 內建範本(49 種,覆蓋 1MaFX 常見特效貼圖分類)
+## 內建範本(50 種,覆蓋 1MaFX 常見特效貼圖分類)
 
 | 分類 | 範本 |
 |---|---|
@@ -64,7 +64,7 @@ python -m http.server 8321
 | 拖尾 / 揮砍 | ➰ 一般拖尾 Trail · 🎗 風格化拖尾 Stylized Trail · ⚔ 近戰揮砍 Melee Slash · 🌋 地面斬擊 Ground Slash · 🌙 卡通斬月 Cel Slash · ☄ 卡通拖尾 Cel Trail |
 | 火焰 / 能量 | 🔥 火焰 Flame · ☄ 火球 Fireball · 🚀 投射物 Projectile · 🔫 槍口火光 Muzzle Flash · 🎇 火花碎片 Sparks · 🎞 碎片四格圖 2×2 Flipbook |
 | 電光 / 鏡頭 | ⚡ 閃電 Lightning · ⛈ 風格化閃電 Stylized Lightning · 🔆 鏡頭光暈 Lens Flare · 🌩 卡通閃電束 Cel Bolt |
-| 環形 / 圖騰 | 🛡 卡通護盾 Cel Shield · 🪄 魔法陣 Magic Circle · 🔯 卡通魔法陣 Cel Magic Circle · 💫 卡通電圈 Cel Ring Bolt · 🔳 規則圖騰 Pattern |
+| 環形 / 圖騰 | 🛡 卡通護盾 Cel Shield · 🪄 魔法陣 Magic Circle · 🔯 卡通魔法陣 Cel Magic Circle · 💫 卡通電圈 Cel Ring Bolt · 🔳 規則圖騰 Pattern · 🌀 能量環 Energy Ring |
 | 元素 / 自然 | 💦 卡通水花 Cel Splash · 🫧 卡通泡泡 Cel Bubble · 💠 卡通水晶 Cel Crystal · 🌟 卡通星塵 Cel Stardust · 🌪 卡通龍捲風 Cel Tornado · 🔮 能量球 Plasma · ✨ 星芒閃光 Sparkle · 🟡 光塵散景 Bokeh · 🎆 煙花綻放 Firework · 🌀 傳送門 Portal · 💧 水花 Water · ❄ 冰晶 Frost · ☣ 毒液氣泡 Toxic |
 | 表面 / 氛圍 | 🌬 飄絮煙霧 Wispy Smoke · 🪨 卡通岩石 Cel Rock · ☠ 卡通毒霧 Cel Poison · 🕸 裂縫 Cracks · 🪨 地裂 Ground Cracks · 🌫 煙霧 Smoke |
 
