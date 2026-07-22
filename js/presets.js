@@ -1425,6 +1425,44 @@ const Presets = (() => {
       ],
     },
 
+    /* ==== SD 教學串法:波紋拖尾(Perlin → Cross Section 鏡像漸層 → 掃描取線 → Bevel → 扭曲 → 輝光)==== */
+    waveTrail: {
+      nodes: [
+        // 一、Perlin → Cross Section 鏡像漸層:在畫面中央生成一條隨雜訊起伏的線
+        //    scale 壓小以降低重複性,挑出最像單一拖尾的區塊
+        ['nz', 'perlin', 40, 40, { scale: 2, octaves: 2, seed: 17 }],
+        ['cs', 'crossProfile', 220, 40, { axis: 'h', style: 'line', lineW: 14, row: 0.5, scale: 0.42, base: 0.3, soft: 16 }],
+        // 二、Histogram Scan:對比拉滿提取中心線,pos 控制線條粗細
+        ['sc', 'histogramScan', 400, 40, { pos: 0.45, contrast: 0.9 }],
+        // 三、Bevel:中心最亮、平滑向邊緣淡出的能量漸層
+        ['bv', 'bevel', 580, 40, { radius: 1.1, curve: 1.3 }],
+        // 四、扭曲:小尺度 Perlin 推出波紋/漩渦,再以多向扭曲柔化線條
+        ['wn', 'perlin', 580, 280, { scale: 4, octaves: 3, gain: 0.62, seed: 41 }],
+        ['wp', 'warp', 760, 40, { mode: 'grad', intensity: 1.6 }],
+        ['mw', 'multiWarp', 940, 40, { mode: 'max', dirs: 4, intensity: 0.8, angle: 0 }],
+        // 五、Blur + Blend(Max)產生光暈
+        ['gb', 'blur', 1120, 200, { mode: 'gauss', amount: 3 }],
+        ['gl', 'blend', 1300, 100, { mode: 'max', opacity: 0.6 }],
+        ['grad', 'gradientMap', 1480, 100, { preset: 'celIce', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1660, 100],
+      ],
+      links: [
+        ['nz', 'cs'], ['cs', 'sc'], ['sc', 'bv'],
+        ['bv', 'wp', 0], ['wn', 'wp', 1],
+        ['wp', 'mw', 0], ['wn', 'mw', 1],
+        ['mw', 'gb'],
+        ['gb', 'gl', 0], ['mw', 'gl', 1],
+        ['gl', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '拖尾粗細', def: 0.5, targets: [['sc', 'pos', 0.68, 0.16]] },
+        { label: '波紋起伏', def: 0.4, targets: [['nz', 'scale', 1, 6]] },
+        { label: '扭曲強度', def: 0.32, targets: [['wp', 'intensity', 0, 5]] },
+        { label: '線條圓潤', def: 0.32, targets: [['mw', 'intensity', 0, 2.5]] },
+        { label: '光暈強度', def: 0.6, targets: [['gl', 'opacity', 0, 1]] },
+      ],
+    },
+
     /* ==== SD 教學串法:風格化閃電(Stripe 碎裂 → 多向扭曲 → 剖面分支 → 雙層模糊輝光)==== */
     stylizedLightning: {
       nodes: [
@@ -1585,6 +1623,7 @@ const Presets = (() => {
     groundSlash:   { emoji: '🌋', name: '地面斬擊', en: 'Ground Slash', cat: 'trail' },
     stylizedLightning: { emoji: '⛈', name: '風格化閃電', en: 'Stylized Lightning', cat: 'light' },
     energyRing:    { emoji: '🌀', name: '能量環', en: 'Energy Ring', cat: 'ringcat' },
+    waveTrail:     { emoji: '〰', name: '波紋拖尾', en: 'Wave Trail', cat: 'trail' },
     celSlash:      { emoji: '🌙', name: '卡通斬月', en: 'Cel Slash', cat: 'trail' },
     celTrail:      { emoji: '☄', name: '卡通拖尾', en: 'Cel Trail', cat: 'trail' },
     celBolt:       { emoji: '🌩', name: '卡通閃電束', en: 'Cel Bolt', cat: 'light' },
