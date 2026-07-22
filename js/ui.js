@@ -1074,6 +1074,7 @@ const UI = (() => {
     let savedMode = null;
     try { savedMode = localStorage.getItem('texforge_mode'); } catch (e) {}
     if (savedMode === 'advanced') setMode(true);
+    else placeExportControls(false);   // 初始即精簡模式:匯出鈕直接就定位到預覽下方
     document.getElementById('gallery-close').addEventListener('click', closeGallery);
     document.getElementById('gallery').addEventListener('pointerdown', e => {
       if (e.target.id === 'gallery') closeGallery(); // 點背景關閉
