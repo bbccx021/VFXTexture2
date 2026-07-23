@@ -49,7 +49,7 @@ python -m http.server 8321
 
 - **基礎圖形**:Shape(圓/柔邊圓/高斯/多邊形/環/方/尖刺)、Ramp(線性漸層)、**Blob Field(團塊高度場 — 卡通煙團骨架)**、Tile Sampler(Pattern + Mask 輸入)、Splatter Circular(Pattern 輸入)、Shape Mapper
 - **特效生成**(移植自 NoiseGenerator):**Slash Arc(弧月斬擊)**、**Trail Strands(拖尾絲束)**、**Bolt(閃電束 — 碎形折線)**、**Ring Bolt(環形電圈)**、**Magic Circle(魔法陣)**
-- **雜訊**:Perlin Noise(fBm/Billow/Ridged)、Cells/Crystal(Voronoi F1/F2−F1/裂縫/色塊)
+- **雜訊**:Perlin Noise(fBm/Billow/Ridged/湍流/流動/大理石)、Cells/Crystal(Voronoi F1/F2−F1/裂縫/色塊)
 - **變形扭曲**:Warp(梯度/方向)、**Multi-Dir Warp(多向扭曲 — Max 拉飄絮/Min 收邊)**、Slope Blur(斜率模糊 — 裂縫擴張/侵蝕/融化)、Swirl、Cross Section(等高線提取)、**Cross Profile(剖面曲線)**、Transform 2D
 - **混合**:Blend(Normal/Add/Subtract/Multiply/Max/Min/Screen/Difference)
 - **調整**:Histogram Scan、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Auto Levels(自動色階)、Non-Uniform Blur(非均勻模糊)、Bright / Contrast(亮度對比)、Curve(色調曲線)、Clamp / Remap(範圍裁切)

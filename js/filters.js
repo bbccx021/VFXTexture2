@@ -69,15 +69,28 @@ const Filters = (() => {
 
   // fBm 分形疊加。mode: 'fbm' | 'billow' | 'ridged'
   function fbm(u, v, cells, octaves, gain, seed, m) {
+    // flow(域扭曲):座標先被低頻雜訊推移,產生有機流動/漩渦感
+    if (m === 'flow') {
+      const wx = perlinP(u + 1.7, v + 9.2, cells, cells, seed + 2131);
+      const wy = perlinP(u + 8.3, v + 2.8, cells, cells, seed + 3719);
+      u += wx * 0.85; v += wy * 0.85;
+    }
     let sum = 0, amp = 1, tot = 0, freq = 1;
     for (let o = 0; o < octaves; o++) {
       let n = perlinP(u * freq, v * freq, cells * freq, cells * freq, seed + o * 131);
       if (m === 'billow') n = Math.abs(n) * 2 - 1;
       else if (m === 'ridged') { n = 1 - Math.abs(n); n = n * n * 2 - 1; }
+      else if (m === 'turb' || m === 'marble') n = Math.abs(n); // 累加絕對值:尖銳谷、圓潤峰
       sum += amp * n; tot += amp;
       amp *= gain; freq *= 2;
     }
-    return clamp01(sum / tot * 0.5 + 0.5);
+    const r = sum / tot;
+    if (m === 'turb') return clamp01(r);                                   // 0..1 湍流
+    if (m === 'marble') { // 條紋被湍流扭曲;條紋數取整數以維持無縫平鋪
+      const stripes = Math.max(1, Math.round(cells * 0.5));
+      return clamp01(0.5 + 0.5 * Math.sin((u * stripes + r * 1.6) * 2 * Math.PI));
+    }
+    return clamp01(r * 0.5 + 0.5);                                          // fbm / billow / ridged / flow
   }
 
   // ---------- Voronoi / Cells(無縫) ----------

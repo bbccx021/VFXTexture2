@@ -652,7 +652,7 @@ const NodeDefs = {
   perlin: {
     title: 'Perlin Noise', zh: '柏林雜訊', cat: 'noise', inputs: [], out: 'g',
     params: [
-      { k: 'mode', label: '型態', t: 'sel', def: 'fbm', opts: [['fbm', '分形 fBm'], ['billow', '雲絮 Billow'], ['ridged', '山脊 Ridged']] },
+      { k: 'mode', label: '型態', t: 'sel', def: 'fbm', opts: [['fbm', '分形 fBm'], ['billow', '雲絮 Billow'], ['ridged', '山脊 Ridged'], ['turb', '湍流 Turbulence'], ['flow', '流動 Flow'], ['marble', '大理石 Marble']] },
       { k: 'scale', label: '縮放(格)', t: 'i', def: 4, min: 1, max: 32 },
       { k: 'octaves', label: '疊代層數', t: 'i', def: 5, min: 1, max: 8 },
       { k: 'gain', label: '細節強度', t: 'f', def: 0.5, min: 0.1, max: 0.9, step: 0.01 },
