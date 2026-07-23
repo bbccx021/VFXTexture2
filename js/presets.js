@@ -1641,11 +1641,11 @@ const Presets = (() => {
         ['w2', 'warp', 940, 40, { mode: 'grad', intensity: 3.2 }],
         // 五、剪影風格:硬邊剪影 → Posterize(對應 PS Cutout 色階 7)
         ['sc', 'histogramScan', 1120, 40, { pos: 0.36, contrast: 0.72 }],
-        ['bv', 'bevel', 1300, 40, { radius: 3, curve: 1.3 }],
+        ['bv', 'bevel', 1300, 40, { radius: 3.5, curve: 1.8 }],
         ['hn', 'cells', 1300, 280, { mode: 'crystal', scale: 5, contrast: 1.5, seed: 63 }],
         ['hnb', 'blur', 1400, 280, { mode: 'gauss', amount: 1 }],
         ['hw', 'warp', 1480, 40, { mode: 'grad', intensity: 1.8 }],
-        ['po', 'posterize', 1660, 40, { levels: 7, soft: 0.3 }],
+        ['po', 'posterize', 1660, 40, { levels: 5, soft: 0.28, bias: 0.12 }],
         // 六、發光 + 溫度色
         ['gb', 'blur', 1840, 220, { mode: 'gauss', amount: 3 }],
         ['glow', 'blend', 1840, 40, { mode: 'max', opacity: 0.5 }],
@@ -1673,7 +1673,7 @@ const Presets = (() => {
         { label: '內部空隙', def: 0.55, targets: [['hole', 'opacity', 0, 1]] },
         { label: '火舌扭曲', def: 0.55, targets: [['w1', 'intensity', 1, 6]] },
         { label: '內部尖角', def: 0.5, targets: [['hw', 'intensity', 0, 3.6]] },
-        { label: '色階層數', def: 0.57, targets: [['po', 'levels', 3, 10]] },
+        { label: '溫度階層', def: 0.29, targets: [['po', 'levels', 3, 10]] },
       ],
     },
 
