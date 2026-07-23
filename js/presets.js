@@ -1499,6 +1499,64 @@ const Presets = (() => {
       ],
     },
 
+    /* ==== SD 教學串法:放射裂紋(衝擊)(Cells → 圓形映射 → 多向扭曲 → 侵蝕 → 高光發光)==== */
+    radialCrack: {
+      nodes: [
+        // 一、基礎放射線:裂縫雜訊 → 圓形映射(count 2 從中心放射)→ 反轉 → 乘柔圓去方框
+        ['cl', 'cells', 40, 40, { mode: 'edge', scale: 6, contrast: 1.8, seed: 12 }],
+        ['smap', 'shapeMapper', 220, 40, { count: 2, r0: 0.02, r1: 0.7 }],
+        ['soft', 'shape', 220, 260, { type: 'blob', size: 1.1, falloff: 1.3 }],
+        ['mul', 'blend', 560, 40, { mode: 'mul' }],
+        ['msc', 'histogramScan', 660, 40, { pos: 0.5, contrast: 0.78 }],
+        // 二、方向一致的扭曲:細裂縫經 count 6 圓形映射當強度圖 → 兩方向多向扭曲
+        ['cl2', 'cells', 560, 260, { mode: 'edge', scale: 12, contrast: 1.4, seed: 7 }],
+        ['smap2', 'shapeMapper', 740, 260, { count: 6, r0: 0.02, r1: 0.75 }],
+        ['mw', 'multiWarp', 740, 40, { mode: 'avg', dirs: 2, intensity: 1.4, angle: 0 }],
+        // 三、清中心:減去小圓
+        ['cc', 'shape', 740, 460, { type: 'blob', size: 0.22, falloff: 2.4 }],
+        ['csub', 'blend', 920, 40, { mode: 'sub', opacity: 0.6 }],
+        // 四、隨機侵蝕:散佈圓點(中心遮罩反轉保護)→ 減去 → 裂紋隨機缺口
+        ['dots', 'tileSampler', 920, 260, { pattern: 'disc', count: 10, size: 0.5, sizeRand: 0.6, posRand: 1, coverage: 0.5, maskInvert: true, maskThreshold: 0.4, seed: 3 }],
+        ['esub', 'blend', 1100, 40, { mode: 'sub', opacity: 0.4 }],
+        // 五、邊緣細化:模糊 + 距離場做細梯度
+        ['bl', 'blur', 1280, 40, { mode: 'gauss', amount: 0.6 }],
+        // 六、高光發光:碎塊高光 Add + 模糊光暈 Max
+        ['pn', 'perlin', 1280, 260, { scale: 8, octaves: 3, seed: 51 }],
+        ['ph', 'histogramScan', 1460, 260, { pos: 0.8, contrast: 0.85 }],
+        ['pb', 'blur', 1640, 260, { mode: 'gauss', amount: 1 }],
+        ['hadd', 'blend', 1640, 40, { mode: 'add', opacity: 0.18 }],
+        ['gb', 'blur', 1820, 200, { mode: 'gauss', amount: 2.2 }],
+        ['glow', 'blend', 2000, 40, { mode: 'max', opacity: 0.4 }],
+        ['al', 'autoLevels', 2180, 40, { amount: 1 }],
+        ['tf', 'transform', 2280, 40, { sx: 1.3, sy: 1.3, tiling: false }],
+        // 七、上色(熔岩橘紅)
+        ['grad', 'gradientMap', 2360, 40, { preset: 'fire', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 2540, 40],
+      ],
+      links: [
+        ['cl', 'smap'], ['smap', 'iv'],
+        ['smap', 'mul', 0], ['soft', 'mul', 1],
+        ['cl2', 'smap2'],
+        ['mul', 'msc'], ['msc', 'mw', 0], ['smap2', 'mw', 1],
+        ['cc', 'csub', 0], ['mw', 'csub', 1],
+        ['cc', 'dots', 1],
+        ['dots', 'esub', 0], ['csub', 'esub', 1],
+        ['esub', 'bl'],
+        ['pn', 'ph'], ['ph', 'pb'],
+        ['pb', 'hadd', 0], ['bl', 'hadd', 1],
+        ['hadd', 'gb'],
+        ['gb', 'glow', 0], ['hadd', 'glow', 1],
+        ['glow', 'al'], ['al', 'tf'], ['tf', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '裂紋密度', def: 0.4, targets: [['cl', 'scale', 3, 12]] },
+        { label: '裂紋粗細', def: 0.5, targets: [['cl', 'contrast', 2.6, 1.1]] },
+        { label: '扭曲不規則', def: 0.3, targets: [['mw', 'intensity', 0.3, 4]] },
+        { label: '隨機侵蝕', def: 0.4, targets: [['esub', 'opacity', 0, 0.9]] },
+        { label: '高光發光', def: 0.4, targets: [['glow', 'opacity', 0, 1]] },
+      ],
+    },
+
     /* ==== SD 教學串法:風格化閃電(Stripe 碎裂 → 多向扭曲 → 剖面分支 → 雙層模糊輝光)==== */
     stylizedLightning: {
       nodes: [
@@ -1661,6 +1719,7 @@ const Presets = (() => {
     energyRing:    { emoji: '🌀', name: '能量環', en: 'Energy Ring', cat: 'ringcat' },
     waveTrail:     { emoji: '〰', name: '波紋拖尾', en: 'Wave Trail', cat: 'trail' },
     electricTrail: { emoji: '⚡', name: '電力拖尾', en: 'Electric Trail', cat: 'trail' },
+    radialCrack:   { emoji: '☄', name: '放射裂紋', en: 'Radial Crack', cat: 'hit' },
     celSlash:      { emoji: '🌙', name: '卡通斬月', en: 'Cel Slash', cat: 'trail' },
     celTrail:      { emoji: '☄', name: '卡通拖尾', en: 'Cel Trail', cat: 'trail' },
     celBolt:       { emoji: '🌩', name: '卡通閃電束', en: 'Cel Bolt', cat: 'light' },
