@@ -1557,6 +1557,68 @@ const Presets = (() => {
       ],
     },
 
+    /* ==== SD 教學串法:熾熱地裂(Cells 環狀網 → 中心扭曲挖空 → 破碎扭曲 → 隨機侵蝕 → 雙層發光)==== */
+    groundFissure: {
+      nodes: [
+        // 一、環狀裂紋網:裂縫雜訊 → 圓形映射(count 3 放射)→ 乘柔圓 → 提對比
+        ['cl', 'cells', 40, 40, { mode: 'edge', scale: 6, contrast: 1.6, seed: 22 }],
+        ['smap', 'shapeMapper', 220, 40, { count: 3, r0: 0.03, r1: 0.75 }],
+        ['soft', 'shape', 220, 260, { type: 'blob', size: 1.15, falloff: 1.2 }],
+        ['mul', 'blend', 400, 40, { mode: 'mul' }],
+        ['msc', 'histogramScan', 560, 40, { pos: 0.42, contrast: 0.72 }],
+        // 二、破碎扭曲:銳化 Perlin 當強度圖 → 多向扭曲鋸齒破碎
+        ['wn', 'perlin', 560, 260, { scale: 7, octaves: 4, gain: 0.66, seed: 31 }],
+        ['mw', 'multiWarp', 740, 40, { mode: 'avg', dirs: 3, intensity: 1.4, angle: 0 }],
+        // 三、中心挖空:小圓經 Perlin 扭曲 → 減去
+        ['cd', 'shape', 740, 260, { type: 'disc', size: 0.2, soft: 0.06 }],
+        ['cn', 'perlin', 740, 440, { scale: 4, octaves: 2, seed: 9 }],
+        ['cw', 'warp', 900, 260, { mode: 'grad', intensity: 3 }],
+        ['csub', 'blend', 1060, 40, { mode: 'sub', opacity: 0.6 }],
+        // 四、隨機侵蝕:散佈圓點(圓遮罩)→ 大模糊 → 減去(平滑漸層缺口)
+        ['dots', 'tileSampler', 1060, 260, { pattern: 'disc', count: 7, size: 0.5, sizeRand: 0.6, posRand: 1, coverage: 0.4, maskInvert: true, maskThreshold: 0.4, seed: 6 }],
+        ['db', 'blur', 1240, 260, { mode: 'gauss', amount: 4 }],
+        ['esub', 'blend', 1240, 40, { mode: 'sub', opacity: 0.3 }],
+        // 五、發光:輕模糊 + 雙層 blur Max 熱力擴散
+        ['bl', 'blur', 1420, 40, { mode: 'gauss', amount: 0.8 }],
+        ['g1', 'blur', 1600, 180, { mode: 'gauss', amount: 2 }],
+        ['g2', 'blur', 1600, 340, { mode: 'gauss', amount: 5 }],
+        ['gm', 'blend', 1780, 240, { mode: 'max', opacity: 0.5 }],
+        ['glow', 'blend', 1780, 40, { mode: 'max', opacity: 0.45 }],
+        // 六、高光碎塊 Add
+        ['pn', 'perlin', 1780, 440, { scale: 9, octaves: 3, seed: 71 }],
+        ['ph', 'histogramScan', 1960, 440, { pos: 0.78, contrast: 0.85 }],
+        ['hb', 'blur', 2140, 440, { mode: 'gauss', amount: 1.2 }],
+        ['hadd', 'blend', 1960, 40, { mode: 'add', opacity: 0.12 }],
+        // 七、標準化 + 上色(黑紅橘 餘燼)
+        ['al', 'autoLevels', 2140, 40, { amount: 1 }],
+        ['grad', 'gradientMap', 2320, 40, { preset: 'ember', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 2500, 40],
+      ],
+      links: [
+        ['cl', 'smap'],
+        ['smap', 'mul', 0], ['soft', 'mul', 1], ['mul', 'msc'],
+        ['msc', 'mw', 0], ['wn', 'mw', 1],
+        ['cd', 'cw', 0], ['cn', 'cw', 1],
+        ['cw', 'csub', 0], ['mw', 'csub', 1],
+        ['cw', 'dots', 1], ['dots', 'db'],
+        ['db', 'esub', 0], ['csub', 'esub', 1],
+        ['esub', 'bl'],
+        ['bl', 'g1'], ['bl', 'g2'],
+        ['g1', 'gm', 0], ['g2', 'gm', 1],
+        ['gm', 'glow', 0], ['bl', 'glow', 1],
+        ['pn', 'ph'], ['ph', 'hb'],
+        ['hb', 'hadd', 0], ['glow', 'hadd', 1],
+        ['hadd', 'al'], ['al', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '裂紋密度', def: 0.4, targets: [['cl', 'scale', 3, 11]] },
+        { label: '裂紋粗細', def: 0.5, targets: [['cl', 'contrast', 2.4, 1.1]] },
+        { label: '破碎程度', def: 0.35, targets: [['mw', 'intensity', 0.3, 4]] },
+        { label: '隨機侵蝕', def: 0.35, targets: [['esub', 'opacity', 0, 0.8]] },
+        { label: '熱力發光', def: 0.45, targets: [['glow', 'opacity', 0, 1]] },
+      ],
+    },
+
     /* ==== SD 教學串法:風格化閃電(Stripe 碎裂 → 多向扭曲 → 剖面分支 → 雙層模糊輝光)==== */
     stylizedLightning: {
       nodes: [
@@ -1745,6 +1807,7 @@ const Presets = (() => {
     magic:         { emoji: '🪄', name: '魔法陣', en: 'Magic Circle', cat: 'ringcat' },
     pattern:       { emoji: '🔳', name: '規則圖騰', en: 'Pattern', cat: 'ringcat' },
     celSmoke:      { emoji: '☁', name: '卡通煙團', en: 'Cel Smoke', cat: 'surface' },
+    groundFissure: { emoji: '🌋', name: '熾熱地裂', en: 'Ground Fissure', cat: 'surface' },
     wispySmoke:    { emoji: '🌬', name: '飄絮煙霧', en: 'Wispy Smoke', cat: 'surface' },
     celRock:       { emoji: '🪨', name: '卡通岩石', en: 'Cel Rock', cat: 'surface' },
     celPoison:     { emoji: '☠', name: '卡通毒霧', en: 'Cel Poison', cat: 'surface' },
