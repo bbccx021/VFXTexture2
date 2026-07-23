@@ -1677,6 +1677,57 @@ const Presets = (() => {
       ],
     },
 
+    /* ==== SD 教學串法:放射尖刺撞擊(漸層尖刺 → 環狀散佈 → 扭曲 → 斜率/放射模糊發光)==== */
+    spikeImpact: {
+      nodes: [
+        // 一、單根漸層尖刺:Perlin(低 scale)→ 剖面 gradient → 遮罩提取中心一根
+        ['pn', 'perlin', 40, 40, { scale: 2, octaves: 2, seed: 19 }],
+        ['cs', 'crossProfile', 220, 40, { axis: 'h', style: 'gradient', row: 0.5, scale: 0.9, base: 0, soft: 4 }],
+        ['msk', 'shape', 220, 260, { type: 'blob', size: 0.6, falloff: 1.6 }],
+        ['mskT', 'transform', 380, 260, { sx: 0.28, sy: 1, tiling: false }],
+        ['clip', 'blend', 540, 40, { mode: 'mul' }],
+        ['sb', 'blur', 700, 40, { mode: 'gauss', amount: 1 }],
+        // 二、環狀散佈:尖刺當圖案輸入,放射排列
+        ['spl', 'splatterCircular', 880, 40, { count: 15, radius: 0.08, size: 0.62, width: 0.45, sizeRand: 0.4, angJitter: 0.14, radJitter: 0.08, seed: 4 }],
+        // 三、扭曲:Perlin 驅動偏移
+        ['wn', 'perlin', 880, 280, { scale: 5, octaves: 3, seed: 27 }],
+        ['wp', 'warp', 1060, 40, { mode: 'grad', intensity: 1.6 }],
+        ['core', 'shape', 1060, 460, { type: 'gauss', size: 0.3 }],
+        ['cadd', 'blend', 1240, 200, { mode: 'add', opacity: 0.7 }],
+        // 四、斜率模糊向外擴散(soft circle 坡度)
+        ['soft', 'shape', 1060, 280, { type: 'blob', size: 1.1, falloff: 1.4 }],
+        ['slb', 'slopeBlur', 1240, 40, { mode: 'max', intensity: -3, samples: 20 }],
+        // 五、放射模糊發光:兩層 zoom 模糊 Max
+        ['rb1', 'blur', 1420, 200, { mode: 'zoom', amount: 6 }],
+        ['rb2', 'blur', 1420, 360, { mode: 'spin', amount: 2 }],
+        ['rbm', 'blend', 1600, 280, { mode: 'max', opacity: 0.6 }],
+        ['glow', 'blend', 1600, 40, { mode: 'max', opacity: 0.6 }],
+        ['tf', 'transform', 1700, 40, { sx: 1.5, sy: 1.5, tiling: false }],
+        // 六、上色
+        ['grad', 'gradientMap', 1880, 40, { preset: 'celFire', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 2060, 40],
+      ],
+      links: [
+        ['pn', 'cs'],
+        ['msk', 'mskT'],
+        ['cs', 'clip', 0], ['mskT', 'clip', 1],
+        ['clip', 'sb'], ['sb', 'spl'],
+        ['spl', 'wp', 0], ['wn', 'wp', 1],
+        ['wp', 'cadd', 0], ['core', 'cadd', 1], ['cadd', 'slb', 0], ['soft', 'slb', 1],
+        ['slb', 'rb1'], ['slb', 'rb2'],
+        ['rb1', 'rbm', 0], ['rb2', 'rbm', 1],
+        ['rbm', 'glow', 0], ['slb', 'glow', 1],
+        ['glow', 'tf'], ['tf', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '尖刺數量', def: 0.4, targets: [['spl', 'count', 8, 28]] },
+        { label: '尖刺長度', def: 0.5, targets: [['spl', 'size', 0.25, 0.6]] },
+        { label: '尖刺銳度', def: 0.5, targets: [['spl', 'width', 0.15, 0.8]] },
+        { label: '邊緣扭曲', def: 0.35, targets: [['wp', 'intensity', 0, 4]] },
+        { label: '放射發光', def: 0.5, targets: [['glow', 'opacity', 0, 1]] },
+      ],
+    },
+
     /* ==== SD 教學串法:風格化閃電(Stripe 碎裂 → 多向扭曲 → 剖面分支 → 雙層模糊輝光)==== */
     stylizedLightning: {
       nodes: [
@@ -1837,6 +1888,7 @@ const Presets = (() => {
     groundSlash:   { emoji: '🌋', name: '地面斬擊', en: 'Ground Slash', cat: 'trail' },
     stylizedLightning: { emoji: '⛈', name: '風格化閃電', en: 'Stylized Lightning', cat: 'light' },
     stylizedFlame: { emoji: '🔥', name: '風格化火焰', en: 'Stylized Flame', cat: 'energy' },
+    spikeImpact:   { emoji: '💥', name: '放射尖刺', en: 'Spike Impact', cat: 'hit' },
     energyRing:    { emoji: '🌀', name: '能量環', en: 'Energy Ring', cat: 'ringcat' },
     waveTrail:     { emoji: '〰', name: '波紋拖尾', en: 'Wave Trail', cat: 'trail' },
     electricTrail: { emoji: '⚡', name: '電力拖尾', en: 'Electric Trail', cat: 'trail' },
