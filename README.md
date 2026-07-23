@@ -56,12 +56,12 @@ python -m http.server 8321
 - **風格化**:Bevel、Distance(距離場)、Cel Shade(卡通打光 — 硬切終端線)、Posterize(色調分離)、Outline(描邊)
 - **上色後製**:**Color Adjust(色彩調整 — 色相/飽和/亮度/對比/透明度)**、Gradient Map(16 種色帶:8 組風格化色相位移 + 8 組原始漸層;含色階量化與輪廓銳利度)、Glow、Output
 
-## 內建範本(51 種,覆蓋 1MaFX 常見特效貼圖分類)
+## 內建範本(52 種,覆蓋 1MaFX 常見特效貼圖分類)
 
 | 分類 | 範本 |
 |---|---|
 | 打擊 / 衝擊 | 🧨 卡通爆炸 Cel Explosion · 🍄 卡通蘑菇雲 Cel Mushroom · 🧊 卡通冰爆 Cel Ice Burst · ⚡ 卡通落雷 Cel Thunder · 💢 碎裂衝擊 Impact · 🎯 圓形撞擊 Circle Impact · 💥 打擊爆閃 Hit Burst · ⭕ 環狀衝擊波 Shockwave |
-| 拖尾 / 揮砍 | ➰ 一般拖尾 Trail · 🎗 風格化拖尾 Stylized Trail · ⚔ 近戰揮砍 Melee Slash · 🌋 地面斬擊 Ground Slash · 🌙 卡通斬月 Cel Slash · ☄ 卡通拖尾 Cel Trail · 〰 波紋拖尾 Wave Trail |
+| 拖尾 / 揮砍 | ➰ 一般拖尾 Trail · 🎗 風格化拖尾 Stylized Trail · ⚔ 近戰揮砍 Melee Slash · 🌋 地面斬擊 Ground Slash · 🌙 卡通斬月 Cel Slash · ☄ 卡通拖尾 Cel Trail · 〰 波紋拖尾 Wave Trail · ⚡ 電力拖尾 Electric Trail |
 | 火焰 / 能量 | 🔥 火焰 Flame · ☄ 火球 Fireball · 🚀 投射物 Projectile · 🔫 槍口火光 Muzzle Flash · 🎇 火花碎片 Sparks · 🎞 碎片四格圖 2×2 Flipbook |
 | 電光 / 鏡頭 | ⚡ 閃電 Lightning · ⛈ 風格化閃電 Stylized Lightning · 🔆 鏡頭光暈 Lens Flare · 🌩 卡通閃電束 Cel Bolt |
 | 環形 / 圖騰 | 🛡 卡通護盾 Cel Shield · 🪄 魔法陣 Magic Circle · 🔯 卡通魔法陣 Cel Magic Circle · 💫 卡通電圈 Cel Ring Bolt · 🔳 規則圖騰 Pattern · 🌀 能量環 Energy Ring |

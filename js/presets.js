@@ -1463,6 +1463,42 @@ const Presets = (() => {
       ],
     },
 
+    /* ==== SD 教學串法:銳利電力拖尾(細線 → 方向性扭曲 → 多向扭曲 → 微調 → 標準化)==== */
+    electricTrail: {
+      nodes: [
+        // 一、細線起手(同波紋拖尾,但 histogramScan 調得更細)
+        ['nz', 'perlin', 40, 40, { scale: 2, octaves: 2, seed: 29 }],
+        ['cs', 'crossProfile', 220, 40, { axis: 'h', style: 'line', lineW: 7, row: 0.5, scale: 0.4, base: 0.3, soft: 7 }],
+        ['sc', 'histogramScan', 400, 40, { pos: 0.62, contrast: 0.97 }],
+        // 二、方向性扭曲:高頻雜訊 + dir 模式拉出帶方向的長拖尾漸層
+        ['dn', 'perlin', 400, 280, { scale: 7, octaves: 3, gain: 0.6, seed: 5 }],
+        ['dw', 'warp', 580, 40, { mode: 'dir', intensity: 1.8, angle: 180 }],
+        // 三、多向扭曲(min 收邊,增加銳利細節)
+        ['mw', 'multiWarp', 760, 40, { mode: 'max', dirs: 3, intensity: 1, angle: 30 }],
+        // 四、簡單 warp 微調形狀
+        ['wn', 'perlin', 760, 280, { scale: 5, octaves: 2, seed: 61 }],
+        ['fw', 'warp', 940, 40, { mode: 'grad', intensity: 1.4 }],
+        // 五、標準化 + 上色(冷色調:深紫→亮藍)
+        ['al', 'autoLevels', 1120, 40, { amount: 0.9 }],
+        ['grad', 'gradientMap', 1300, 40, { preset: 'ice', steps: 0, alphaGain: 4 }],
+        ['out', 'output', 1480, 40],
+      ],
+      links: [
+        ['nz', 'cs'], ['cs', 'sc'],
+        ['sc', 'dw', 0], ['dn', 'dw', 1],
+        ['dw', 'mw', 0], ['dn', 'mw', 1],
+        ['mw', 'fw', 0], ['wn', 'fw', 1],
+        ['fw', 'al'], ['al', 'grad'], ['grad', 'out'],
+      ],
+      macros: [
+        { label: '拖尾粗細', def: 0.5, targets: [['sc', 'pos', 0.78, 0.42]] },
+        { label: '方向拉伸', def: 0.3, targets: [['dw', 'intensity', 0, 6]] },
+        { label: '拖尾方向', def: 0.5, targets: [['dw', 'angle', -90, 90]] },
+        { label: '銳利細節', def: 0.4, targets: [['mw', 'intensity', 0, 2.5]] },
+        { label: '形狀微調', def: 0.35, targets: [['fw', 'intensity', 0, 4]] },
+      ],
+    },
+
     /* ==== SD 教學串法:風格化閃電(Stripe 碎裂 → 多向扭曲 → 剖面分支 → 雙層模糊輝光)==== */
     stylizedLightning: {
       nodes: [
@@ -1624,6 +1660,7 @@ const Presets = (() => {
     stylizedLightning: { emoji: '⛈', name: '風格化閃電', en: 'Stylized Lightning', cat: 'light' },
     energyRing:    { emoji: '🌀', name: '能量環', en: 'Energy Ring', cat: 'ringcat' },
     waveTrail:     { emoji: '〰', name: '波紋拖尾', en: 'Wave Trail', cat: 'trail' },
+    electricTrail: { emoji: '⚡', name: '電力拖尾', en: 'Electric Trail', cat: 'trail' },
     celSlash:      { emoji: '🌙', name: '卡通斬月', en: 'Cel Slash', cat: 'trail' },
     celTrail:      { emoji: '☄', name: '卡通拖尾', en: 'Cel Trail', cat: 'trail' },
     celBolt:       { emoji: '🌩', name: '卡通閃電束', en: 'Cel Bolt', cat: 'light' },
