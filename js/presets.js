@@ -1622,55 +1622,48 @@ const Presets = (() => {
     /* ==== SD 教學串法:風格化火焰(圓形群 → 蛋形挖洞 → 扭曲銳角 → Posterize 剪影 → 溫度色)==== */
     stylizedFlame: {
       nodes: [
-        // 一、火舌群:扁圓 6x6 散佈 → 垂直拉高成上升感
-        ['ts', 'tileSampler', 40, 40, { pattern: 'disc', count: 6, size: 0.9, sizeRand: 0.5, posRand: 0.7, coverage: 0.7, seed: 8 }],
-        ['tsT', 'transform', 220, 40, { sx: 1, sy: 1.6, oy: 0.05, tiling: false }],
-        // 二、蛋形輪廓遮罩:圓拉成上窄下寬的蛋形,乘上去把火舌限制在火焰範圍內
-        ['egg', 'shape', 40, 280, { type: 'spike', size: 0.95, width: 1.25, falloff: 0.5, soft: 0.08 }],
-        ['eggT', 'transform', 220, 280, { sx: 0.92, sy: 0.8, oy: 0.12, tiling: false }],
+        // 圓形群(接自訂 disc 圖案)→ 垂直拉高成火舌群
+        ['ds', 'shape', -195, 39, { type: 'disc', size: 0.83 }],
+        ['ts', 'tileSampler', 1, 45, { pattern: 'disc', size: 2.6, sizeRand: 0.63, posRand: 0.79, briRand: 1, coverage: 0.7, seed: 8 }],
+        ['tsT', 'transform', 220, 40, { sx: 0.95, sy: 1.25, ox: 0.01, oy: 0.13, tiling: false }],
+        // 蛋形火焰主體 − 圓點群 = 內部空隙
+        ['egg', 'shape', 40, 280, { type: 'spike', size: 0.95, soft: 0.08, falloff: 0.5, width: 1.25 }],
+        ['eggT', 'transform', 220, 280, { sx: 0.84, sy: 0.74, oy: 0.13, tiling: false }],
         ['clip', 'blend', 400, 40, { mode: 'sub', opacity: 0.7 }],
-        // 三、內部挖洞:第二組放大的圓形群 Subtract,製造內部空隙
-        ['ts2', 'tileSampler', 400, 280, { pattern: 'spike', count: 4, size: 0.55, sizeRand: 0.5, posRand: 0.8, coverage: 0.4, seed: 15 }],
         ['hole', 'blend', 580, 40, { mode: 'sub', opacity: 0.5 }],
-        
-        // 四、扭曲:Perlin 讓邊緣不死板 → Cells(模糊過)產生風格化銳角
-        ['pn', 'perlin', 580, 280, { scale: 6, octaves: 3, seed: 11 }],
-        ['w1', 'warp', 760, 40, { mode: 'grad', intensity: 4.5 }],
-        ['cl', 'cells', 760, 280, { mode: 'crystal', scale: 4, contrast: 1.5, seed: 5 }],
-        ['clb', 'blur', 920, 280, { mode: 'gauss', amount: 1.3 }],
-        ['w2', 'warp', 940, 40, { mode: 'grad', intensity: 3.2 }],
-        // 五、剪影風格:硬邊剪影 → Posterize(對應 PS Cutout 色階 7)
+        // Master Warp:perlin 有機 + crystal 大塊尖角
+        ['pn', 'perlin', 580, 280, { octaves: 3, seed: 11 }],
+        ['w1', 'warp', 760, 40, { intensity: 4.5 }],
+        ['cl', 'cells', 791, 265, { mode: 'crystal', scale: 3, contrast: 0.94 }],
+        ['clb', 'blur', 1001, 268, { amount: 0 }],
+        ['w2', 'warp', 935, -21, { intensity: 3.2 }],
         ['sc', 'histogramScan', 1120, 40, { pos: 0.36, contrast: 0.72 }],
-        ['bv', 'bevel', 1300, 40, { radius: 3.5, curve: 1.8 }],
-        ['hn', 'cells', 1300, 280, { mode: 'crystal', scale: 5, contrast: 1.5, seed: 63 }],
-        ['hnb', 'blur', 1400, 280, { mode: 'gauss', amount: 1 }],
-        ['hw', 'warp', 1480, 40, { mode: 'grad', intensity: 1.8 }],
+        // Bevel 溫度層 + 溫度層獨立 crystal warp
+        ['bv', 'bevel', 1303, 37, { radius: 3.5, curve: 1.8 }],
+        ['hn', 'cells', 1198, 280, { mode: 'crystal', scale: 5, contrast: 1.5, seed: 63 }],
+        ['hnb', 'blur', 1400, 280, { amount: 1 }],
+        ['hw', 'warp', 1480, 40, { intensity: 1.8 }],
         ['po', 'posterize', 1660, 40, { levels: 5, soft: 0.28, bias: 0.12 }],
-        // 六、發光 + 溫度色
-        ['gb', 'blur', 1840, 220, { mode: 'gauss', amount: 3 }],
-        ['glow', 'blend', 1840, 40, { mode: 'max', opacity: 0.5 }],
-        ['fn', 'perlin', 1840, 280, { scale: 3, octaves: 2, seed: 88 }],
-        ['fw', 'warp', 2020, 40, { mode: 'grad', intensity: 0.8 }],
-        ['grad', 'gradientMap', 2200, 40, { preset: 'celFire', steps: 0, alphaGain: 4 }],
-        ['out', 'output', 2380, 40],
+        // 發光 + Final Warp + 上色
+        ['gb', 'blur', 2455, 235, { amount: 3 }],
+        ['glow', 'blend', 2502, 0, { opacity: 0.5 }],
+        ['fn', 'perlin', 1587, 281, { scale: 3, octaves: 2, seed: 88 }],
+        ['fw', 'warp', 2432, -207, { intensity: 0.8 }],
+        ['grad', 'gradientMap', 2706, -33, { preset: 'celFire', alphaGain: 4 }],
+        ['out', 'output', 2841, -6],
       ],
       links: [
-        ['ts', 'tsT'], ['egg', 'eggT'],
-        ['tsT', 'clip', 0], ['eggT', 'clip', 1],
-        ['ts2', 'hole', 0], ['clip', 'hole', 1],
-        ['hole', 'w1', 0], ['pn', 'w1', 1],
-        ['cl', 'clb'],
-        ['w1', 'w2', 0], ['clb', 'w2', 1],
-        ['w2', 'sc'], ['sc', 'bv'],
-        ['bv', 'hw', 0], ['hn', 'hnb'], ['hnb', 'hw', 1], ['hw', 'po'],
-        ['po', 'gb'],
-        ['gb', 'glow', 0], ['po', 'glow', 1],
-        ['glow', 'fw', 0], ['fn', 'fw', 1], ['fw', 'grad'], ['grad', 'out'],
+        ['ds', 'ts'], ['ts', 'tsT'], ['egg', 'eggT'],
+        ['tsT', 'clip'], ['eggT', 'clip', 1], ['clip', 'hole', 1],
+        ['hole', 'w1'], ['pn', 'w1', 1],
+        ['cl', 'clb'], ['w1', 'w2'], ['clb', 'w2', 1], ['w2', 'sc'],
+        ['sc', 'bv'], ['bv', 'hw'], ['hn', 'hnb'], ['hnb', 'hw', 1], ['hw', 'po'],
+        ['po', 'gb'], ['gb', 'glow'], ['po', 'glow', 1],
+        ['glow', 'fw'], ['fn', 'fw', 1], ['fw', 'grad'], ['grad', 'out'],
       ],
       macros: [
         { label: '火舌數量', def: 0.4, targets: [['ts', 'count', 4, 9]] },
         { label: '火焰高度', def: 0.45, targets: [['tsT', 'sy', 1.4, 2.6]] },
-        { label: '內部空隙', def: 0.55, targets: [['hole', 'opacity', 0, 1]] },
         { label: '火舌扭曲', def: 0.55, targets: [['w1', 'intensity', 1, 6]] },
         { label: '內部尖角', def: 0.5, targets: [['hw', 'intensity', 0, 3.6]] },
         { label: '溫度階層', def: 0.29, targets: [['po', 'levels', 3, 10]] },
