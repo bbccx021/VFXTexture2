@@ -14,6 +14,7 @@ const Editor = (() => {
   let vp, world, svg, layer;
   const view = { x: 70, y: 40, z: 1 };
   let sel = null;          // { kind:'node', id } | { kind:'link', link }
+  const selSet = new Set(); // 框選的多個節點 id;單選時同步為只含該 id
   let temp = null;         // 連線拖曳中 { nodeId, out, portIdx, x, y }
 
   const catColor = cat => (NodeCats[cat] || {}).color || '#888';
@@ -30,15 +31,51 @@ const Editor = (() => {
       if (e.target !== vp && e.target !== world && e.target !== svg && e.target !== layer) return;
       const sx = e.clientX, sy = e.clientY, ox = view.x, oy = view.y;
       let moved = false;
+      // 中鍵 或 Shift+左鍵 = 平移;左鍵 = 框選多個節點
+      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+        e.preventDefault();
+        const mv = ev => {
+          const dx = ev.clientX - sx, dy = ev.clientY - sy;
+          if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+          view.x = ox + dx; view.y = oy + dy; applyView();
+        };
+        const up = () => {
+          window.removeEventListener('pointermove', mv);
+          window.removeEventListener('pointerup', up);
+        };
+        window.addEventListener('pointermove', mv);
+        window.addEventListener('pointerup', up);
+        return;
+      }
+      // 左鍵拖曳 = 框選矩形
+      const marq = document.createElement('div');
+      marq.className = 'marquee';
+      vp.appendChild(marq);
+      const vr = vp.getBoundingClientRect();
       const mv = ev => {
         const dx = ev.clientX - sx, dy = ev.clientY - sy;
         if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
-        view.x = ox + dx; view.y = oy + dy; applyView();
+        marq.style.left = (Math.min(sx, ev.clientX) - vr.left) + 'px';
+        marq.style.top = (Math.min(sy, ev.clientY) - vr.top) + 'px';
+        marq.style.width = Math.abs(ev.clientX - sx) + 'px';
+        marq.style.height = Math.abs(ev.clientY - sy) + 'px';
       };
-      const up = () => {
+      const up = ev => {
         window.removeEventListener('pointermove', mv);
         window.removeEventListener('pointerup', up);
-        if (!moved) select(null);
+        marq.remove();
+        if (!moved) { select(null); return; }        // 點擊空白 = 清除選取
+        const a = toWorld(sx, sy), b = toWorld(ev.clientX, ev.clientY);
+        const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x, b.x);
+        const y0 = Math.min(a.y, b.y), y1 = Math.max(a.y, b.y);
+        selSet.clear();
+        for (const n of App.graph.nodes.values()) {
+          const cx = n.x + NODE_W / 2, cy = n.y + 45;   // 節點中心點落在框內即選取
+          if (cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1) selSet.add(n.id);
+        }
+        sel = selSet.size ? { kind: 'node', id: [...selSet][selSet.size - 1] } : null;
+        highlight(); drawWires();
+        App.onSelect(selSet.size === 1 ? App.graph.nodes.get(sel.id) : null);
       };
       window.addEventListener('pointermove', mv);
       window.addEventListener('pointerup', up);
@@ -114,7 +151,16 @@ const Editor = (() => {
       }
       if (k === 'f' && !ctrl && !typing) { fitView(); return; }
       if (e.key !== 'Delete' && e.key !== 'Backspace') return;
-      if (typing || !sel) return;
+      if (typing) return;
+      if (selSet.size > 1) {                     // 多選:一次刪除整組節點
+        App.history.push();
+        for (const id of selSet) App.graph.removeNode(id);
+        select(null);
+        rebuild();
+        App.onGraphChanged();
+        return;
+      }
+      if (!sel) return;
       App.history.push();
       if (sel.kind === 'node') App.graph.removeNode(sel.id);
       else App.graph.removeLink(sel.link);
@@ -211,17 +257,23 @@ const Editor = (() => {
     el.addEventListener('pointerdown', e => {
       if (e.target.classList.contains('port')) return;
       e.stopPropagation();
-      select({ kind: 'node', id: node.id });
+      // 點到已在多選集合內的節點 → 保留整組一起拖曳;否則改為單選此節點
+      if (!selSet.has(node.id)) select({ kind: 'node', id: node.id });
       const start = toWorld(e.clientX, e.clientY);
-      const ox = node.x, oy = node.y;
+      // 記錄所有要一起移動的節點起點(多選則整組,否則只有自己)
+      const group = (selSet.size > 1 && selSet.has(node.id)) ? [...selSet] : [node.id];
+      const origins = group.map(id => { const n = App.graph.nodes.get(id); return { id, ox: n.x, oy: n.y }; });
       let pushed = false;
       const mv = ev => {
         if (!pushed) { App.history.push(); pushed = true; } // 移動前存一次復原點
         const cur = toWorld(ev.clientX, ev.clientY);
-        node.x = ox + cur.x - start.x;
-        node.y = oy + cur.y - start.y;
-        el.style.left = node.x + 'px';
-        el.style.top = node.y + 'px';
+        const ddx = cur.x - start.x, ddy = cur.y - start.y;
+        for (const o of origins) {
+          const n = App.graph.nodes.get(o.id);
+          n.x = o.ox + ddx; n.y = o.oy + ddy;
+          const nel = document.getElementById('node-' + o.id);
+          if (nel) { nel.style.left = n.x + 'px'; nel.style.top = n.y + 'px'; }
+        }
         drawWires();
       };
       const up = () => {
@@ -330,6 +382,9 @@ const Editor = (() => {
   // ---------- 選取 ----------
   function select(s) {
     sel = s;
+    // 單選同步多選集合(框選以外的所有選取入口都走這裡)
+    selSet.clear();
+    if (s && s.kind === 'node') selSet.add(s.id);
     highlight();
     drawWires();
     App.onSelect(sel && sel.kind === 'node' ? App.graph.nodes.get(sel.id) : null);
@@ -337,6 +392,13 @@ const Editor = (() => {
 
   function highlight() {
     layer.querySelectorAll('.node').forEach(el => el.classList.remove('sel'));
+    if (selSet.size) {
+      for (const id of selSet) {
+        const el = document.getElementById('node-' + id);
+        if (el) el.classList.add('sel');
+      }
+      return;
+    }
     if (sel && sel.kind === 'node') {
       const el = document.getElementById('node-' + sel.id);
       if (el) el.classList.add('sel');

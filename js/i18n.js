@@ -45,8 +45,8 @@ const I18N_EN = {
   '📄 複製節點': '📄 Duplicate',
   '✂ 斷開所有連線': '✂ Disconnect all',
   '🗑 刪除節點': '🗑 Delete',
-  'Ctrl+Z 復原 · Space 新增節點 · Ctrl+C/V 複製貼上 · F 全覽 · 右鍵選單 · 雙擊連線斷開 · Delete 刪除':
-    'Ctrl+Z Undo · Space Add Node · Ctrl+C/V Copy-Paste · F Fit · Right-click Menu · Double-click Wire to Cut · Delete',
+  'Ctrl+Z 復原 · Space 新增節點 · 框選多選 · 中鍵/Shift 平移 · Ctrl+C/V 複製貼上 · F 全覽 · Delete 刪除':
+    'Ctrl+Z Undo · Space Add Node · Marquee Select · Middle/Shift Pan · Ctrl+C/V Copy-Paste · F Fit · Delete',
   '此節點圖沒有模板滑桿。': 'This graph has no template sliders.',
   '🖼 範本牆按鈕': 'Gallery',
   '🔧 進階編輯': 'Advanced Edit',
@@ -91,6 +91,7 @@ const I18N_EN = {
   '雙圖混合 — 減去挖空、取亮疊加、增值遮罩': 'Two-input blend — subtract, max, multiply…',
   '把柔和漸層掃成高對比硬邊輪廓': 'Scan soft gradients into hard silhouettes',
   '色階 — 黑白點與 Gamma 重新映射': 'Levels — black/white points and gamma',
+  '閾值 — 硬切黑白,分離溫度層/精準遮罩(對比拉滿的掃描)': 'Threshold — hard black/white cut for temperature tiers & masks',
   '亮度對比 — 最直接的明暗與反差控制': 'Brightness / contrast with pivot',
   '色調曲線 — 五點控制暗部/中間調/亮部,做 S 曲線或反差': 'Five-point tone curve — S-curves & contrast',
   '範圍裁切 — 只保留某段灰階並拉伸回滿幅,挑亮度層做遮罩': 'Clamp a gray range and restretch — isolate bands',
@@ -203,7 +204,7 @@ window.applyStaticLang = function () {
   setTxt('#btn-clear', tr('清空')); setTxt('#btn-save', tr('存檔')); setTxt('#btn-load', tr('讀檔'));
   setTxt('#btn-recipe', tr('⎘ 配方')); setTxt('#btn-export', tr('⭳ 匯出 PNG'));
   setTxt('.lib-title', tr('節點庫'));
-  setTxt('#hint', tr('Ctrl+Z 復原 · Space 新增節點 · Ctrl+C/V 複製貼上 · F 全覽 · 右鍵選單 · 雙擊連線斷開 · Delete 刪除'));
+  setTxt('#hint', tr('Ctrl+Z 復原 · Space 新增節點 · 框選多選 · 中鍵/Shift 平移 · Ctrl+C/V 複製貼上 · F 全覽 · Delete 刪除'));
   setTxt('.g-title', tr('範本牆')); setTxt('.g-sub', tr('點選縮圖載入完整節點鏈,可自由拆解修改 · Esc 關閉'));
   const bs = document.querySelector('.brand-sub');
   if (bs) bs.textContent = tr('遊戲特效貼圖產生器');

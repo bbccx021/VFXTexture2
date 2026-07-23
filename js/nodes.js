@@ -925,6 +925,36 @@ const NodeDefs = {
     }
   },
 
+  threshold: {
+    title: 'Threshold', zh: '閾值', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    // 硬閾值:符合比較條件輸出白、否則黑。等同對比拉到最大的直方圖掃描,分溫度層/遮罩最精準
+    params: [
+      { k: 'threshold', label: '閾值', t: 'f', def: 0.5, min: 0, max: 1, step: 0.005 },
+      { k: 'mode', label: '比較', t: 'sel', def: 'ge', opts: [['gt', '大於 >'], ['ge', '大於等於 ≥'], ['lt', '小於 <'], ['le', '小於等於 ≤']] },
+      { k: 'soft', label: '邊緣柔度', t: 'f', def: 0, min: 0, max: 0.3, step: 0.005 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, N = W * H, d = new Float32Array(N);
+      const src = grayOf(ins, 0, ctx);
+      const t = p.threshold, sft = p.soft;
+      const lower = p.mode === 'lt' || p.mode === 'le';
+      for (let i = 0; i < N; i++) {
+        const v = src[i];
+        let r;
+        if (sft > 1e-4) {
+          // 柔邊:在閾值附近以 soft 寬度平滑過渡(smoothstep)
+          r = Filters.sstep(t - sft, t + sft, v);
+          if (lower) r = 1 - r;
+        } else {
+          const pass = lower ? v < t : v >= t;   // gt/ge、lt/le 的邊界差異在硬切下無視覺意義
+          r = pass ? 1 : 0;
+        }
+        d[i] = r;
+      }
+      return { t: 'g', d };
+    }
+  },
+
   levels: {
     title: 'Levels', zh: '色階', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
