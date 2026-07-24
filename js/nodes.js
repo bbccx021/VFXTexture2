@@ -918,7 +918,8 @@ const NodeDefs = {
 
   /* ==================== 調整 ==================== */
   histogramScan: {
-    title: 'Histogram Scan', zh: '直方圖掃描', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    // 內部代號仍為 histogramScan(相容舊存檔與配方)
+    title: 'Mask Remap', zh: '遮罩重映射', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
       { k: 'pos', label: '位置', t: 'f', def: 0.5, min: 0, max: 1, step: 0.005 },
       { k: 'contrast', label: '對比', t: 'f', def: 0.5, min: 0, max: 1, step: 0.005 },

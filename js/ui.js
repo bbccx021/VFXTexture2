@@ -439,7 +439,7 @@ const UI = (() => {
     crossProfile: '剖面圖 — 掃描線亮度化為輪廓;實心/漸層/鏡像/線條四種樣式',
     transform: '縮放/旋轉/平移,可關閉拼貼',
     blend: '雙圖混合 — 減去挖空、取亮疊加、增值遮罩',
-    histogramScan: '把柔和漸層掃成高對比硬邊輪廓',
+    histogramScan: '遮罩重映射 — 把柔和漸層掃成高對比硬邊輪廓',
     threshold: '閾值 — 硬切黑白,分離溫度層/精準遮罩(對比拉滿的掃描)',
     levels: '色階 — 黑白點與 Gamma 重新映射',
     brightContrast: '亮度對比 — 最直接的明暗與反差控制',

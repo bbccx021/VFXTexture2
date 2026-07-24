@@ -52,7 +52,7 @@ python -m http.server 8321
 - **雜訊**:Perlin Noise(fBm/Billow/Ridged/湍流/流動/大理石)、Cells/Crystal(Voronoi F1/F2−F1/裂縫/色塊)
 - **變形扭曲**:Warp(梯度/方向)、**Multi-Dir Warp(多向扭曲 — Max 拉飄絮/Min 收邊)**、Slope Blur(斜率模糊 — 裂縫擴張/侵蝕/融化)、Swirl、Cross Section(等高線提取)、**Cross Profile(剖面曲線)**、Transform 2D
 - **混合**:Blend(Normal/Add/Subtract/Multiply/Max/Min/Screen/Difference)
-- **調整**:Histogram Scan、Threshold(閾值)、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Gaussian Blur(高斯模糊 — X/Y 各軸)、Auto Levels(自動色階)、Non-Uniform Blur(非均勻模糊)、Bright / Contrast(亮度對比)、Curve(色調曲線)、Clamp / Remap(範圍裁切)
+- **調整**:Mask Remap(遮罩重映射,原 Mask Remap)、Threshold(閾值)、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Gaussian Blur(高斯模糊 — X/Y 各軸)、Auto Levels(自動色階)、Non-Uniform Blur(非均勻模糊)、Bright / Contrast(亮度對比)、Curve(色調曲線)、Clamp / Remap(範圍裁切)
 - **風格化**:Bevel、Distance(距離場)、Cel Shade(卡通打光 — 硬切終端線)、Posterize(色調分離)、Outline(描邊)
 - **上色後製**:**Color Adjust(色彩調整 — 色相/飽和/亮度/對比/透明度)**、Gradient Map(16 種色帶:8 組風格化色相位移 + 8 組原始漸層;含色階量化與輪廓銳利度)、Glow、Output
 
@@ -76,10 +76,10 @@ python -m http.server 8321
 
 1. **雕刻尖刺**:Polygon 三角形 → Transform(No Tiling)拉長 → 兩顆圓形透過 Blend Subtract 削出弧形刀鋒
 2. **環狀陣列**:尖刺接進 Splatter Circular 的「圖案輸入」×5、加大小/半徑隨機 → 圓形 Subtract 挖空中心
-3. **雜訊打碎**:Cells → Histogram Scan 拉到高對比碎塊 → 圓形 Multiply 限制範圍 → Subtract 從尖刺上打洞
+3. **雜訊打碎**:Cells → Mask Remap 拉到高對比碎塊 → 圓形 Multiply 限制範圍 → Subtract 從尖刺上打洞
 4. **內部波紋**:圓形被 Perlin 驅動的 Warp 扭曲 → 減去小圓 → 不規則圓環 → Max 疊回主圖
 5. **柔化收尾**:Blur 作為引擎 Bloom 基礎
-6. **替代分支**(懸掛在圖下方,點選即可預覽):主圖 → **Distance → Histogram Scan → Blur**,瞬間把銳利尖刺變成水滴般圓潤的柔軟版本
+6. **替代分支**(懸掛在圖下方,點選即可預覽):主圖 → **Distance → Mask Remap → Blur**,瞬間把銳利尖刺變成水滴般圓潤的柔軟版本
 
 ### 🎇 火花碎片 & 🎞 2×2 Flipbook(1MaFX Part 3 隨機形狀產生器)
 
@@ -93,7 +93,7 @@ python -m http.server 8321
 1. **基礎裂縫**:Cells(裂縫模式、高對比)產生細裂縫網
 2. **擴張生長**:**Slope Blur**(驅動 = 反相軟邊圓、Max 模式)讓裂縫沿半徑向外生長 → Multiply 軟圓集中於圓心
 3. **隨機破壞**:軟圓 → Perlin 重度 Warp → Levels 切出不規則塊 → 放射模糊 → Subtract 消除均勻感
-4. **SDF 風格化**:Histogram Scan 重新提亮 → **Distance** 把硬邊裂縫轉成連續發光漸層帶(教學的 Invert→Distance→Invert;我們的 Distance 輸出「近亮遠暗」,等效免反相)
+4. **SDF 風格化**:Mask Remap 重新提亮 → **Distance** 把硬邊裂縫轉成連續發光漸層帶(教學的 Invert→Distance→Invert;我們的 Distance 輸出「近亮遠暗」,等效免反相)
 5. **細節與上色**:低強度 Perlin Warp 微調 + 模糊後 Cells 二次 Warp 破碎邊緣 → 火焰漸層 + Glow = 岩漿地裂
 
 ## 核心演算法備忘(js/filters.js)
@@ -102,11 +102,11 @@ python -m http.server 8321
 - **Voronoi (Cells)**:3×3 鄰域特徵點,回傳 F1 / F2;`F2−F1` 即晶格 (Crystal),反轉即裂縫
 - **Warp(梯度扭曲)**:對強度圖取中央差分梯度,位移 `px = ∇s × intensity × W²/1000`(與解析度無關)
 - **Cross Section**:`1 − |v − pos| / (width/2)` 提取雜訊等高線 → 平滑波浪線(閃電/拖尾核心)
-- **Histogram Scan**:`clamp((v − (pos − w/2)) / w)`,w = 1−contrast → 柔和漸層轉高對比輪廓
+- **Mask Remap**:`clamp((v − (pos − w/2)) / w)`,w = 1−contrast → 柔和漸層轉高對比輪廓
 - **高斯模糊**:可分離兩趟卷積 + wrap;σ>8 時金字塔降採樣遞迴加速(≈25×)
 - **Slope Blur**:預計算斜率圖梯度場,每像素沿梯度連續位移取樣 N 次,以 Max(擴張)/ Min(侵蝕)/ 平均(融化)合成;位移 = 梯度 × intensity × W²/(88×samples)
 - **Bevel**:模糊後 `(b−0.5)×2` 重映射作為假距離場,與原圖取 min → 內縮厚度
-- **Distance**:兩趟 3-4 倒角距離變換(近似歐氏距離,O(N)),`1 − d/maxDist` 輸出;搭配 Histogram Scan 對距離場取等值線 = 形態學圓角化,尖角瞬間變圓潤
+- **Distance**:兩趟 3-4 倒角距離變換(近似歐氏距離,O(N)),`1 − d/maxDist` 輸出;搭配 Mask Remap 對距離場取等值線 = 形態學圓角化,尖角瞬間變圓潤
 - **Glow**:亮度門檻擷取 → 高斯模糊 → Add 疊回(模擬引擎 Bloom)
 
 ## 檔案結構
