@@ -63,17 +63,16 @@ const UI = (() => {
 
   // ---------- 介面主題(配色)----------
   const THEMES = {
-    studio:  { zh: '工作室黑', v: { '--bg': '#0a0a0c', '--panel': '#131316', '--panel-2': '#1a1a1e', '--line': '#26262c', '--line-soft': '#1e1e23', '--text': '#e4e4ea', '--text-dim': '#a2a2ae', '--text-faint': '#6b6b78', '--acc': '#4da3ff', '--acc-2': '#74b8ff', '--acc-soft': '#4da3ff30', '--on-acc': '#04101c', '--cy': '#ffc95c', '--track': '#33333c' } },
-    teal:    { zh: '深海青', v: { '--bg': '#08100f', '--panel': '#0e1a18', '--panel-2': '#142523', '--line': '#1e332f', '--line-soft': '#172824', '--text': '#d6ece8', '--text-dim': '#93b3ac', '--text-faint': '#5f7a74', '--track': '#2a453f', '--acc': '#17c3a6', '--acc-2': '#34e0c0', '--acc-soft': '#17c3a633', '--on-acc': '#04120e', '--cy': '#ffcc55' } },
-    indigo:  { zh: '皇家藍', v: { '--bg': '#090b14', '--panel': '#10131f', '--panel-2': '#171b2b', '--line': '#232842', '--line-soft': '#191d31', '--text': '#dbe0f0', '--text-dim': '#97a2c4', '--text-faint': '#646e93', '--track': '#2e3554', '--acc': '#4d7cff', '--acc-2': '#6f97ff', '--acc-soft': '#4d7cff33', '--on-acc': '#ffffff', '--cy': '#43e0d0' } },
-    emerald: { zh: '翡翠綠', v: { '--bg': '#08110c', '--panel': '#0e1a12', '--panel-2': '#14251a', '--line': '#1f3527', '--line-soft': '#17281d', '--text': '#dcefe0', '--text-dim': '#98b7a2', '--text-faint': '#647f6e', '--track': '#2a4634', '--acc': '#24c26a', '--acc-2': '#43e08a', '--acc-soft': '#24c26a33', '--on-acc': '#04160c', '--cy': '#f0c04a' } },
-    violet:  { zh: '電馭紫', v: { '--bg': '#0b0c12', '--panel': '#13141d', '--panel-2': '#191b26', '--line': '#262a38', '--line-soft': '#1d2130', '--text': '#d9dcea', '--text-dim': '#9aa1b7', '--text-faint': '#666d84', '--track': '#333849', '--acc': '#9d5bff', '--acc-2': '#b47dff', '--acc-soft': '#9d5bff33', '--on-acc': '#ffffff', '--cy': '#3fd8e2' } },
-    crimson: { zh: '暗血紅', v: { '--bg': '#0c0a0b', '--panel': '#16110f', '--panel-2': '#1e1715', '--line': '#2f2320', '--line-soft': '#241b18', '--text': '#ecdedb', '--text-dim': '#b19c95', '--text-faint': '#7a6660', '--track': '#3d2f2b', '--acc': '#d62236', '--acc-2': '#f0384c', '--acc-soft': '#d6223633', '--on-acc': '#ffffff', '--cy': '#e6a23f' } },
-    magenta: { zh: '烈焰洋紅', v: { '--bg': '#0d0b0f', '--panel': '#17131a', '--panel-2': '#1e1922', '--line': '#302632', '--line-soft': '#241d28', '--text': '#ecdce6', '--text-dim': '#b19caa', '--text-faint': '#7a6674', '--track': '#3e3241', '--acc': '#ff2e63', '--acc-2': '#ff5c85', '--acc-soft': '#ff2e6333', '--on-acc': '#ffffff', '--cy': '#3fd8e2' } },
-    ember:   { zh: '熔爐橘', v: { '--bg': '#0b0d10', '--panel': '#14110d', '--panel-2': '#1c1811', '--line': '#2a2318', '--line-soft': '#1f1a12', '--text': '#e6ded0', '--text-dim': '#b0a290', '--text-faint': '#726555', '--track': '#392f22', '--acc': '#ff7a1a', '--acc-2': '#ff9440', '--acc-soft': '#ff7a1a33', '--on-acc': '#140a02', '--cy': '#3fd8e2' } },
+    forge: { zh: '熔光琥珀', v: { '--bg': '#0a0908', '--pit': '#060505', '--panel': '#131110', '--panel-2': '#1a1713', '--line': '#292319', '--line-soft': '#1e1a14', '--text': '#ece5da', '--text-dim': '#a99c8a', '--text-faint': '#6a6053', '--track': '#33291c', '--acc': '#ff9d2e', '--acc-2': '#ffc45c', '--acc-deep': '#c96a10', '--acc-soft': '#ff9d2e24', '--on-acc': '#170c02', '--cy': '#41e0d6' } },
+    iron:  { zh: '寒鐵靛青', v: { '--bg': '#080a0d', '--pit': '#040506', '--panel': '#10141a', '--panel-2': '#161c24', '--line': '#232c38', '--line-soft': '#1a2029', '--text': '#dde7f0', '--text-dim': '#8fa2b5', '--text-faint': '#566473', '--track': '#22303f', '--acc': '#3ec6e0', '--acc-2': '#72e0f2', '--acc-deep': '#1580a0', '--acc-soft': '#3ec6e024', '--on-acc': '#03151c', '--cy': '#ffc95c' } },
+    royal: { zh: '皇家藍', v: { '--bg': '#090b14', '--pit': '#050609', '--panel': '#10131f', '--panel-2': '#171b2b', '--line': '#232842', '--line-soft': '#191d31', '--text': '#dbe0f0', '--text-dim': '#97a2c4', '--text-faint': '#646e93', '--track': '#2e3554', '--acc': '#4d7cff', '--acc-2': '#7fa0ff', '--acc-deep': '#2c4dbb', '--acc-soft': '#4d7cff24', '--on-acc': '#ffffff', '--cy': '#43e0d0' } },
+    jade:  { zh: '翡翠爐', v: { '--bg': '#08110c', '--pit': '#040805', '--panel': '#0e1a12', '--panel-2': '#14251a', '--line': '#1f3527', '--line-soft': '#17281d', '--text': '#dcefe0', '--text-dim': '#98b7a2', '--text-faint': '#647f6e', '--track': '#2a4634', '--acc': '#2fd583', '--acc-2': '#5ceea3', '--acc-deep': '#128a4e', '--acc-soft': '#2fd58324', '--on-acc': '#03160b', '--cy': '#ffc95c' } },
+    blood: { zh: '血月紅', v: { '--bg': '#0d0909', '--pit': '#070404', '--panel': '#171010', '--panel-2': '#201616', '--line': '#332222', '--line-soft': '#261a1a', '--text': '#f0dfdc', '--text-dim': '#b59a95', '--text-faint': '#7a625d', '--track': '#3e2926', '--acc': '#ff5252', '--acc-2': '#ff8a80', '--acc-deep': '#b31f2e', '--acc-soft': '#ff525224', '--on-acc': '#ffffff', '--cy': '#e6a23f' } },
+    volt:  { zh: '紫電', v: { '--bg': '#0b0a12', '--pit': '#060509', '--panel': '#14121e', '--panel-2': '#1b1828', '--line': '#2a2540', '--line-soft': '#201c30', '--text': '#e2ddf0', '--text-dim': '#a196c0', '--text-faint': '#6a6188', '--track': '#332c52', '--acc': '#a86bff', '--acc-2': '#c497ff', '--acc-deep': '#6e35c9', '--acc-soft': '#a86bff24', '--on-acc': '#ffffff', '--cy': '#3fd8e2' } },
+    moon:  { zh: '月銀', v: { '--bg': '#0a0a0c', '--pit': '#050506', '--panel': '#131316', '--panel-2': '#1a1a1e', '--line': '#28282e', '--line-soft': '#1e1e23', '--text': '#e6e6ec', '--text-dim': '#a4a4b0', '--text-faint': '#6c6c78', '--track': '#33333c', '--acc': '#c9d4e4', '--acc-2': '#eef3fa', '--acc-deep': '#8593ab', '--acc-soft': '#c9d4e424', '--on-acc': '#10141c', '--cy': '#ffc95c' } },
   };
   function applyTheme(name) {
-    const t = THEMES[name] || THEMES.teal;
+    const t = THEMES[name] || THEMES.forge;
     const s = document.documentElement.style;
     for (const [k, v] of Object.entries(t.v)) s.setProperty(k, v);
     try { localStorage.setItem('texforge_theme2', name); } catch (e) {}
@@ -83,7 +82,7 @@ const UI = (() => {
   function initTheme() {
     let saved = null;
     try { saved = localStorage.getItem('texforge_theme2'); } catch (e) {}
-    if (!saved || !THEMES[saved]) saved = 'studio';   // 預設工作室黑(中性底不干擾貼圖判色)
+    if (!saved || !THEMES[saved]) saved = 'forge';   // 預設熔光琥珀(Forge)
     applyTheme(saved);
     const sel = document.getElementById('theme-select');
     if (sel) sel.addEventListener('change', e => applyTheme(e.target.value));

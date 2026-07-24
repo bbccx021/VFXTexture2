@@ -51,8 +51,8 @@ const I18N_EN = {
   '🖼 範本牆按鈕': 'Gallery',
   '🔧 進階編輯': 'Advanced Edit',
   /* ---- 主題 ---- */
-  '工作室黑': 'Studio Black', '深海青': 'Deep Teal', '皇家藍': 'Royal Blue', '翡翠綠': 'Emerald', '電馭紫': 'Cyber Violet',
-  '暗血紅': 'Crimson', '烈焰洋紅': 'Magenta', '熔爐橘': 'Ember',
+  '熔光琥珀': 'Forge Amber', '寒鐵靛青': 'Cold Iron', '皇家藍': 'Royal Blue', '翡翠爐': 'Jade Furnace',
+  '血月紅': 'Blood Moon', '紫電': 'Volt Violet', '月銀': 'Moon Silver',
   /* ---- 節點分類 ---- */
   '基礎圖形': 'Basic Shapes', '特效生成': 'FX Generators', '雜訊': 'Noise', '變形扭曲': 'Distort', '混合': 'Blend',
   '調整': 'Adjust', '風格化': 'Stylize', '輸出': 'Output', '上色後製': 'Color',

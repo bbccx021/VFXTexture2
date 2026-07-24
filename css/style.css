@@ -3,19 +3,23 @@
    預設主題:深海青(可於頂列 🎨 切換 7 種配色)
    ============================================================ */
 :root {
-  --bg:        #08100f;
-  --panel:     #0e1a18;
-  --panel-2:   #142523;
-  --line:      #1e332f;
-  --line-soft: #172824;
-  --text:      #d6ece8;
-  --text-dim:  #7d9c96;
-  --text-faint:#4a625d;
-  --acc:       #17c3a6;   /* 深海青 */
-  --acc-2:     #34e0c0;   /* 亮青(hover) */
-  --acc-soft:  #17c3a633;
-  --on-acc:    #04120e;   /* 強調底上的文字 */
-  --cy:        #ffcc55;   /* 金黃輔色 */
+  /* Forge 熔光琥珀(預設;頂列 🎨 可切換 7 色系) */
+  --bg:        #0a0908;
+  --pit:       #060505;
+  --panel:     #131110;
+  --panel-2:   #1a1713;
+  --line:      #292319;
+  --line-soft: #1e1a14;
+  --text:      #ece5da;
+  --text-dim:  #a99c8a;
+  --text-faint:#6a6053;
+  --track:     #33291c;
+  --acc:       #ff9d2e;
+  --acc-2:     #ffc45c;
+  --acc-deep:  #c96a10;
+  --acc-soft:  #ff9d2e24;
+  --on-acc:    #170c02;
+  --cy:        #41e0d6;
 
   /* 玻璃質感 */
   --glass:     color-mix(in srgb, var(--panel) 62%, transparent);
@@ -33,9 +37,9 @@
   --cat-color:   #ff6ea8;
   --cat-out:     #f2f4f8;
 
-  --font-disp: "Chakra Petch", "Noto Sans TC", sans-serif;
-  --font-body: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-  --font-mono: "IBM Plex Mono", Consolas, monospace;
+  --font-disp: "Michroma", "Noto Sans TC", sans-serif;
+  --font-body: "Chivo", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  --font-mono: "Martian Mono", Consolas, monospace;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -52,6 +56,12 @@ body {
   user-select: none;
 }
 
+/* 顆粒質感覆蓋(Forge) */
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9999; opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
 #app { display:flex; flex-direction:column; height:100vh; }
 
 /* ============ 頂列 ============ */
@@ -65,11 +75,11 @@ body {
 }
 .brand { display:flex; align-items:baseline; gap:8px; margin-right:8px; }
 .brand-mark { color:var(--acc); font-size:15px; text-shadow:0 0 12px var(--acc); }
+.brand-name em { font-style:normal; color:var(--acc); text-shadow:0 0 18px color-mix(in srgb, var(--acc) 65%, transparent); }
 .brand-name {
   font-family:var(--font-disp); font-weight:700; font-size:18px;
   letter-spacing:1px; color:var(--text);
 }
-.brand-name em { font-style:normal; color:var(--acc); }
 .brand-sub { font-size:11px; color:var(--text-dim); letter-spacing:.5px; white-space:nowrap; }
 .brand-sub .en { color:var(--text-faint); font-family:var(--font-disp); font-size:10px; letter-spacing:.5px; }
 @media (max-width: 1100px) { .brand-sub .en { display:none; } }
@@ -87,10 +97,15 @@ button {
 }
 button:hover { border-color:var(--acc); color:var(--acc); }
 button.primary {
-  background:var(--acc); border-color:var(--acc); color:var(--on-acc);
-  box-shadow:0 0 16px var(--acc-soft);
+  background:linear-gradient(135deg, var(--acc-2) 0%, var(--acc) 55%, var(--acc-deep) 130%);
+  border-color:transparent; color:var(--on-acc); font-weight:700; letter-spacing:1.5px;
+  box-shadow:0 4px 22px color-mix(in srgb, var(--acc) 35%, transparent), inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .18s, box-shadow .3s;
 }
-button.primary:hover { background:var(--acc-2); color:var(--on-acc); }
+button.primary:hover {
+  transform:translateY(-1px);
+  box-shadow:0 8px 32px color-mix(in srgb, var(--acc) 55%, transparent), inset 0 1px 0 rgba(255,255,255,.4);
+}
 
 select, input[type="number"] {
   font-family:var(--font-mono); font-size:12px; color:var(--text);
@@ -273,6 +288,22 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
   overflow:hidden; background:#000; position:relative;
 }
 #preview { display:block; width:100%; aspect-ratio:1; }
+/* 取景器四角(Forge) */
+#preview-wrap::after {
+  content:""; position:absolute; inset:0; pointer-events:none; z-index:5;
+  --bk:26px; --bw:2px;
+  background:
+    linear-gradient(var(--acc),var(--acc)) 0 0 / var(--bk) var(--bw),
+    linear-gradient(var(--acc),var(--acc)) 0 0 / var(--bw) var(--bk),
+    linear-gradient(var(--acc),var(--acc)) 100% 0 / var(--bk) var(--bw),
+    linear-gradient(var(--acc),var(--acc)) 100% 0 / var(--bw) var(--bk),
+    linear-gradient(var(--acc),var(--acc)) 0 100% / var(--bk) var(--bw),
+    linear-gradient(var(--acc),var(--acc)) 0 100% / var(--bw) var(--bk),
+    linear-gradient(var(--acc),var(--acc)) 100% 100% / var(--bk) var(--bw),
+    linear-gradient(var(--acc),var(--acc)) 100% 100% / var(--bw) var(--bk);
+  background-repeat:no-repeat; opacity:.8;
+  filter:drop-shadow(0 0 6px color-mix(in srgb, var(--acc) 55%, transparent));
+}
 .preview-ctl {
   display:flex; align-items:center; flex-wrap:wrap; gap:7px 8px;
   padding:8px 14px; font-size:11px; color:var(--text-dim);
@@ -369,13 +400,18 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
   padding:1px 7px; border-radius:8px; min-width:38px; text-align:center;
 }
 .prow input[type="range"] {
-  width:100%; height:4px; -webkit-appearance:none; appearance:none;
-  background:linear-gradient(90deg, var(--acc) var(--fill,50%), var(--track, var(--line)) var(--fill,50%));
+  width:100%; height:22px; -webkit-appearance:none; appearance:none;
+  background:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--text-faint) 45%, transparent) 0 1px, transparent 1px 10%) center / 100% 8px no-repeat,
+    linear-gradient(90deg, var(--acc-deep), var(--acc) var(--fill,50%), var(--track, var(--line)) var(--fill,50%)) center / 100% 3px no-repeat;
   border-radius:2px; outline:none; cursor:pointer;
 }
 .prow input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance:none; width:13px; height:13px; border-radius:50%;
-  background:var(--text); border:2px solid var(--acc); cursor:grab;
+  -webkit-appearance:none; width:12px; height:20px; border-radius:4px;
+  background:linear-gradient(90deg, #3d362b 0 4px, var(--acc) 4px 8px, #3d362b 8px 12px),
+             linear-gradient(180deg, #3d362b, #241f18);
+  border:1px solid var(--line); cursor:grab;
+  box-shadow:0 2px 8px rgba(0,0,0,.6), 0 0 8px color-mix(in srgb, var(--acc) 35%, transparent);
 }
 .prow select { width:100%; }
 .prow .seed-row { display:flex; gap:6px; }
@@ -391,7 +427,8 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
   font-family:var(--font-mono);
   flex-shrink:0;
 }
-#perf { color:var(--cy); }
+#perf { color:var(--acc); letter-spacing:.08em; font-size:10px; }
+#hint { letter-spacing:.06em; font-size:10px; }
 
 button.accent { border-color:var(--acc); color:var(--acc); }
 button.accent:hover { background:var(--acc); color:var(--on-acc); }
@@ -637,8 +674,8 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
 
   /* 滑桿加粗、拉鈕放大,方便手指操作 */
   .prow { margin-bottom:16px; }
-  .prow input[type="range"] { height:6px; }
-  .prow input[type="range"]::-webkit-slider-thumb { width:20px; height:20px; }
+  .prow input[type="range"] { height:26px; }
+  .prow input[type="range"]::-webkit-slider-thumb { width:16px; height:24px; }
   .macro-note { font-size:12px; }
 
   /* ---- 進階模式(手機退階):節點庫橫向捲動條,畫布與檢視器上下堆疊 ---- */
