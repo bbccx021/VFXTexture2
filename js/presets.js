@@ -1791,34 +1791,26 @@ const Presets = (() => {
 
     celTrail: {
       nodes: [
-        // 一、硬邊基礎線條:低頻 Perlin 微模糊 → 橫向拉伸 → Cross Section(Line)→ 對比拉滿
         ['pn', 'perlin', 40, 40, { scale: 2, octaves: 2, seed: 12 }],
-        ['pb', 'blur', 200, 40, { mode: 'gauss', amount: 0.4 }],
-        ['cs', 'crossProfile', 520, 40, { axis: 'h', style: 'line', lineW: 12, row: 0.5, scale: 0.44, base: 0.28, soft: 14 }],
-        ['sc', 'histogramScan', 700, 40, { pos: 0.42, contrast: 0.97 }],
-        // 二、圓形咬邊鏤空:圓點只落在線條上(遮罩),Subtract 咬出撕裂破口
-        ['mb', 'blur', 700, 180, { mode: 'gauss', amount: 3 }],
-        ['bites', 'tileSampler', 700, 280, { pattern: 'disc', count: 9, size: 0.5, sizeRand: 0.5, posRand: 1.1, coverage: 0.65, maskThreshold: 0.15, seed: 21 }],
-        ['erode', 'blend', 880, 40, { mode: 'sub', opacity: 0.85 }],
-        // 三、內部沖蝕:拉長的柔化雜訊從中段減去灰度,產生流動透明變化
-        ['en', 'perlin', 880, 280, { scale: 5, octaves: 2, seed: 47 }],
-        ['esc', 'histogramScan', 1040, 280, { pos: 0.55, contrast: 0.3 }],
-        ['isub', 'blend', 1060, 40, { mode: 'sub', opacity: 0.3 }],
-        // 四、卡通發光外框:高強度模糊 Add 疊回 → 核心亮 + 外圍柔光
-        ['gb', 'blur', 1240, 180, { mode: 'gauss', amount: 4 }],
-        ['glow', 'blend', 1420, 40, { mode: 'add', opacity: 0.55 }],
-        // 五、上色:白黃核心 → 橘紅外光
-        ['grad', 'gradientMap', 1600, 40, { preset: 'celFire', steps: 0, alphaGain: 4 }],
-        ['out', 'output', 1780, 40],
+        ['pb', 'blur', 255, 51, { amount: 0.4 }],
+        ['cs', 'crossProfile', 444, -54, { row: 0.415, style: 'line', scale: 0.47, base: 0.34, lineW: 15.5, soft: 19.5 }],
+        ['sc', 'histogramScan', 647, -61, { pos: 0.42, contrast: 0.97 }],
+        ['bites', 'tileSampler', 668, 123, { pattern: 'disc', count: 10, size: 1.2, sizeRand: 0.5, posRand: 1.1, coverage: 0.65, maskThreshold: 0.28, seed: 21 }],
+        ['erode', 'blend', 963, -44, { mode: 'sub', opacity: 0.85 }],
+        ['en', 'perlin', 764, -340, { scale: 5, octaves: 2, seed: 47 }],
+        ['esc', 'histogramScan', 973, -307, { pos: 0.55, contrast: 0.3 }],
+        ['isub', 'blend', 1269, -218, { mode: 'sub', opacity: 0.3 }],
+        ['gb', 'blur', 1453, 189, { amount: 4 }],
+        ['glow', 'blend', 1687, 23, { mode: 'add', opacity: 0.55 }],
+        ['grad', 'gradientMap', 1867, 23, { preset: 'celFire', alphaGain: 4 }],
+        ['out', 'output', 2047, 23],
       ],
       links: [
         ['pn', 'pb'], ['pb', 'cs'], ['cs', 'sc'],
-        ['sc', 'mb'], ['mb', 'bites', 1],
-        ['bites', 'erode', 0], ['sc', 'erode', 1],
-        ['en', 'esc'],
-        ['esc', 'isub', 0], ['erode', 'isub', 1],
-        ['isub', 'gb'],
-        ['gb', 'glow', 0], ['isub', 'glow', 1],
+        ['cs', 'bites', 1],
+        ['bites', 'erode'], ['sc', 'erode', 1],
+        ['en', 'esc'], ['esc', 'isub'], ['erode', 'isub', 1],
+        ['isub', 'gb'], ['gb', 'glow'], ['isub', 'glow', 1],
         ['glow', 'grad'], ['grad', 'out'],
       ],
       macros: [

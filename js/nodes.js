@@ -191,7 +191,9 @@ const NodeDefs = {
     params: [
       { k: 'pattern', label: '圖案(無輸入時)', t: 'sel', def: 'blob', opts: [['blob', '柔邊圓'], ['disc', '實心圓'], ['gauss', '高斯光點'], ['square', '方形'], ['spike', '尖刺']] },
       { k: 'count', label: '格數', t: 'i', def: 6, min: 1, max: 24 },
-      { k: 'size', label: '大小', t: 'f', def: 0.8, min: 0.05, max: 4, step: 0.01 },
+      { k: 'size', label: '大小(整體)', t: 'f', def: 0.8, min: 0.05, max: 4, step: 0.01 },
+      { k: 'sizeX', label: '橫向大小 ×', t: 'f', def: 1, min: 0.05, max: 4, step: 0.01 },
+      { k: 'sizeY', label: '縱向大小 ×', t: 'f', def: 1, min: 0.05, max: 4, step: 0.01 },
       { k: 'sizeRand', label: '大小隨機', t: 'f', def: 0.4, min: 0, max: 1, step: 0.01 },
       { k: 'posRand', label: '位置隨機', t: 'f', def: 0.5, min: 0, max: 2, step: 0.01 },
       { k: 'rotRand', label: '旋轉隨機', t: 'f', def: 0, min: 0, max: 1, step: 0.01 },
@@ -221,11 +223,13 @@ const NodeDefs = {
           if (!keep) continue;
         }
         const sz = cw * 0.5 * p.size * (1 - p.sizeRand * r3);
-        if (sz < 0.001) continue;
+        const szX = sz * (p.sizeX !== undefined ? p.sizeX : 1);   // 各軸再乘倍率(舊存檔無此欄→1)
+        const szY = sz * (p.sizeY !== undefined ? p.sizeY : 1);
+        if (szX < 0.001 && szY < 0.001) continue;
         const rot = r4 * 6.2832 * p.rotRand;
         const bri = 1 - p.briRand * r5;
-        if (img) Filters.stampImage(d, W, H, cx, cy, sz, sz, rot, img, W, H, bri);
-        else Filters.stampInstance(d, W, H, cx, cy, sz, sz, rot, sp, bri);
+        if (img) Filters.stampImage(d, W, H, cx, cy, szX, szY, rot, img, W, H, bri);
+        else Filters.stampInstance(d, W, H, cx, cy, szX, szY, rot, sp, bri);
       }
       return { t: 'g', d };
     }
