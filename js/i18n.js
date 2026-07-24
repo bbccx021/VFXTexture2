@@ -39,6 +39,14 @@ const I18N_EN = {
   '以特效語言調整整條節點鏈;點任何節點可進入進階參數。': 'Tune the whole chain with effect-language sliders; click any node for advanced params.',
   '工作階段': 'Session', '全部': 'All', '範本膠卷': 'Template Reel',
   '色帶編輯器': 'Ramp Editor', '新增自訂色帶': 'New Custom Ramp', '色標': 'Stop', '儲存': 'Save',
+  '重骰種子:相同串法,不同隨機樣式': 'Re-roll seeds: same chain, new random look',
+  '點擊直接輸入數值': 'Click to type a value', '點擊直接輸入 0~100': 'Click to type 0–100',
+  '進階模式:展開底層節點編輯器': 'Advanced: open the node editor',
+  '複製節點串接與參數,可直接貼給 AI 或存成範本': 'Copy chain & params as a recipe',
+  '設定:語言 / 主題 / 檔案': 'Settings: language / theme / files',
+  '拖曳調整參數欄寬度': 'Drag to resize params panel',
+  '拖曳調整膠卷高度': 'Drag to resize reel',
+  '收合/展開膠卷': 'Collapse / expand reel',
   '上次的工作': 'Last Session',
   '空白畫布': 'Blank Canvas',
   '🔍 搜尋節點…': '🔍 Search nodes…',
@@ -207,6 +215,15 @@ window.applyStaticLang = function () {
   setTxt('#btn-gallery', tr('🖼 範本牆'));
   setTxt('#btn-clear', tr('清空')); setTxt('#btn-save', tr('存檔')); setTxt('#btn-load', tr('讀檔'));
   setTxt('#btn-recipe', tr('⎘ 配方')); setTxt('#btn-export', tr('⭳ 匯出 PNG'));
+  setTxt('#btn-mode', tr('🔧 進階'));
+  const setTitle = (sel, zh) => { const el = document.querySelector(sel); if (el) el.title = tr(zh); };
+  setTitle('#btn-mode', '進階模式:展開底層節點編輯器');
+  setTitle('#btn-recipe', '複製節點串接與參數,可直接貼給 AI 或存成範本');
+  setTitle('#btn-settings', '設定:語言 / 主題 / 檔案');
+  setTitle('#sparams-resize', '拖曳調整參數欄寬度');
+  setTitle('#reel-resize', '拖曳調整膠卷高度');
+  setTitle('#strip-toggle', '收合/展開膠卷');
+  const sz = document.querySelector('#strip .s-zh'); if (sz) sz.style.display = 'none';
   setTxt('.lib-title', tr('節點庫'));
   setTxt('#hint', tr('Ctrl+Z 復原 · Space 新增節點 · 框選多選 · 中鍵/Shift 平移 · Ctrl+C/V 複製貼上 · F 全覽 · Delete 刪除'));
   setTxt('.g-title', tr('範本牆')); setTxt('.g-sub', tr('點選縮圖載入完整節點鏈,可自由拆解修改 · Esc 關閉'));

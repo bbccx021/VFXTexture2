@@ -672,7 +672,7 @@ const UI = (() => {
       const fmt = v => p.t === 'i' ? String(v) : (+v).toFixed(p.step >= 1 ? 0 : 2);
       row.innerHTML = `<div class="plabel"><span>${tr(p.label)}</span><span class="pval">${fmt(node.params[p.k])}</span></div>`;
       const pv = row.querySelector('.pval');
-      pv.title = '點擊直接輸入數值';
+      pv.title = tr('點擊直接輸入數值');
       pv.addEventListener('click', () => {
         editValueInline(pv, node.params[p.k], p.min, p.max, p.t === 'i', v => {
           App.history.push();
@@ -758,6 +758,8 @@ const UI = (() => {
     const pick = document.createElement('div');
     pick.className = 'prow macro-pick';
     pick.innerHTML = `<div class="plabel"><span>${tr('特效種類')}</span></div>`;
+    const pickRow = document.createElement('div');
+    pickRow.className = 'pick-row';
     const psel = document.createElement('select');
     for (const [catKey, catName] of Presets.cats) {
       const og = document.createElement('optgroup'); og.label = tr(catName);
@@ -771,7 +773,15 @@ const UI = (() => {
       psel.appendChild(og);
     }
     psel.addEventListener('change', () => loadPreset(psel.value));
-    pick.appendChild(psel);
+    pickRow.appendChild(psel);
+    // 🎲 重骰種子:相同串法與參數,只換所有種子 → 同款不同樣
+    const dice = document.createElement('button');
+    dice.id = 'btn-reroll';
+    dice.textContent = '🎲';
+    dice.title = tr('重骰種子:相同串法,不同隨機樣式');
+    dice.addEventListener('click', () => { randomVariant(); showParams(null); });
+    pickRow.appendChild(dice);
+    pick.appendChild(pickRow);
     wrap.appendChild(pick);
 
     const note = document.createElement('div');
@@ -786,7 +796,7 @@ const UI = (() => {
       const pct = v => Math.round(v * 100) + '%';
       row.innerHTML = `<div class="plabel"><span>${tr(m.label)}</span><span class="pval">${pct(m.value)}</span></div>`;
       const pv = row.querySelector('.pval');
-      pv.title = '點擊直接輸入 0~100';
+      pv.title = tr('點擊直接輸入 0~100');
       pv.addEventListener('click', () => {
         editValueInline(pv, Math.round(m.value * 100), 0, 100, true, v => {
           App.history.push();
@@ -1281,7 +1291,7 @@ const UI = (() => {
         html += `<div class="r-card" data-preset="${name}" data-cat="${catKey}">
           <canvas width="128" height="128"></canvas>
           <div class="n">${m.emoji} ${window.APP_LANG === 'en' ? m.en : m.name}</div>
-          <div class="e">${window.APP_LANG === 'en' ? m.name : m.en}</div></div>`;
+          <div class="e">${window.APP_LANG === 'en' ? '' : m.en}</div></div>`;
       }
     }
     wrap.innerHTML = html;

@@ -454,6 +454,17 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 .ramp-item:hover { transform:scale(1.015); border-color:var(--acc-deep, var(--acc)); }
 .ramp-item.on { border-color:var(--acc); box-shadow:0 0 0 2px var(--acc-soft); }
 
+/* ---- 特效種類列:下拉 + 重骰種子 ---- */
+.pick-row { display:flex; gap:7px; }
+.pick-row select { flex:1; min-width:0; }
+#btn-reroll {
+  flex:none; width:38px; padding:0; font-size:16px; border-radius:6px;
+  border:1px solid var(--acc-deep, var(--acc)); background:var(--acc-soft); color:var(--acc);
+  transition:transform .3s cubic-bezier(.3,1.6,.5,1), box-shadow .2s;
+}
+#btn-reroll:hover { transform:rotate(138deg); box-shadow:0 0 12px var(--acc-soft); color:var(--acc); }
+#btn-reroll:active { transform:rotate(360deg) scale(.9); }
+
 /* ---- 色帶動作鈕 / 新增列 ---- */
 .ramp-acts {
   position:absolute; left:8px; top:50%; transform:translateY(-50%);
