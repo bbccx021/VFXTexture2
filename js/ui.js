@@ -1322,7 +1322,13 @@ const UI = (() => {
       try { localStorage.setItem('texforge_reel', c ? '1' : '0'); } catch (e) {}
     };
     tg.addEventListener('click', () => applyClosed(!strip.classList.contains('closed')));
-    try { if (localStorage.getItem('texforge_reel') === '1') applyClosed(true); } catch (e) {}
+    try {
+      const saved = localStorage.getItem('texforge_reel');
+      if (saved === '1') applyClosed(true);
+      else if (saved === null && matchMedia('(max-width:700px) and (pointer:coarse), (max-width:480px)').matches) {
+        applyClosed(true);   // 手機首次載入預設收合,參數區才放得下;點 ▴ 展開
+      }
+    } catch (e) {}
   }
   // 逐張渲染可見卡片(共用 presetThumb 快取)
   function renderReelThumbs() {
