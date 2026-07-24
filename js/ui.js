@@ -447,6 +447,7 @@ const UI = (() => {
     clampRange: '範圍裁切 — 只保留某段灰階並拉伸回滿幅,挑亮度層做遮罩',
     colorAdjust: '色彩調整 — 上色後修色相/飽和/亮度/對比/透明度',
     invert: '反轉灰階',
+    gaussianBlur: '高斯模糊 — X/Y 各軸倍率,可做方向性拉絲',
     blur: '高斯/方向/放射/旋轉模糊',
     bevel: '為扁平圖形加內斜角假厚度',
     distance: '距離場 — 搭配掃描把尖角變圓潤',
@@ -460,7 +461,7 @@ const UI = (() => {
   };
   // 縮圖示範輸入(依節點特性挑選,讓效果一眼可辨)
   const DEMO_IN = {
-    swirl: ['stripes'], transform: ['stripes'], blur: ['stripes'],
+    swirl: ['stripes'], transform: ['stripes'], blur: ['stripes'], gaussianBlur: ['perlin'],
     warp: ['stripes', 'perlin'], blend: ['stripes', 'blob'],
     slopeBlur: ['stripes', 'perlin'],
     multiWarp: ['blob', 'perlin'], autoLevels: ['perlin'], nonUniformBlur: ['stripes', 'perlin'],
@@ -475,6 +476,7 @@ const UI = (() => {
     transform: { rot: 25, sx: 0.75, sy: 0.75 },
     levels: { gamma: 2.6 },
     blur: { amount: 4 },
+    gaussianBlur: { amount: 6, mulY: 0.08 },
     bevel: { radius: 10, curve: 1.4 },
     shapeMapper: { count: 10, r0: 0.3, r1: 0.8 },
     tileSampler: { size: 1.15, briRand: 0.5 },

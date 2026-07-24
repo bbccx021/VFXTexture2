@@ -45,14 +45,14 @@ python -m http.server 8321
 
 **手機支援**:≤700px 自動切換直向排版 —— 精簡模式為預覽在上、模板滑桿在下(隨螢幕寬度縮放、觸控放大);範本牆改 2 欄;進階模式節點庫變橫向捲動條、畫布與檢視器上下堆疊。
 
-## 節點總覽(40 種)
+## 節點總覽(41 種)
 
 - **基礎圖形**:Shape(圓/柔邊圓/高斯/多邊形/環/方/尖刺)、Ramp(線性漸層)、**Blob Field(團塊高度場 — 卡通煙團骨架)**、Tile Sampler(Pattern + Mask 輸入)、Splatter Circular(Pattern 輸入)、Shape Mapper
 - **特效生成**(移植自 NoiseGenerator):**Slash Arc(弧月斬擊)**、**Trail Strands(拖尾絲束)**、**Bolt(閃電束 — 碎形折線)**、**Ring Bolt(環形電圈)**、**Magic Circle(魔法陣)**
 - **雜訊**:Perlin Noise(fBm/Billow/Ridged/湍流/流動/大理石)、Cells/Crystal(Voronoi F1/F2−F1/裂縫/色塊)
 - **變形扭曲**:Warp(梯度/方向)、**Multi-Dir Warp(多向扭曲 — Max 拉飄絮/Min 收邊)**、Slope Blur(斜率模糊 — 裂縫擴張/侵蝕/融化)、Swirl、Cross Section(等高線提取)、**Cross Profile(剖面曲線)**、Transform 2D
 - **混合**:Blend(Normal/Add/Subtract/Multiply/Max/Min/Screen/Difference)
-- **調整**:Histogram Scan、Threshold(閾值)、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Auto Levels(自動色階)、Non-Uniform Blur(非均勻模糊)、Bright / Contrast(亮度對比)、Curve(色調曲線)、Clamp / Remap(範圍裁切)
+- **調整**:Histogram Scan、Threshold(閾值)、Levels、Invert、Blur(高斯/方向/放射/旋轉)、Gaussian Blur(高斯模糊 — X/Y 各軸)、Auto Levels(自動色階)、Non-Uniform Blur(非均勻模糊)、Bright / Contrast(亮度對比)、Curve(色調曲線)、Clamp / Remap(範圍裁切)
 - **風格化**:Bevel、Distance(距離場)、Cel Shade(卡通打光 — 硬切終端線)、Posterize(色調分離)、Outline(描邊)
 - **上色後製**:**Color Adjust(色彩調整 — 色相/飽和/亮度/對比/透明度)**、Gradient Map(16 種色帶:8 組風格化色相位移 + 8 組原始漸層;含色階量化與輪廓銳利度)、Glow、Output
 
@@ -115,7 +115,7 @@ python -m http.server 8321
 index.html          介面骨架
 css/style.css       深色主題(7 種可切換配色)+ 玻璃質感面板
 js/filters.js       演算法核心(純函式,無 DOM 依賴,可在 Node 直接跑)
-js/nodes.js         40 種節點定義(參數 + eval)
+js/nodes.js         41 種節點定義(參數 + eval)
 js/graph.js         DAG 模型、拓撲評估、快取、防迴圈、序列化
 js/editor.js        節點圖編輯器(拖曳/連線/平移縮放)
 js/presets.js       內建範本

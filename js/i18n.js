@@ -100,6 +100,8 @@ const I18N_EN = {
   '色彩調整 — 上色後修色相/飽和/亮度/對比/透明度': 'Hue / saturation / brightness / contrast / alpha',
   '反轉灰階': 'Invert grayscale',
   '高斯/方向/放射/旋轉模糊': 'Gaussian / directional / zoom / spin blur',
+  '高斯模糊 — X/Y 各軸倍率,可做方向性拉絲': 'Gaussian blur with per-axis X/Y — directional smears',
+  '橫向 ×': 'X ×', '縱向 ×': 'Y ×',
   '為扁平圖形加內斜角假厚度': 'Fake bevel thickness for flat shapes',
   '距離場 — 搭配掃描把尖角變圓潤': 'Distance field — round off sharp corners',
   '球體聯集高度場 — 卡通煙團/雲朵的骨架': 'Blob-union heightfield — cartoon smoke skeleton',

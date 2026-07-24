@@ -334,6 +334,46 @@ const Filters = (() => {
     return out;
   }
 
+  // 非等向高斯:X/Y 各自的 sigma(等向時退回 gaussBlur 走金字塔加速)
+  function gaussBlurXY(src, W, H, sigmaX, sigmaY) {
+    if (Math.abs(sigmaX - sigmaY) < 0.01) return gaussBlur(src, W, H, sigmaX);
+    const mkKernel = (sigma, maxR) => {
+      const R = Math.min(Math.ceil(sigma * 3), maxR);
+      const k = new Float32Array(R * 2 + 1);
+      let ksum = 0;
+      for (let i = -R; i <= R; i++) { const w = Math.exp(-(i * i) / (2 * sigma * sigma)); k[i + R] = w; ksum += w; }
+      for (let i = 0; i < k.length; i++) k[i] /= ksum;
+      return { k, R };
+    };
+    let tmp = src;
+    if (sigmaX >= 0.3) {
+      const { k, R } = mkKernel(sigmaX, Math.floor(W / 2));
+      const t = new Float32Array(W * H);
+      for (let y = 0; y < H; y++) {
+        const row = y * W;
+        for (let x = 0; x < W; x++) {
+          let acc = 0;
+          for (let i = -R; i <= R; i++) acc += tmp[row + mod(x + i, W)] * k[i + R];
+          t[row + x] = acc;
+        }
+      }
+      tmp = t;
+    }
+    if (sigmaY >= 0.3) {
+      const { k, R } = mkKernel(sigmaY, Math.floor(H / 2));
+      const t = new Float32Array(W * H);
+      for (let x = 0; x < W; x++) {
+        for (let y = 0; y < H; y++) {
+          let acc = 0;
+          for (let i = -R; i <= R; i++) acc += tmp[mod(y + i, H) * W + x] * k[i + R];
+          t[y * W + x] = acc;
+        }
+      }
+      tmp = t;
+    }
+    return tmp === src ? src.slice() : tmp;
+  }
+
   // ---------- 漸層色帶 ----------
   // stops: [pos, r, g, b] 已排序;t ∈ [0,1] → [r,g,b]
   function gradSample(stops, t) {
@@ -428,7 +468,7 @@ const Filters = (() => {
     clamp01, clamp, lerp, fract, mod, rnd2, hashInt,
     sampleWrap, sampleZero, perlinP, fbm, worley,
     shapeField, stampInstance, stampImage, distanceField, slopeBlur,
-    multiWarp, autoLevels, gaussBlur, gradSample, edgeFn, sstep, smax,
+    multiWarp, autoLevels, gaussBlur, gaussBlurXY, gradSample, edgeFn, sstep, smax,
     seqRNG, segDist, fractalPath, rasterSegs
   };
 })();

@@ -1156,6 +1156,23 @@ const NodeDefs = {
     }
   },
 
+  gaussianBlur: {
+    title: 'Gaussian Blur', zh: '高斯模糊', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    // 專職高斯:強度 + X/Y 各軸倍率(單軸歸零 = 純方向性拉絲模糊)
+    params: [
+      { k: 'amount', label: '強度', t: 'f', def: 3, min: 0, max: 20, step: 0.05 },
+      { k: 'mulX', label: '橫向 ×', t: 'f', def: 1, min: 0, max: 2, step: 0.01 },
+      { k: 'mulY', label: '縱向 ×', t: 'f', def: 1, min: 0, max: 2, step: 0.01 },
+    ],
+    eval(p, ins, ctx) {
+      const { W, H } = ctx, src = grayOf(ins, 0, ctx);
+      const base = p.amount / 100 * W;
+      const sx = base * p.mulX, sy = base * p.mulY;
+      if (sx < 0.3 && sy < 0.3) return { t: 'g', d: src.slice() };
+      return { t: 'g', d: Filters.gaussBlurXY(src, W, H, sx, sy) };
+    }
+  },
+
   blur: {
     title: 'Blur', zh: '模糊', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
