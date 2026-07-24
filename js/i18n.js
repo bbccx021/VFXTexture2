@@ -35,6 +35,7 @@ const I18N_EN = {
   '✨ 模板控制': '✨ Template Controls',
   '特效種類': 'Effect Type',
   '🎨 配色': '🎨 Colors',
+  '🎨 配色 COLOR RAMP': '🎨 COLOR RAMP',
   '以特效語言調整整條節點鏈;點任何節點可進入進階參數。': 'Tune the whole chain with effect-language sliders; click any node for advanced params.',
   '工作階段': 'Session', '全部': 'All', '範本膠卷': 'Template Reel',
   '上次的工作': 'Last Session',

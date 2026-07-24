@@ -110,6 +110,58 @@ const UI = (() => {
     apply();
   }
 
+  // ---------- 精簡模式:參數欄寬 / 膠卷卡片大小 拖曳 ----------
+  function initSimpleResizes() {
+    // 參數欄左緣
+    const pr = document.getElementById('sparams-resize');
+    if (pr) {
+      try {
+        const w = +localStorage.getItem('texforge_sparw');
+        if (w >= 280) document.documentElement.style.setProperty('--sparams-w', w + 'px');
+      } catch (e) {}
+      pr.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        const startX = e.clientX;
+        const startW = document.getElementById('params-sec').getBoundingClientRect().width;
+        try { pr.setPointerCapture(e.pointerId); } catch (e2) {}
+        let w = startW;
+        const mv = ev => {
+          w = Math.max(280, Math.min(innerWidth * 0.6, startW + (startX - ev.clientX)));
+          document.documentElement.style.setProperty('--sparams-w', w + 'px');
+        };
+        const up = () => {
+          pr.removeEventListener('pointermove', mv); pr.removeEventListener('pointerup', up);
+          try { localStorage.setItem('texforge_sparw', Math.round(w)); } catch (e2) {}
+        };
+        pr.addEventListener('pointermove', mv); pr.addEventListener('pointerup', up);
+      });
+    }
+    // 膠卷上緣 → 調卡片大小(= 膠卷高度)
+    const rr = document.getElementById('reel-resize');
+    if (rr) {
+      try {
+        const c = +localStorage.getItem('texforge_reelcard');
+        if (c >= 72) document.documentElement.style.setProperty('--reel-card', c + 'px');
+      } catch (e) {}
+      rr.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        const startY = e.clientY;
+        const startC = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--reel-card')) || 100;
+        try { rr.setPointerCapture(e.pointerId); } catch (e2) {}
+        let c = startC;
+        const mv = ev => {
+          c = Math.max(72, Math.min(170, startC + (startY - ev.clientY)));
+          document.documentElement.style.setProperty('--reel-card', c + 'px');
+        };
+        const up = () => {
+          rr.removeEventListener('pointermove', mv); rr.removeEventListener('pointerup', up);
+          try { localStorage.setItem('texforge_reelcard', Math.round(c)); } catch (e2) {}
+        };
+        rr.addEventListener('pointermove', mv); rr.addEventListener('pointerup', up);
+      });
+    }
+  }
+
   // ---------- 進階模式預覽面板寬度(拖曳左緣自由縮放)----------
   function initInspectorResize() {
     const rs = document.getElementById('insp-resize');
@@ -138,6 +190,20 @@ const UI = (() => {
       rs.addEventListener('pointermove', move);
       rs.addEventListener('pointerup', up);
     });
+  }
+
+  // ---------- 色帶 → CSS 漸層字串 ----------
+  function rampCss(key) {
+    const g = GRADS[key];
+    if (!g) return 'linear-gradient(90deg,#000,#fff)';
+    const stops = g.stops.map(([p, r, gg, b]) =>
+      `rgb(${Math.round(r * 255)},${Math.round(gg * 255)},${Math.round(b * 255)}) ${(p * 100).toFixed(1)}%`);
+    return `linear-gradient(90deg, ${stops.join(', ')})`;
+  }
+  function rampLabel(key) {
+    const g = GRADS[key];
+    const zh = g ? g.zh.replace('🎨 ', '') : key;
+    return `${tr(zh)} · ${key.replace(/([A-Z])/g, ' $1').toUpperCase().trim()}`;
   }
 
   // ---------- buffer → canvas ----------
@@ -645,20 +711,42 @@ const UI = (() => {
       const cur = gmNodes[0].params.preset;
       const row = document.createElement('div');
       row.className = 'prow color-row';
-      row.innerHTML = `<div class="plabel"><span>${tr('🎨 配色')}</span></div>`;
-      const cs = document.createElement('select');
-      for (const [v, lb] of pd.opts) {
-        const o = document.createElement('option');
-        o.value = v; o.textContent = lb;
-        if (v === cur) o.selected = true;
-        cs.appendChild(o);
-      }
-      cs.addEventListener('change', () => {
-        App.history.push();
-        for (const n of gmNodes) { n.params.preset = cs.value; App.graph.markDirty(n.id); }
-        requestRender();
+      const nStops = (GRADS[cur] ? GRADS[cur].stops.length : 0);
+      row.innerHTML = `<div class="plabel"><span>${tr('🎨 配色 COLOR RAMP')}</span><span class="pval">${nStops} STOPS</span></div>`;
+      const bar = document.createElement('div');
+      bar.className = 'ramp-bar';
+      const applyBar = key => {
+        bar.style.background = rampCss(key);
+        bar.dataset.label = rampLabel(key);
+      };
+      applyBar(cur);
+      // 點色票 → 彈出全部色帶清單(每條都是漸層列)
+      bar.addEventListener('click', () => {
+        const old = row.querySelector('.ramp-pop');
+        if (old) { old.remove(); return; }
+        const pop = document.createElement('div');
+        pop.className = 'ramp-pop';
+        for (const [v] of pd.opts) {
+          const it = document.createElement('div');
+          it.className = 'ramp-item' + (v === gmNodes[0].params.preset ? ' on' : '');
+          it.style.background = rampCss(v);
+          it.dataset.label = rampLabel(v);
+          it.addEventListener('click', ev => {
+            ev.stopPropagation();
+            App.history.push();
+            for (const n of gmNodes) { n.params.preset = v; App.graph.markDirty(n.id); }
+            applyBar(v);
+            row.querySelector('.plabel .pval').textContent = (GRADS[v] ? GRADS[v].stops.length : 0) + ' STOPS';
+            pop.querySelectorAll('.ramp-item').forEach(x => x.classList.remove('on'));
+            it.classList.add('on');
+            requestRender();
+            setTimeout(() => pop.remove(), 180);
+          });
+          pop.appendChild(it);
+        }
+        row.appendChild(pop);
       });
-      row.appendChild(cs);
+      row.appendChild(bar);
       wrap.appendChild(row);
     } else {
       const gn = document.createElement('div');
@@ -1058,6 +1146,29 @@ const UI = (() => {
       setGraph(Presets.get(el.dataset.preset));
       Editor.fitView();
     }));
+    // 左鍵按住拖曳滑動膠卷(位移 >6px 視為拖曳,放開時攔下 click 不觸發載入)
+    let dragging = false;
+    wrap.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      const startX = e.clientX, startSL = wrap.scrollLeft;
+      dragging = false;
+      const mv = ev => {
+        const dx = ev.clientX - startX;
+        if (Math.abs(dx) > 6) { dragging = true; wrap.classList.add('dragging'); }
+        if (dragging) wrap.scrollLeft = startSL - dx;
+      };
+      const up = () => {
+        window.removeEventListener('pointermove', mv);
+        window.removeEventListener('pointerup', up);
+        wrap.classList.remove('dragging');
+        if (dragging) setTimeout(() => { dragging = false; }, 0);   // 讓 click 攔截器先讀到
+      };
+      window.addEventListener('pointermove', mv);
+      window.addEventListener('pointerup', up);
+    });
+    wrap.addEventListener('click', e => {
+      if (dragging) { e.stopPropagation(); e.preventDefault(); }
+    }, true);
     // 收合(記住狀態)
     const strip = document.getElementById('strip');
     const tg = document.getElementById('strip-toggle');
@@ -1109,6 +1220,7 @@ const UI = (() => {
     initTheme();
     applyStaticLang();
     buildReel();
+    initSimpleResizes();
     setTimeout(renderReelThumbs, 400);   // 等首個範本渲染完成再背景鋪縮圖
     initPanelToggles();
     const smBtn = document.getElementById('btn-settings');

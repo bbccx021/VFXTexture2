@@ -386,6 +386,12 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 #app.simple .panel-toggle { display:none; }   /* 精簡模式不適用 */
 
 #params-sec { flex:1; min-height:0; display:flex; flex-direction:column; }
+#sparams-resize {
+  display:none; position:absolute; left:0; top:0; bottom:0; width:6px;
+  cursor:ew-resize; z-index:6;
+}
+#sparams-resize:hover { background:var(--acc-soft); }
+#app.simple #sparams-resize { display:block; }
 #params { flex:1; overflow-y:auto; padding:2px 14px 20px; }
 .params-empty { color:var(--text-faint); font-size:12px; padding:10px 2px; }
 
@@ -418,12 +424,47 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 .prow .seed-row input { flex:1; }
 .prow .seed-row button { padding:4px 10px; }
 
+/* ============ 配色大色票(Color Ramp Bar) ============ */
+.color-row { position:relative; }
+.ramp-bar {
+  height:38px; border-radius:8px; cursor:pointer; position:relative; overflow:hidden;
+  border:1px solid var(--line-hi, var(--line));
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.35), 0 0 20px color-mix(in srgb, var(--acc) 14%, transparent);
+  transition:box-shadow .2s;
+}
+.ramp-bar:hover { box-shadow:inset 0 2px 6px rgba(0,0,0,.35), 0 0 0 2px var(--acc-soft), 0 0 24px color-mix(in srgb, var(--acc) 22%, transparent); }
+.ramp-bar::after, .ramp-item::after {
+  content:attr(data-label);
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  font-family:var(--font-mono); font-size:9px; letter-spacing:.14em;
+  color:rgba(0,0,0,.6); text-shadow:0 0 4px rgba(255,255,255,.25);
+  pointer-events:none;
+}
+.ramp-pop {
+  position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:30;
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:8px; display:flex; flex-direction:column; gap:6px;
+  box-shadow:0 18px 46px #000c;
+  max-height:300px; overflow-y:auto;
+}
+.ramp-item {
+  height:30px; border-radius:6px; cursor:pointer; position:relative; overflow:hidden;
+  border:1px solid transparent; transition:border-color .15s, transform .15s;
+}
+.ramp-item:hover { transform:scale(1.015); border-color:var(--acc-deep, var(--acc)); }
+.ramp-item.on { border-color:var(--acc); box-shadow:0 0 0 2px var(--acc-soft); }
+
 /* ============ 範本膠卷(Template Reel) ============ */
 #strip {
+  position:relative;
   flex:none; border-top:1px solid var(--line);
   background:linear-gradient(0deg, var(--pit, #060505), var(--panel) 170%);
   padding:9px 16px 12px; position:relative; z-index:2;
 }
+#reel-resize {
+  position:absolute; left:0; right:0; top:-4px; height:8px; cursor:ns-resize; z-index:6;
+}
+#reel-resize:hover { background:var(--acc-soft); }
 .strip-head { display:flex; align-items:center; gap:14px; margin-bottom:9px; }
 .strip-head .s-en { font-family:var(--font-disp); font-size:10px; letter-spacing:.26em; color:var(--text-dim); }
 .strip-head .s-zh { font-size:10.5px; color:var(--text-faint); letter-spacing:.3em; }
@@ -440,11 +481,13 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 #strip-toggle:hover { color:var(--acc); border-color:transparent; }
 #strip.closed .reel-cards { display:none; }
 #strip.closed { padding-bottom:9px; }
-.reel-cards { display:flex; gap:11px; overflow-x:auto; padding:3px 2px 5px; }
+.reel-cards { display:flex; gap:11px; overflow-x:auto; padding:3px 2px 5px; cursor:grab; }
+.reel-cards.dragging { cursor:grabbing; }
+.reel-cards.dragging .r-card { pointer-events:none; }
 .reel-cards::-webkit-scrollbar { height:8px; }
 .reel-cards::-webkit-scrollbar-thumb { background:var(--line); border-radius:4px; }
 .r-card {
-  flex:none; width:100px; cursor:pointer; border-radius:9px; padding:5px 5px 7px;
+  flex:none; width:var(--reel-card, 100px); cursor:pointer; border-radius:9px; padding:5px 5px 7px;
   background:var(--panel-2); border:1px solid var(--line);
   transition:transform .2s, border-color .2s, box-shadow .2s;
 }
@@ -513,7 +556,8 @@ button.accent:hover { background:var(--acc); color:var(--on-acc); }
 }
 #app.simple .preview-ctl { justify-content:center; }
 #app.simple #params-sec {
-  width:392px; flex:none;
+  width:var(--sparams-w, 392px); flex:none;
+  position:relative;
   border-left:1px solid var(--line); background:var(--panel);
 }
 
