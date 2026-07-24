@@ -115,6 +115,8 @@ class NodeGraph {
   static deserialize(json) {
     const g = new NodeGraph();
     for (const n of json.nodes || []) {
+      const type = (typeof NODE_ALIASES !== 'undefined' && NODE_ALIASES[n.type]) || n.type;  // 舊代號自動遷移
+      n.type = type;
       if (!NodeDefs[n.type]) continue;
       const def = NodeDefs[n.type];
       const params = {};

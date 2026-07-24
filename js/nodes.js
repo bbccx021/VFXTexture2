@@ -137,7 +137,7 @@ const NodeDefs = {
   },
 
   blobField: {
-    title: 'Blob Field', zh: '團塊高度場', cat: 'gen', inputs: [], out: 'g',
+    title: 'Blob Field', zh: '團塊生成', cat: 'gen', inputs: [], out: 'g',
     params: [
       { k: 'count', label: '團塊數', t: 'i', def: 7, min: 1, max: 14 },
       { k: 'size', label: '團塊大小', t: 'f', def: 0.9, min: 0.1, max: 1.6, step: 0.01 },
@@ -290,7 +290,7 @@ const NodeDefs = {
   },
 
   shapeMapper: {
-    title: 'Shape Mapper', zh: '環形映射', cat: 'gen', inputs: [{ n: '圖案', t: 'g' }], out: 'g',
+    title: 'Shape Mapper', zh: '繞環陣列', cat: 'gen', inputs: [{ n: '圖案', t: 'g' }], out: 'g',
     params: [
       { k: 'count', label: '重複數', t: 'i', def: 8, min: 1, max: 48 },
       { k: 'r0', label: '內半徑', t: 'f', def: 0.25, min: 0, max: 1, step: 0.005 },
@@ -745,7 +745,7 @@ const NodeDefs = {
   },
 
   slopeBlur: {
-    title: 'Slope Blur', zh: '斜率模糊', cat: 'distort',
+    title: 'Slope Blur', zh: '生長 / 侵蝕', cat: 'distort',
     inputs: [{ n: '輸入', t: 'g' }, { n: '斜率圖', t: 'g' }], out: 'g',
     params: [
       { k: 'mode', label: '模式', t: 'sel', def: 'max', opts: [['max', '擴張生長 Max'], ['min', '侵蝕 Min'], ['blur', '融化拖絲 Blur']] },
@@ -785,7 +785,7 @@ const NodeDefs = {
   },
 
   crossProfile: {
-    title: 'Cross Profile', zh: '剖面曲線', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    title: 'Cross Section', zh: '剖面圖', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     // 取一條掃描線,把亮度當高度畫成剖面圖(對齊 SD Cross Section:切向/繪製樣式/位移縮放)
     params: [
       { k: 'axis', label: '切片方向', t: 'sel', def: 'h', opts: [['h', '水平切(剖面立在下方)'], ['v', '垂直切(剖面靠左)']] },
@@ -842,7 +842,7 @@ const NodeDefs = {
   },
 
   crossSection: {
-    title: 'Cross Section', zh: '等高線提取', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+    title: 'Contour Bands', zh: '等高線', cat: 'distort', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     params: [
       { k: 'pos', label: '擷取位置', t: 'f', def: 0.5, min: 0, max: 1, step: 0.005 },
       { k: 'width', label: '線寬', t: 'f', def: 0.12, min: 0.005, max: 1, step: 0.005 },
@@ -1036,8 +1036,8 @@ const NodeDefs = {
     }
   },
 
-  clampRange: {
-    title: 'Clamp / Remap', zh: '範圍裁切', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
+  bandSelect: {
+    title: 'Band Select', zh: '亮度選帶', cat: 'adjust', inputs: [{ n: '輸入', t: 'g' }], out: 'g',
     // 只保留某段灰階(其餘裁掉),再拉伸回 0~1 — 挑出特定亮度層做遮罩很好用
     params: [
       { k: 'lo', label: '下限', t: 'f', def: 0, min: 0, max: 1, step: 0.005 },
@@ -1361,7 +1361,7 @@ const NodeDefs = {
 
   /* ==================== 上色 / 後製 ==================== */
   gradientMap: {
-    title: 'Gradient Map', zh: '漸層對應', cat: 'color', inputs: [{ n: '輸入', t: 'g' }], out: 'c',
+    title: 'Gradient Map', zh: '色帶上色', cat: 'color', inputs: [{ n: '輸入', t: 'g' }], out: 'c',
     params: [
       // 選單只列風格化色帶與自訂色帶;古典色帶資料保留供舊存檔渲染
       { k: 'preset', label: '色帶', t: 'sel', def: 'celFire', opts: Object.entries(GRADS).filter(([k]) => k.startsWith('cel')).map(([k, v]) => [k, v.zh]) },
@@ -1431,6 +1431,11 @@ const NodeDefs = {
 };
 
 // 類別中繼資料(節點庫分組 & 顏色)
+// 內部代號別名:舊代號 → 新代號(deserialize 時自動遷移,舊存檔/舊配方不會壞)
+const NODE_ALIASES = {
+  clampRange: 'bandSelect',
+};
+
 const NodeCats = {
   gen:     { zh: '基礎圖形', color: 'var(--cat-gen)' },
   noise:   { zh: '雜訊', color: 'var(--cat-noise)' },
