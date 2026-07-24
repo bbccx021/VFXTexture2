@@ -418,6 +418,54 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 .prow .seed-row input { flex:1; }
 .prow .seed-row button { padding:4px 10px; }
 
+/* ============ 範本膠卷(Template Reel) ============ */
+#strip {
+  flex:none; border-top:1px solid var(--line);
+  background:linear-gradient(0deg, var(--pit, #060505), var(--panel) 170%);
+  padding:9px 16px 12px; position:relative; z-index:2;
+}
+.strip-head { display:flex; align-items:center; gap:14px; margin-bottom:9px; }
+.strip-head .s-en { font-family:var(--font-disp); font-size:10px; letter-spacing:.26em; color:var(--text-dim); }
+.strip-head .s-zh { font-size:10.5px; color:var(--text-faint); letter-spacing:.3em; }
+.reel-cats { display:flex; gap:3px; margin-left:auto; overflow-x:auto; }
+.reel-cats button {
+  border:0; background:none; color:var(--text-faint); font-size:11px; letter-spacing:.08em;
+  padding:4px 10px; border-radius:6px; cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.reel-cats button:hover { color:var(--text-dim); }
+.reel-cats button.on { color:var(--acc); background:var(--acc-soft); }
+#strip-toggle {
+  border:0; background:none; color:var(--text-faint); font-size:12px; padding:2px 8px; cursor:pointer;
+}
+#strip-toggle:hover { color:var(--acc); border-color:transparent; }
+#strip.closed .reel-cards { display:none; }
+#strip.closed { padding-bottom:9px; }
+.reel-cards { display:flex; gap:11px; overflow-x:auto; padding:3px 2px 5px; }
+.reel-cards::-webkit-scrollbar { height:8px; }
+.reel-cards::-webkit-scrollbar-thumb { background:var(--line); border-radius:4px; }
+.r-card {
+  flex:none; width:100px; cursor:pointer; border-radius:9px; padding:5px 5px 7px;
+  background:var(--panel-2); border:1px solid var(--line);
+  transition:transform .2s, border-color .2s, box-shadow .2s;
+}
+.r-card:hover {
+  transform:translateY(-4px); border-color:var(--acc-deep, var(--acc));
+  box-shadow:0 10px 24px #000a, 0 0 0 3px var(--acc-soft);
+}
+.r-card.on { border-color:var(--acc); box-shadow:0 0 0 3px var(--acc-soft), 0 0 22px var(--acc-soft); }
+.r-card canvas { width:100%; aspect-ratio:1; border-radius:6px; background:#000; display:block; }
+.r-card .n {
+  font-size:10.5px; margin-top:6px; letter-spacing:.04em; color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.r-card .e {
+  font-family:var(--font-mono); font-size:7.5px; color:var(--text-faint); letter-spacing:.1em;
+  margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.r-card.on .n { color:var(--acc-2); }
+/* 進階模式:讓位給節點畫布 */
+#app:not(.simple) #strip { display:none; }
+
 /* ============ 狀態列 ============ */
 #statusbar {
   display:flex; align-items:center; justify-content:space-between;

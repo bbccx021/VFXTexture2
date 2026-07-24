@@ -755,6 +755,22 @@ const UI = (() => {
     });
   }
 
+  // 範本縮圖共用快取:name → 128px canvas(範本牆與膠卷共用,只渲染一次)
+  const thumbCache = new Map();
+  function presetThumb(name) {
+    if (thumbCache.has(name)) return thumbCache.get(name);
+    const g = Presets.get(name);
+    const out = g.findByType('output');
+    const buf = g.evaluate(out.id, 128);
+    const cv = document.createElement('canvas');
+    cv.width = 128; cv.height = 128;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 128, 128);
+    ctx.drawImage(bufToCanvas(buf, 128), 0, 0, 128, 128);
+    thumbCache.set(name, cv);
+    return cv;
+  }
+
   // 縮圖逐張渲染(setTimeout 分批,不卡 UI);結果留在 canvas 上,重開即快取
   function renderGalleryThumbs() {
     const cards = [...document.querySelectorAll('#gallery-body .g-card[data-preset]')]
@@ -765,13 +781,8 @@ const UI = (() => {
       const card = cards[i++];
       const name = card.dataset.preset;
       try {
-        const g = Presets.get(name);
-        const out = g.findByType('output');
-        const buf = g.evaluate(out.id, 128);
         const ctx = card.querySelector('canvas').getContext('2d');
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, 128, 128);
-        ctx.drawImage(bufToCanvas(buf, 128), 0, 0, 128, 128);
+        ctx.drawImage(presetThumb(name), 0, 0, 128, 128);
         galleryDone.add(name);
       } catch (err) {
         console.error('範本縮圖渲染失敗:', name, err);
@@ -1009,11 +1020,85 @@ const UI = (() => {
     inp.addEventListener('blur', () => finish(true));
   }
 
+  // ---------- 範本膠卷(底部 Template Reel) ----------
+  const reelDone = new Set();
+  function buildReel() {
+    const wrap = document.getElementById('reel-cards');
+    const cats = document.getElementById('reel-cats');
+    if (!wrap) return;
+    // 分類籤:全部 + 各分類(取「/」前的短名)
+    let ch = `<button class="on" data-cat="">${tr('全部')}</button>`;
+    for (const [key, name] of Presets.cats) {
+      ch += `<button data-cat="${key}">${tr(name).split('/')[0].trim()}</button>`;
+    }
+    cats.innerHTML = ch;
+    cats.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      cats.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      const cat = b.dataset.cat;
+      wrap.querySelectorAll('.r-card').forEach(c => {
+        c.style.display = (!cat || c.dataset.cat === cat) ? '' : 'none';
+      });
+      renderReelThumbs();
+    }));
+    // 卡片(依分類順序)
+    let html = '';
+    for (const [catKey] of Presets.cats) {
+      for (const [name, m] of Object.entries(Presets.meta)) {
+        if (m.cat !== catKey) continue;
+        html += `<div class="r-card" data-preset="${name}" data-cat="${catKey}">
+          <canvas width="128" height="128"></canvas>
+          <div class="n">${m.emoji} ${window.APP_LANG === 'en' ? m.en : m.name}</div>
+          <div class="e">${window.APP_LANG === 'en' ? m.name : m.en}</div></div>`;
+      }
+    }
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('.r-card').forEach(el => el.addEventListener('click', () => {
+      App.history.push();
+      setGraph(Presets.get(el.dataset.preset));
+      Editor.fitView();
+    }));
+    // 收合(記住狀態)
+    const strip = document.getElementById('strip');
+    const tg = document.getElementById('strip-toggle');
+    const applyClosed = c => {
+      strip.classList.toggle('closed', c);
+      tg.textContent = c ? '▴' : '▾';
+      try { localStorage.setItem('texforge_reel', c ? '1' : '0'); } catch (e) {}
+    };
+    tg.addEventListener('click', () => applyClosed(!strip.classList.contains('closed')));
+    try { if (localStorage.getItem('texforge_reel') === '1') applyClosed(true); } catch (e) {}
+  }
+  // 逐張渲染可見卡片(共用 presetThumb 快取)
+  function renderReelThumbs() {
+    const cards = [...document.querySelectorAll('#reel-cards .r-card')]
+      .filter(c => c.style.display !== 'none' && !reelDone.has(c.dataset.preset));
+    let i = 0;
+    const step = () => {
+      if (i >= cards.length) return;
+      const card = cards[i++];
+      const name = card.dataset.preset;
+      try {
+        card.querySelector('canvas').getContext('2d').drawImage(presetThumb(name), 0, 0, 128, 128);
+        reelDone.add(name);
+      } catch (err) { console.error('膠卷縮圖渲染失敗:', name, err); }
+      setTimeout(step, 0);
+    };
+    step();
+  }
+  // 目前載入的範本 → 膠卷高亮
+  function reelSync() {
+    const name = App.graph._presetName;
+    document.querySelectorAll('#reel-cards .r-card').forEach(c =>
+      c.classList.toggle('on', c.dataset.preset === name));
+  }
+
   function setGraph(g) {
     App.graph = g;
     Editor.select(null);
     Editor.rebuild();
     requestRender();
+    reelSync();
   }
 
   // ---------- 初始化 ----------
@@ -1023,6 +1108,8 @@ const UI = (() => {
     perfEl = document.getElementById('perf');
     initTheme();
     applyStaticLang();
+    buildReel();
+    setTimeout(renderReelThumbs, 400);   // 等首個範本渲染完成再背景鋪縮圖
     initPanelToggles();
     const smBtn = document.getElementById('btn-settings');
     const sm = document.getElementById('settings-menu');
