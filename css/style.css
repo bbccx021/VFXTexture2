@@ -454,6 +454,67 @@ select:focus, input[type="number"]:focus { border-color:var(--acc); }
 .ramp-item:hover { transform:scale(1.015); border-color:var(--acc-deep, var(--acc)); }
 .ramp-item.on { border-color:var(--acc); box-shadow:0 0 0 2px var(--acc-soft); }
 
+/* ---- 色帶動作鈕 / 新增列 ---- */
+.ramp-acts {
+  position:absolute; left:8px; top:50%; transform:translateY(-50%);
+  display:flex; gap:4px; opacity:0; transition:opacity .15s;
+}
+.ramp-item:hover .ramp-acts { opacity:1; }
+.ramp-acts button {
+  border:0; border-radius:5px; padding:2px 7px; font-size:11px; cursor:pointer;
+  background:rgba(0,0,0,.55); color:#fff; letter-spacing:0;
+}
+.ramp-acts button:hover { background:rgba(0,0,0,.8); color:var(--acc-2); }
+.ramp-new {
+  background:var(--panel-2) !important; border:1px dashed var(--line-hi, var(--line)) !important;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text-dim); font-size:12px; letter-spacing:.1em;
+}
+.ramp-new:hover { color:var(--acc); border-color:var(--acc-deep, var(--acc)) !important; }
+.ramp-new::after { content:none; }
+
+/* ---- 色帶編輯器 ---- */
+#ramp-editor {
+  position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.re-panel {
+  width:min(92vw, 420px); background:var(--panel); border:1px solid var(--line);
+  border-radius:12px; padding:16px 18px 18px; box-shadow:0 30px 80px #000d;
+}
+.re-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;
+  font-family:var(--font-disp); font-size:12px; letter-spacing:.2em; color:var(--text-dim); }
+.re-x { border:0; background:none; color:var(--text-faint); font-size:14px; cursor:pointer; }
+.re-x:hover { color:var(--acc); }
+.re-preview {
+  height:38px; border-radius:8px; border:1px solid var(--line-hi, var(--line));
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.35); margin-bottom:10px;
+}
+.re-name {
+  width:100%; margin-bottom:12px; padding:7px 10px;
+  background:var(--panel-2); border:1px solid var(--line); border-radius:6px;
+  color:var(--text); font-family:var(--font-body); font-size:13px; outline:none;
+}
+.re-name:focus { border-color:var(--acc); }
+.re-stops { display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; }
+.re-row { display:flex; align-items:center; gap:10px; }
+.re-row input[type="color"] {
+  width:34px; height:26px; border:1px solid var(--line); border-radius:5px;
+  background:none; padding:1px; cursor:pointer;
+}
+.re-row input[type="range"] { flex:1; }
+.re-pct { font-family:var(--font-mono); font-size:10px; color:var(--text-dim); width:38px; text-align:right; }
+.re-del { border:0; background:none; color:var(--text-faint); cursor:pointer; font-size:12px; }
+.re-del:hover:not(:disabled) { color:#ff5252; }
+.re-del:disabled { opacity:.25; cursor:default; }
+.re-foot { display:flex; align-items:center; margin-top:14px; }
+.re-sp { flex:1; }
+.re-save {
+  background:linear-gradient(135deg, var(--acc-2), var(--acc) 60%, var(--acc-deep, var(--acc)));
+  border:0; color:var(--on-acc); font-weight:700;
+}
+
 /* ============ 範本膠卷(Template Reel) ============ */
 #strip {
   position:relative;

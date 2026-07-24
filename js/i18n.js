@@ -38,6 +38,7 @@ const I18N_EN = {
   '🎨 配色 COLOR RAMP': '🎨 COLOR RAMP',
   '以特效語言調整整條節點鏈;點任何節點可進入進階參數。': 'Tune the whole chain with effect-language sliders; click any node for advanced params.',
   '工作階段': 'Session', '全部': 'All', '範本膠卷': 'Template Reel',
+  '色帶編輯器': 'Ramp Editor', '新增自訂色帶': 'New Custom Ramp', '色標': 'Stop', '儲存': 'Save',
   '上次的工作': 'Last Session',
   '空白畫布': 'Blank Canvas',
   '🔍 搜尋節點…': '🔍 Search nodes…',

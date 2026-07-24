@@ -1338,7 +1338,8 @@ const NodeDefs = {
   gradientMap: {
     title: 'Gradient Map', zh: '漸層對應', cat: 'color', inputs: [{ n: '輸入', t: 'g' }], out: 'c',
     params: [
-      { k: 'preset', label: '色帶', t: 'sel', def: 'fire', opts: Object.entries(GRADS).map(([k, v]) => [k, v.zh]) },
+      // 選單只列風格化色帶與自訂色帶;古典色帶資料保留供舊存檔渲染
+      { k: 'preset', label: '色帶', t: 'sel', def: 'celFire', opts: Object.entries(GRADS).filter(([k]) => k.startsWith('cel')).map(([k, v]) => [k, v.zh]) },
       { k: 'steps', label: '色階數(0=平滑)', t: 'i', def: 0, min: 0, max: 8 },
       { k: 'alphaFromLuma', label: 'Alpha=亮度', t: 'b', def: true },
       { k: 'alphaGain', label: '輪廓銳利度', t: 'f', def: 1, min: 1, max: 10, step: 0.1, show: p => p.alphaFromLuma },

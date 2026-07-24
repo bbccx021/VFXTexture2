@@ -192,6 +192,113 @@ const UI = (() => {
     });
   }
 
+  // ---------- 自訂色帶(localStorage 持久化,鍵名 u_ 開頭)----------
+  const hex2f = h => [parseInt(h.slice(0, 2), 16) / 255, parseInt(h.slice(2, 4), 16) / 255, parseInt(h.slice(4, 6), 16) / 255];
+  function rampOpts() { return NodeDefs.gradientMap.params.find(p => p.k === 'preset').opts; }
+  function loadCustomRamps() {
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem('texforge_ramps') || '{}'); } catch (e) {}
+    for (const [key, r] of Object.entries(data)) registerRamp(key, r.zh, r.stops, false);
+  }
+  // stopsHex: [[pos, 'rrggbb'], ...]
+  function registerRamp(key, zh, stopsHex, persist) {
+    GRADS[key] = { zh: '🎨 ' + zh, stops: stopsHex.map(([p, h]) => [p, ...hex2f(h)]), custom: true, raw: stopsHex };
+    const opts = rampOpts();
+    const i = opts.findIndex(o => o[0] === key);
+    if (i >= 0) opts[i] = [key, GRADS[key].zh]; else opts.push([key, GRADS[key].zh]);
+    if (persist) {
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem('texforge_ramps') || '{}'); } catch (e) {}
+      data[key] = { zh, stops: stopsHex };
+      try { localStorage.setItem('texforge_ramps', JSON.stringify(data)); } catch (e) {}
+    }
+  }
+  function deleteRamp(key) {
+    delete GRADS[key];
+    const opts = rampOpts();
+    const i = opts.findIndex(o => o[0] === key);
+    if (i >= 0) opts.splice(i, 1);
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem('texforge_ramps') || '{}'); } catch (e) {}
+    delete data[key];
+    try { localStorage.setItem('texforge_ramps', JSON.stringify(data)); } catch (e) {}
+    // 使用中的節點退回預設色帶
+    for (const n of App.graph.nodes.values()) {
+      if (n.type === 'gradientMap' && n.params.preset === key) { n.params.preset = 'celFire'; App.graph.markDirty(n.id); }
+    }
+    requestRender();
+  }
+  const f2hex = v => Math.round(v * 255).toString(16).padStart(2, '0');
+  function rampToHexStops(key) {   // 內建色帶轉 hex 供「複製編輯」
+    const g = GRADS[key];
+    if (g.raw) return g.raw.map(x => [...x]);
+    return g.stops.map(([p, r, gg, b]) => [Math.round(p * 1000) / 1000, f2hex(r) + f2hex(gg) + f2hex(b)]);
+  }
+
+  // ---------- 色帶編輯器(小型彈窗)----------
+  // onDone(key) 於儲存後回呼;editKey 為 u_ 鍵時就地編輯,否則另存新色帶
+  function openRampEditor(baseKey, editKey, onDone) {
+    document.getElementById('ramp-editor')?.remove();
+    const stops = baseKey ? rampToHexStops(baseKey) : [[0, '120524'], [0.5, 'e04a1c'], [1, 'ffeeb0']];
+    const baseZh = baseKey && GRADS[baseKey] ? GRADS[baseKey].zh.replace('🎨 ', '') : '';
+    const name0 = editKey ? baseZh : (baseZh ? baseZh + ' 副本' : '自訂色帶');
+    const ov = document.createElement('div');
+    ov.id = 'ramp-editor';
+    ov.innerHTML = `<div class="re-panel">
+      <div class="re-head"><span>${tr('色帶編輯器')}</span><button class="re-x">✕</button></div>
+      <div class="re-preview"></div>
+      <input class="re-name" type="text" maxlength="12" value="${name0}">
+      <div class="re-stops"></div>
+      <div class="re-foot">
+        <button class="re-add">＋ ${tr('色標')}</button>
+        <span class="re-sp"></span>
+        <button class="re-save">${tr('儲存')}</button>
+      </div></div>`;
+    document.body.appendChild(ov);
+    const prev = ov.querySelector('.re-preview'), list = ov.querySelector('.re-stops');
+    const paint = () => {
+      const sorted = [...stops].sort((a, b) => a[0] - b[0]);
+      prev.style.background = 'linear-gradient(90deg,' + sorted.map(([p, h]) => `#${h} ${(p * 100).toFixed(1)}%`).join(',') + ')';
+    };
+    const rebuild = () => {
+      list.innerHTML = '';
+      stops.forEach((st, i) => {
+        const row = document.createElement('div');
+        row.className = 're-row';
+        row.innerHTML = `<input type="color" value="#${st[1]}">
+          <input type="range" min="0" max="100" value="${Math.round(st[0] * 100)}">
+          <span class="re-pct">${Math.round(st[0] * 100)}%</span>
+          <button class="re-del" ${stops.length <= 2 ? 'disabled' : ''}>✕</button>`;
+        const [ci, ri] = row.querySelectorAll('input');
+        ci.addEventListener('input', () => { st[1] = ci.value.slice(1); paint(); });
+        ri.addEventListener('input', () => { st[0] = ri.value / 100; row.querySelector('.re-pct').textContent = ri.value + '%'; paint(); });
+        row.querySelector('.re-del').addEventListener('click', () => { stops.splice(i, 1); rebuild(); paint(); });
+        list.appendChild(row);
+      });
+    };
+    rebuild(); paint();
+    ov.querySelector('.re-add').addEventListener('click', () => {
+      if (stops.length >= 13) return;
+      stops.push([0.5, 'ffffff']); rebuild(); paint();
+    });
+    const close = () => ov.remove();
+    ov.querySelector('.re-x').addEventListener('click', close);
+    ov.addEventListener('pointerdown', e => { if (e.target === ov) close(); });
+    ov.querySelector('.re-save').addEventListener('click', () => {
+      const zh = ov.querySelector('.re-name').value.trim() || '自訂色帶';
+      const key = editKey || ('u_' + Date.now().toString(36));
+      const sorted = [...stops].sort((a, b) => a[0] - b[0]);
+      registerRamp(key, zh, sorted, true);
+      // 使用中的節點立即反映
+      for (const n of App.graph.nodes.values()) {
+        if (n.type === 'gradientMap' && n.params.preset === key) App.graph.markDirty(n.id);
+      }
+      requestRender();
+      close();
+      if (onDone) onDone(key);
+    });
+  }
+
   // ---------- 色帶 → CSS 漸層字串 ----------
   function rampCss(key) {
     const g = GRADS[key];
@@ -726,24 +833,50 @@ const UI = (() => {
         if (old) { old.remove(); return; }
         const pop = document.createElement('div');
         pop.className = 'ramp-pop';
+        const applyKey = v => {
+          App.history.push();
+          for (const n of gmNodes) { n.params.preset = v; App.graph.markDirty(n.id); }
+          applyBar(v);
+          row.querySelector('.plabel .pval').textContent = (GRADS[v] ? GRADS[v].stops.length : 0) + ' STOPS';
+          requestRender();
+        };
         for (const [v] of pd.opts) {
           const it = document.createElement('div');
           it.className = 'ramp-item' + (v === gmNodes[0].params.preset ? ' on' : '');
           it.style.background = rampCss(v);
           it.dataset.label = rampLabel(v);
+          // 動作鈕:內建 ⧉ 複製編輯;自訂 ✎ 編輯 / 🗑 刪除
+          const acts = document.createElement('div');
+          acts.className = 'ramp-acts';
+          const isCustom = v.startsWith('u_');
+          acts.innerHTML = isCustom ? '<button data-a="edit">✎</button><button data-a="del">🗑</button>'
+                                    : '<button data-a="copy" title="以此為底建立自訂色帶">⧉</button>';
+          acts.querySelectorAll('button').forEach(bt => bt.addEventListener('click', ev => {
+            ev.stopPropagation();
+            if (bt.dataset.a === 'del') { deleteRamp(v); pop.remove(); applyBar(gmNodes[0].params.preset); return; }
+            openRampEditor(v, bt.dataset.a === 'edit' ? v : null, key => { applyKey(key); });
+            pop.remove();
+          }));
+          it.appendChild(acts);
           it.addEventListener('click', ev => {
             ev.stopPropagation();
-            App.history.push();
-            for (const n of gmNodes) { n.params.preset = v; App.graph.markDirty(n.id); }
-            applyBar(v);
-            row.querySelector('.plabel .pval').textContent = (GRADS[v] ? GRADS[v].stops.length : 0) + ' STOPS';
+            applyKey(v);
             pop.querySelectorAll('.ramp-item').forEach(x => x.classList.remove('on'));
             it.classList.add('on');
-            requestRender();
             setTimeout(() => pop.remove(), 180);
           });
           pop.appendChild(it);
         }
+        // 新增自訂色帶
+        const add = document.createElement('div');
+        add.className = 'ramp-item ramp-new';
+        add.textContent = '＋ ' + tr('新增自訂色帶');
+        add.addEventListener('click', ev => {
+          ev.stopPropagation();
+          openRampEditor(gmNodes[0].params.preset, null, key => applyKey(key));
+          pop.remove();
+        });
+        pop.appendChild(add);
         row.appendChild(pop);
       });
       row.appendChild(bar);
@@ -1048,6 +1181,13 @@ const UI = (() => {
       lines.push('      ],');
     }
     lines.push('    },');
+    // 自訂色帶:附上色標資料,配方貼到別處也能重建
+    for (const n of g.nodes.values()) {
+      if (n.type === 'gradientMap' && n.params.preset && n.params.preset.startsWith('u_') && GRADS[n.params.preset]) {
+        const gr = GRADS[n.params.preset];
+        lines.push('    // 自訂色帶 ' + n.params.preset + ' (' + gr.zh.replace('🎨 ', '') + '): ' + JSON.stringify(gr.raw || rampToHexStops(n.params.preset)));
+      }
+    }
     const text = lines.join('\n');
     console.log(text);
     const btn = document.getElementById('btn-recipe');
@@ -1219,6 +1359,7 @@ const UI = (() => {
     perfEl = document.getElementById('perf');
     initTheme();
     applyStaticLang();
+    loadCustomRamps();
     buildReel();
     initSimpleResizes();
     setTimeout(renderReelThumbs, 400);   // 等首個範本渲染完成再背景鋪縮圖

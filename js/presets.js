@@ -315,7 +315,7 @@ const Presets = (() => {
         ['mx3', 'blend', 800, 270, { mode: 'max', opacity: 0.8 }],
         ['halo', 'shape', 800, 480, { type: 'ring', size: 1.35, width: 0.16, soft: 0.1 }],
         ['ad', 'blend', 990, 340, { mode: 'add', opacity: 0.3 }],
-        ['grad', 'gradientMap', 1180, 340, { preset: 'ice', steps: 4 }],
+        ['grad', 'gradientMap', 1180, 340, { preset: 'celIce', steps: 4 }],
         ['glow', 'glow', 1370, 340, { threshold: 0.35, radius: 6, intensity: 1.6 }],
         ['out', 'output', 1560, 340],
       ],
@@ -1304,7 +1304,7 @@ const Presets = (() => {
       nodes: [
         ['dots', 'tileSampler', 40, 40, { pattern: 'gauss', count: 7, size: 1.5, sizeRand: 0.4, posRand: 0.8, briRand: 0.4, coverage: 0.85, seed: 5 }],
         ['bl', 'blur', 230, 40, { mode: 'gauss', amount: 2.5 }],
-        ['grad', 'gradientMap', 420, 40, { preset: 'gold', steps: 4 }],
+        ['grad', 'gradientMap', 420, 40, { preset: 'celGold', steps: 4 }],
         ['glow', 'glow', 610, 40, { threshold: 0.35, radius: 5, intensity: 1.5 }],
         ['out', 'output', 800, 40],
       ],
@@ -1480,7 +1480,7 @@ const Presets = (() => {
         ['fw', 'warp', 940, 40, { mode: 'grad', intensity: 1.4 }],
         // 五、標準化 + 上色(冷色調:深紫→亮藍)
         ['al', 'autoLevels', 1120, 40, { amount: 0.9 }],
-        ['grad', 'gradientMap', 1300, 40, { preset: 'ice', steps: 0, alphaGain: 4 }],
+        ['grad', 'gradientMap', 1300, 40, { preset: 'celIce', steps: 0, alphaGain: 4 }],
         ['out', 'output', 1480, 40],
       ],
       links: [
@@ -1530,7 +1530,7 @@ const Presets = (() => {
         ['al', 'autoLevels', 2180, 40, { amount: 1 }],
         ['tf', 'transform', 2280, 40, { sx: 1.3, sy: 1.3, tiling: false }],
         // 七、上色(熔岩橘紅)
-        ['grad', 'gradientMap', 2360, 40, { preset: 'fire', steps: 0, alphaGain: 4 }],
+        ['grad', 'gradientMap', 2360, 40, { preset: 'celFire', steps: 0, alphaGain: 4 }],
         ['out', 'output', 2540, 40],
       ],
       links: [
@@ -1591,7 +1591,7 @@ const Presets = (() => {
         ['hadd', 'blend', 1960, 40, { mode: 'add', opacity: 0.12 }],
         // 七、標準化 + 上色(黑紅橘 餘燼)
         ['al', 'autoLevels', 2140, 40, { amount: 1 }],
-        ['grad', 'gradientMap', 2320, 40, { preset: 'ember', steps: 0, alphaGain: 4 }],
+        ['grad', 'gradientMap', 2320, 40, { preset: 'celBlood', steps: 0, alphaGain: 4 }],
         ['out', 'output', 2500, 40],
       ],
       links: [
