@@ -1802,11 +1802,11 @@ const Presets = (() => {
         ['esc', 'histogramScan', 973, -307, { pos: 0.55, contrast: 0.3 }],
         ['isub', 'blend', 1208, -137, { mode: 'sub', opacity: 0.3 }],
         // 斑塊侵蝕:硬切色塊再減一層,製造撕裂斑
-        ['xn', 'perlin', 1268, -441, { scale: 5 }],
+        ['xn', 'perlin', 1265, -441, { octaves: 3, gain: 0.53, seed: 7672 }],
         ['xsc', 'histogramScan', 1483, -424, { pos: 0.57, contrast: 1 }],
         ['xsub', 'blend', 1764, -287, { mode: 'sub' }],
         // 發光:模糊層與斑塊層 Max 合成
-        ['gb', 'blur', 1630, 43, { amount: 3.8 }],
+        ['gb', 'blur', 1869, 26, { amount: 3.8 }],
         ['glow', 'blend', 2006, -223, {}],
         ['grad', 'gradientMap', 2190, -96, { alphaGain: 4 }],
         ['out', 'output', 2406, -83],
@@ -1817,7 +1817,7 @@ const Presets = (() => {
         ['bites', 'erode'], ['sc', 'erode', 1],
         ['en', 'esc'], ['esc', 'isub'], ['erode', 'isub', 1],
         ['xn', 'xsc'], ['xsc', 'xsub'], ['isub', 'xsub', 1],
-        ['isub', 'gb'],
+        ['xsub', 'gb'],
         ['xsub', 'glow'], ['gb', 'glow', 1],
         ['glow', 'grad'], ['grad', 'out'],
       ],
