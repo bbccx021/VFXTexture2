@@ -319,6 +319,19 @@ const Editor = (() => {
           if (temp.out && !oOut) ok = App.graph.addLink(temp.nodeId, oNode, oIdx);
           else if (!temp.out && oOut) ok = App.graph.addLink(oNode, temp.nodeId, temp.portIdx);
           if (ok) { App.history.commit(snap); App.onGraphChanged(); }
+        } else if (temp.out && t && t.closest && t.closest('.node')) {
+          // 拖到節點本體放開 → 接到第一個「空的」輸入口(全滿則替換主輸入)
+          const el2 = t.closest('.node');
+          const oNode = +el2.id.replace('node-', '');
+          const def2 = NodeDefs[App.graph.nodes.get(oNode)?.type];
+          if (def2 && def2.inputs && def2.inputs.length && oNode !== temp.nodeId) {
+            let port = 0;
+            for (let i = 0; i < def2.inputs.length; i++) {
+              if (!App.graph.links.some(l => l.to === oNode && l.toPort === i)) { port = i; break; }
+            }
+            const snap = App.history.capture();
+            if (App.graph.addLink(temp.nodeId, oNode, port)) { App.history.commit(snap); App.onGraphChanged(); }
+          }
         } else {
           // 拖到空白畫布放開 → 開「新增並自動連接」選單
           const overCanvas = t && t.closest && t.closest('#viewport') && !t.closest('.node');

@@ -1108,7 +1108,9 @@ const UI = (() => {
     m.querySelectorAll('.cm-node').forEach(el => el.addEventListener('click', () => {
       const node = addNodeAt(el.dataset.type, world.x + 75, world.y + 66, false); // addNodeAt 會扣回節點半寬高
       if (connectFrom && node) {
-        if (connectFrom.out) App.graph.addLink(connectFrom.nodeId, node.id, 0);
+        // Blend 預設接「背景」口:串鏈時原結果當底、前景留給新圖層(sub/normal 語意才正確)
+        const inPort = node.type === 'blend' ? 1 : 0;
+        if (connectFrom.out) App.graph.addLink(connectFrom.nodeId, node.id, inPort);
         else App.graph.addLink(node.id, connectFrom.nodeId, connectFrom.portIdx);
         Editor.drawWires();
         App.onGraphChanged();
