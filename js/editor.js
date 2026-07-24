@@ -26,8 +26,25 @@ const Editor = (() => {
     layer = document.getElementById('nodes-layer');
     applyView();
 
-    // ---- 平移 ----
+    // ---- 觸控:單指平移、雙指縮放(手機以瀏覽為主,不啟用框選)----
+    const touches = new Map();
+    let pinch = null;   // { dist0, mid0, view0 }
     vp.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'touch') {
+        if (e.target !== vp && e.target !== world && e.target !== svg && e.target !== layer) return;
+        e.preventDefault();
+        touches.set(e.pointerId, { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y });
+        if (touches.size === 2) {
+          const [p1, p2] = [...touches.values()];
+          pinch = {
+            dist0: Math.hypot(p1.x - p2.x, p1.y - p2.y),
+            mid0: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 },
+            view0: { x: view.x, y: view.y, z: view.z },
+          };
+        }
+        return;
+      }
+      // ---- 滑鼠:框選 / 平移 ----
       if (e.target !== vp && e.target !== world && e.target !== svg && e.target !== layer) return;
       const sx = e.clientX, sy = e.clientY, ox = view.x, oy = view.y;
       let moved = false;
@@ -79,6 +96,49 @@ const Editor = (() => {
       };
       window.addEventListener('pointermove', mv);
       window.addEventListener('pointerup', up);
+    });
+
+    // 觸控移動/結束
+    window.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'touch' || !touches.has(e.pointerId)) return;
+      const t = touches.get(e.pointerId);
+      t.cx = e.clientX; t.cy = e.clientY;
+      if (touches.size === 1 && !pinch) {
+        view.x = t.vx + (e.clientX - t.x);
+        view.y = t.vy + (e.clientY - t.y);
+        applyView();
+      } else if (touches.size === 2 && pinch) {
+        const vals = [...touches.values()];
+        const ax = vals[0].cx ?? vals[0].x, ay = vals[0].cy ?? vals[0].y;
+        const bx = vals[1].cx ?? vals[1].x, by = vals[1].cy ?? vals[1].y;
+        const dist = Math.hypot(ax - bx, ay - by);
+        const mid = { x: (ax + bx) / 2, y: (ay + by) / 2 };
+        const z = Filters.clamp(pinch.view0.z * dist / Math.max(1, pinch.dist0), 0.25, 2.5);
+        // 縮放錨定在雙指中點,並跟隨中點平移
+        const r = vp.getBoundingClientRect();
+        const m0 = { x: pinch.mid0.x - r.left, y: pinch.mid0.y - r.top };
+        const m1 = { x: mid.x - r.left, y: mid.y - r.top };
+        view.z = z;
+        view.x = m1.x - (m0.x - pinch.view0.x) * (z / pinch.view0.z);
+        view.y = m1.y - (m0.y - pinch.view0.y) * (z / pinch.view0.z);
+        applyView();
+      }
+    }, { passive: false });
+    const touchEnd = e => {
+      if (e.pointerType !== 'touch') return;
+      touches.delete(e.pointerId);
+      if (touches.size < 2) pinch = null;
+      if (touches.size === 1) {   // 從雙指回到單指:重定平移基準
+        const t = [...touches.values()][0];
+        t.x = t.cx ?? t.x; t.y = t.cy ?? t.y; t.vx = view.x; t.vy = view.y;
+      }
+    };
+    window.addEventListener('pointerup', touchEnd);
+    window.addEventListener('pointercancel', touchEnd);
+
+    // 雙擊空白畫布 = 全覽(手機雙擊置中特別實用)
+    vp.addEventListener('dblclick', e => {
+      if (e.target === vp || e.target === world || e.target === svg || e.target === layer) fitView();
     });
 
     // ---- 縮放 ----
