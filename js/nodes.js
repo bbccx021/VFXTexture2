@@ -793,8 +793,8 @@ const NodeDefs = {
       { k: 'style', label: '繪製樣式', t: 'sel', def: 'solid', opts: [['solid', '實心 Solid'], ['gradient', '漸層 Gradient'], ['gmirror', '鏡像漸層 Mirrored'], ['line', '線條 Line']] },
       { k: 'scale', label: '高度縮放', t: 'f', def: 1, min: 0.1, max: 1.5, step: 0.01 },
       { k: 'base', label: '高度位移', t: 'f', def: 0, min: 0, max: 0.9, step: 0.01 },
-      { k: 'lineW', label: '線條粗細(px)', t: 'f', def: 3, min: 1, max: 24, step: 0.5, show: p => p.style === 'line' },
-      { k: 'soft', label: '邊緣柔度(px)', t: 'f', def: 1.5, min: 0.5, max: 24, step: 0.5 },
+      { k: 'lineW', label: '線條粗細', t: 'f', def: 3, min: 1, max: 24, step: 0.5, show: p => p.style === 'line' },
+      { k: 'soft', label: '邊緣柔度', t: 'f', def: 1.5, min: 0.5, max: 24, step: 0.5 },
       { k: 'flip', label: '翻轉方向', t: 'b', def: false },
       { k: 'invert', label: '黑白反轉', t: 'b', def: false },
     ],
@@ -812,7 +812,10 @@ const NodeDefs = {
         const ry = Math.min(H - 1, Math.max(0, Math.round(p.row * (H - 1))));
         for (let x = 0; x < W; x++) prof[x] = Filters.clamp01(p.base + src[ry * W + x] * p.scale);
       }
-      const k = across / Math.max(0.5, p.soft);   // 填充邊緣的抗鋸齒斜率
+      // px 參數以 256 解析度為基準換算 → 任何預覽/輸出解析度外觀一致
+      const pxRef = across / 256;
+      const softPx = p.soft * pxRef, lineWPx = p.lineW * pxRef;
+      const k = across / Math.max(0.5, softPx);   // 填充邊緣的抗鋸齒斜率
       for (let y = 0; y < H; y++) {
         for (let x = 0; x < W; x++) {
           const h = prof[vert ? y : x];
@@ -822,7 +825,7 @@ const NodeDefs = {
           let v;
           if (p.style === 'line') {
             const dist = Math.abs(h - u) * across;
-            v = Filters.clamp01((p.lineW / 2 + p.soft / 2 - dist) / Math.max(0.25, p.soft));
+            v = Filters.clamp01((lineWPx / 2 + softPx / 2 - dist) / Math.max(0.25, softPx));
           } else {
             const fill = Filters.clamp01((h - u) * k + 0.5);
             if (p.style === 'solid') v = fill;
